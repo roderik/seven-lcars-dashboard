@@ -624,6 +624,7 @@
                     'assigned': 'Assigned',
                     'in_progress': 'In Progress',
                     'review': 'Review',
+                    'peer_review': 'Peer Review',
                     'done': 'Done'
                 };
                 
@@ -1101,7 +1102,7 @@
                     return;
                 }
 
-                const columns = this.tasksData.columns || ['inbox', 'assigned', 'in_progress', 'review', 'done'];
+                const columns = this.tasksData.columns || ['inbox', 'assigned', 'in_progress', 'review', 'peer_review', 'done'];
                 const tasks = this.tasksData.tasks;
                 const agents = this.tasksData.agents || {};
 
@@ -1110,6 +1111,7 @@
                     'assigned': 'text-lcars-sky',
                     'in_progress': 'text-lcars-blue',
                     'review': 'text-lcars-orange',
+                    'peer_review': 'text-lcars-gold',
                     'done': 'text-lcars-green'
                 };
 
@@ -1533,7 +1535,11 @@
 
             formatTimeAgo(ts) {
                 if (!ts) return '--';
-                const diff = Date.now() - new Date(ts).getTime();
+                const date = new Date(ts);
+                const time = date.getTime();
+                if (isNaN(time)) return '--';
+                const diff = Date.now() - time;
+                if (diff < 0) return 'future';
                 const mins = Math.floor(diff / 60000);
                 if (mins < 1) return 'now';
                 if (mins < 60) return `${mins}m`;
@@ -1544,7 +1550,11 @@
 
             formatDuration(startedAt) {
                 if (!startedAt) return '--';
-                const diff = Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000);
+                const date = new Date(startedAt);
+                const time = date.getTime();
+                if (isNaN(time)) return '--';
+                const diff = Math.floor((Date.now() - time) / 1000);
+                if (diff < 0) return '--';
                 if (diff < 60) return `${diff}s`;
                 if (diff < 3600) return `${Math.floor(diff / 60)}m`;
                 if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
@@ -1910,11 +1920,16 @@
         }
 
         function formatMessageTime(ts) {
-            const diff = Date.now() - new Date(ts).getTime();
+            if (!ts) return '--';
+            const date = new Date(ts);
+            const time = date.getTime();
+            if (isNaN(time)) return '--';
+            const diff = Date.now() - time;
+            if (diff < 0) return '--';
             if (diff < 60000) return 'now';
             if (diff < 3600000) return Math.floor(diff / 60000) + 'm';
             if (diff < 86400000) return Math.floor(diff / 3600000) + 'h';
-            return new Date(ts).toLocaleDateString();
+            return date.toLocaleDateString();
         }
 
         function escapeHtml(text) {
