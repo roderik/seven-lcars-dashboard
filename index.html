@@ -488,6 +488,9 @@
                     <button class="task-modal-tab flex-1 py-2 px-3 bg-transparent border-none text-lcars-tan font-bold text-sm uppercase tracking-wider cursor-pointer relative hover:text-lcars-orange" data-tab="activity" onclick="switchTaskTab('activity')">
                         Activity <span id="activity-count" class="inline-flex items-center justify-center min-w-[16px] h-4 px-1 bg-lcars-violet text-black rounded-lg text-xs ml-1">0</span>
                     </button>
+                    <button class="task-modal-tab flex-1 py-2 px-3 bg-transparent border-none text-lcars-tan font-bold text-sm uppercase tracking-wider cursor-pointer relative hover:text-lcars-orange" data-tab="files" onclick="switchTaskTab('files')">
+                        Files <span id="files-count" class="inline-flex items-center justify-center min-w-[16px] h-4 px-1 bg-lcars-sky text-black rounded-lg text-xs ml-1">0</span>
+                    </button>
                 </div>
                 
                 <div id="tab-comments" class="task-tab-content">
@@ -501,6 +504,12 @@
                 <div id="tab-activity" class="task-tab-content hidden">
                     <div id="activity-log-list" class="max-h-[200px] overflow-y-auto">
                         <div class="text-center text-lcars-violet text-sm py-5">No activity logged yet</div>
+                    </div>
+                </div>
+                
+                <div id="tab-files" class="task-tab-content hidden">
+                    <div id="files-list" class="max-h-[200px] overflow-y-auto">
+                        <div class="text-center text-lcars-violet text-sm py-5">No files modified by this task</div>
                     </div>
                 </div>
             </div>
@@ -941,9 +950,32 @@
             };
 
             getAgentStatus(key) {
+                // PRIORITY 1: Check work-loop active workers (most reliable source)
+                const workLoop = this.bridgeData?.workLoop;
+                const activeWorkers = workLoop?.activeWorkers || {};
+                if (activeWorkers[key] && activeWorkers[key].taskId) {
+                    // Agent is actively processing in work-loop
+                    const complexity = activeWorkers[key].complexity;
+                    if (complexity === 'qc-review' || key === 'data') return 'thinking';
+                    if (key === 'spock') return 'researching';
+                    return 'building';
+                }
+                
+                // PRIORITY 2: Check bridge data for crew status (includes work-loop task info)
+                const crew = this.bridgeData?.crew?.[key];
+                const crewStatus = crew?.status?.toUpperCase();
+                const workLoopTask = crew?.workLoopTask;
+                
+                // If bridge data shows work-loop task, agent is active
+                if (workLoopTask && workLoopTask.taskId) {
+                    if (workLoopTask.complexity === 'qc-review' || key === 'data') return 'thinking';
+                    if (key === 'spock') return 'researching';
+                    return 'building';
+                }
+                
                 // Check for active sessions (sub-agents)
                 const hasActiveSubagent = this.sessionsData?.subagents?.some(s => 
-                    s.label?.toLowerCase().includes(key) || s.session?.includes(key)
+                    s.label?.toLowerCase().includes(key) || s.session?.includes(key) || s.crew === key
                 );
                 
                 // Check if agent has active tasks
@@ -969,10 +1001,6 @@
                     return Date.now() - actTime < 300000;
                 });
                 
-                // Check bridge data for crew status
-                const crew = this.bridgeData?.crew?.[key];
-                const crewStatus = crew?.status?.toUpperCase();
-                
                 // Determine nuanced state
                 if (crewStatus === 'OFFLINE') return 'offline';
                 
@@ -987,7 +1015,7 @@
                 if (allActivity.includes('search') || allActivity.includes('research') || allActivity.includes('web') || allActivity.includes('fetch')) {
                     return 'researching';
                 }
-                if (allActivity.includes('think') || allActivity.includes('plan') || allActivity.includes('evaluat')) {
+                if (allActivity.includes('think') || allActivity.includes('plan') || allActivity.includes('evaluat') || allActivity.includes('review')) {
                     return 'thinking';
                 }
                 if (allActivity.includes('wait') || allActivity.includes('blocked') || allActivity.includes('pending')) {
@@ -997,9 +1025,10 @@
                     return 'building';
                 }
                 
-                // Fallback to crew status
+                // Fallback to crew status from bridge data
                 if (['ACTIVE', 'BUILDING', 'PROCESSING'].includes(crewStatus)) return 'building';
                 if (['RESEARCHING', 'SEARCHING'].includes(crewStatus)) return 'researching';
+                if (['REVIEWING'].includes(crewStatus)) return 'thinking';
                 if (['TRADING', 'MONITORING'].includes(crewStatus)) return 'building';
                 if (crewStatus === 'WAITING') return 'waiting';
                 
@@ -1010,7 +1039,22 @@
             }
 
             getAgentTaskCount(key) {
-                return (this.tasksData?.tasks || []).filter(t => t.assignee === key && t.status !== 'done').length;
+                // Regular assigned tasks
+                const assignedTasks = (this.tasksData?.tasks || []).filter(t => t.assignee === key && t.status !== 'done').length;
+                
+                // For Data (QC), also count pending review tasks
+                if (key === 'data') {
+                    const pendingReviews = this.bridgeData?.crew?.data?.pendingReviews || 0;
+                    return assignedTasks + pendingReviews;
+                }
+                
+                // Check if agent has active work-loop task
+                const workLoopTask = this.bridgeData?.crew?.[key]?.workLoopTask;
+                if (workLoopTask && workLoopTask.taskId && assignedTasks === 0) {
+                    return 1; // At least 1 task if work-loop shows active
+                }
+                
+                return assignedTasks;
             }
 
             renderAgents() {
@@ -1032,11 +1076,15 @@
                         thinking: { label: 'THINKING', class: 'agent-state thinking' },
                         building: { label: 'BUILDING', class: 'agent-state building' },
                         researching: { label: 'RESEARCHING', class: 'agent-state researching' },
+                        reviewing: { label: 'REVIEWING', class: 'agent-state thinking' },
                         waiting: { label: 'WAITING', class: 'agent-state waiting' },
                         idle: { label: 'IDLE', class: 'agent-state idle' },
                         offline: { label: 'OFFLINE', class: 'agent-state offline' }
                     };
                     const statusInfo = statusConfig[status] || statusConfig.idle;
+                    
+                    // Get work-loop task info if available
+                    const workLoopTask = crewData.workLoopTask;
                     
                     // Generate platform badges
                     const platformBadges = platforms.map(p => 
@@ -1056,6 +1104,11 @@
                             <div class="flex flex-wrap gap-0.5 mb-1.5">
                                 ${platformBadges}
                             </div>
+                            ${workLoopTask ? `
+                            <div class="text-xs text-lcars-teal mt-1 mb-1 pl-1 truncate" title="${workLoopTask.taskId}">
+                                ⚡ ${workLoopTask.taskId.substring(0, 25)}...
+                            </div>
+                            ` : ''}
                             <div class="flex justify-between text-xs text-lcars-sky mt-1.5 pt-1.5 border-t border-white/10">
                                 <span>Tasks: <span class="font-bold text-lcars-gold">${taskCount}</span></span>
                                 ${crewData.efficiency !== undefined ? `<span>Eff: <span class="font-bold text-lcars-gold">${crewData.efficiency}%</span></span>` : ''}
@@ -1144,13 +1197,25 @@
                     low: 'bg-lcars-violet'
                 };
                 
+                // File badges for tasks with modified files
+                const fileCount = task.fileCount || (task.files ? task.files.length : 0);
+                const hasLockedFiles = task.files && task.files.some(f => f.locked);
+                const fileBadge = fileCount > 0 ? `
+                    <div class="flex items-center gap-0.5 px-1 py-0.5 rounded-sm text-xs ${hasLockedFiles ? 'bg-status-alert/30 text-status-alert' : 'bg-lcars-sky/20 text-lcars-sky'}" title="${task.files ? task.files.map(f => f.name + (f.locked ? ' 🔒' : '')).join(', ') : ''}">
+                        ${hasLockedFiles ? '🔒' : '📄'} ${fileCount}
+                    </div>
+                ` : '';
+                
                 return `
                     <div class="task-card bg-lcars-panel border border-lcars-tan rounded-lg p-2 mb-1.5 cursor-pointer transition-all relative hover:-translate-y-0.5 hover:shadow-[0_4px_15px_rgba(255,153,0,0.2)]" data-task-id="${task.id}"
                          draggable="true"
                          ondragstart="cc.dragTask(event, '${task.id}')"
                          onclick="cc.openTask('${task.id}')">
                         <div class="absolute top-0 left-0 w-[3px] h-full rounded-l-lg ${priorityColors[task.priority] || priorityColors.medium}"></div>
-                        <div class="text-sm font-semibold text-lcars-gold mb-1 pl-1.5">${this.escapeHtml(task.title)}</div>
+                        <div class="flex items-center justify-between mb-1 pl-1.5">
+                            <div class="text-sm font-semibold text-lcars-gold flex-1">${this.escapeHtml(task.title)}</div>
+                            ${fileBadge}
+                        </div>
                         <div class="text-xs text-lcars-violet mb-1.5 pl-1.5 line-clamp-2">${this.escapeHtml(task.description || '')}</div>
                         <div class="flex items-center justify-between pl-1.5">
                             ${agent ? `
@@ -1435,6 +1500,30 @@
                 const logCount = (task.logs || []).length;
                 if (logCount > 0) {
                     document.getElementById('modal-task-title').innerHTML = `${this.escapeHtml(task.title)} <span class="text-xs text-lcars-gold ml-2">(${logCount} activity entries)</span>`;
+                }
+                
+                // Files tab
+                const files = task.files || [];
+                document.getElementById('files-count').textContent = files.length;
+                
+                if (files.length > 0) {
+                    const filesHtml = files.map(f => {
+                        const lockIcon = f.locked ? `<span class="text-status-alert" title="Locked by ${f.lockedBy}">🔒</span>` : '<span class="text-lcars-sky">📄</span>';
+                        const lockInfo = f.locked ? `<span class="text-xs text-status-alert ml-2">Locked by ${f.lockedBy}</span>` : '';
+                        return `
+                            <div class="flex items-center gap-2 p-2 bg-black/30 rounded-lg mb-2 ${f.locked ? 'border border-status-alert/30' : ''}">
+                                ${lockIcon}
+                                <div class="flex-1">
+                                    <div class="text-sm text-lcars-gold font-mono">${f.name}</div>
+                                    <div class="text-xs text-lcars-violet truncate" title="${f.path}">${f.path}</div>
+                                </div>
+                                ${lockInfo}
+                            </div>
+                        `;
+                    }).join('');
+                    document.getElementById('files-list').innerHTML = filesHtml;
+                } else {
+                    document.getElementById('files-list').innerHTML = '<div class="text-center text-lcars-violet text-sm py-5">No files modified by this task</div>';
                 }
                 
                 switchTaskTab('activity'); // Show activity by default

@@ -52,7 +52,14 @@ const cache = {
 
 function getCached(key, fetchFn) {
   const now = Date.now();
-  const entry = cache[key];
+  let entry = cache[key];
+  
+  // Create cache entry if it doesn't exist
+  if (!entry) {
+    cache[key] = { data: null, lastUpdate: 0, ttl: 30000 };
+    entry = cache[key];
+  }
+  
   if (entry.data && (now - entry.lastUpdate) < entry.ttl) {
     return entry.data;
   }
@@ -169,6 +176,26 @@ function getQuarkData() {
     sparkline: [100],
     streak: { count: 0, type: null }
   };
+}
+
+// Get work-loop state with active workers
+function getWorkLoopState() {
+  const statePath = join(process.env.HOME, '.openclaw/crew/work-loop-state.json');
+  try {
+    if (existsSync(statePath)) {
+      const state = JSON.parse(readFileSync(statePath, 'utf-8'));
+      return {
+        status: state.status || 'stopped',
+        activeWorkers: state.activeWorkers || {},
+        stats: state.stats || {},
+        queue: state.queue || [],
+        lastUpdated: state.lastUpdated
+      };
+    }
+  } catch (e) {
+    log('DEBUG', 'Work-loop state read failed:', { error: e.message });
+  }
+  return { status: 'stopped', activeWorkers: {}, stats: {}, queue: [] };
 }
 
 // Get Git status for a directory with caching
@@ -338,7 +365,7 @@ function getDefaultTasks() {
   return {
     version: "1.0",
     lastUpdated: new Date().toISOString(),
-    columns: ["inbox", "assigned", "in_progress", "review", "done"],
+    columns: ["inbox", "assigned", "in_progress", "review", "peer_review", "done"],
     tasks: [],
     activity: [],
     agents: {
@@ -918,46 +945,74 @@ function getSystemStats() {
 // Gather all bridge data with performance optimizations
 async function gatherBridgeData() {
   // Use cached data where available, fetch in parallel where needed
-  const [sessions, quarkData, emailCounts, workspaceGit, skillsGit, worktrees, systemStats] = await Promise.all([
+  const [sessions, quarkData, emailCounts, workspaceGit, skillsGit, worktrees, systemStats, workLoopState] = await Promise.all([
     getSessions().catch(() => []),
     Promise.resolve(getQuarkData()), // Already cached
     Promise.resolve(getEmailCounts()), // Already has async update
     Promise.resolve(getGitStatus(WORKSPACE_DIR, 'workspace')),
     Promise.resolve(getGitStatus(SKILLS_DIR, 'skills')),
     Promise.resolve(getWorktrees()),
-    Promise.resolve(getSystemStats())
+    Promise.resolve(getSystemStats()),
+    Promise.resolve(getWorkLoopState()) // Add work-loop state
   ]);
   
   const { crew: crewActivity, totalRunning, totalSessions } = analyzeCrewActivity(sessions);
   const totalEmails = emailCounts.vanderveer.inbox + emailCounts.settlemint.inbox;
+  
+  // Get active workers from work-loop state (key is agent name, value has taskId)
+  const activeWorkers = workLoopState.activeWorkers || {};
+  
+  // Helper to check if agent is actively processing in work-loop
+  const isAgentActive = (agentName) => {
+    return activeWorkers[agentName] && activeWorkers[agentName].taskId;
+  };
+  
+  // Helper to get active task info for an agent
+  const getActiveTaskInfo = (agentName) => {
+    const worker = activeWorkers[agentName];
+    if (!worker) return null;
+    return {
+      taskId: worker.taskId,
+      startedAt: worker.startedAt,
+      model: worker.model,
+      complexity: worker.complexity
+    };
+  };
+  
+  // Count QC review tasks pending for Data
+  const tasksData = loadTasks();
+  const qcReviewTasks = (tasksData?.tasks || []).filter(t => t.status === 'review').length;
   
   return {
     timestamp: new Date().toISOString(),
     stardate: calculateStardate(),
     system: systemStats,
     sessions: sessions,
+    workLoop: workLoopState, // Include full work-loop state
     crew: {
       seven: {
-        status: totalRunning > 0 ? 'ACTIVE' : 'STANDBY',
+        status: isAgentActive('seven') ? 'ACTIVE' : (totalRunning > 0 ? 'ACTIVE' : 'STANDBY'),
         role: 'Command',
         description: 'Main Agent',
         activeTasks: crewActivity.seven.active,
         tasks: crewActivity.seven.tasks,
         totalSessions: totalSessions,
         runningSessions: totalRunning,
-        efficiency: Math.min(100, 95 + Math.random() * 5).toFixed(1)
+        efficiency: Math.min(100, 95 + Math.random() * 5).toFixed(1),
+        workLoopTask: getActiveTaskInfo('seven')
       },
       spock: {
-        status: crewActivity.spock.active > 0 ? 'RESEARCHING' : 'STANDBY',
+        status: isAgentActive('spock') ? 'RESEARCHING' : (crewActivity.spock.active > 0 ? 'RESEARCHING' : 'STANDBY'),
         role: 'Science',
         description: 'Research & Analysis',
         activeTasks: crewActivity.spock.active,
         tasks: crewActivity.spock.tasks,
-        efficiency: '99.7'
+        efficiency: '99.7',
+        workLoopTask: getActiveTaskInfo('spock')
       },
       geordi: {
-        status: crewActivity.geordi.active > 0 ? 'BUILDING' :
-                (workspaceGit.modified > 0 ? 'MONITORING' : 'STANDBY'),
+        status: isAgentActive('geordi') ? 'BUILDING' : (crewActivity.geordi.active > 0 ? 'BUILDING' :
+                (workspaceGit.modified > 0 ? 'MONITORING' : 'STANDBY')),
         role: 'Engineering',
         description: 'Development & Ops',
         activeTasks: crewActivity.geordi.active,
@@ -968,11 +1023,12 @@ async function gatherBridgeData() {
         },
         worktrees: worktrees,
         totalModified: workspaceGit.modified + skillsGit.modified,
-        totalCommitsToday: workspaceGit.commitsToday + skillsGit.commitsToday
+        totalCommitsToday: workspaceGit.commitsToday + skillsGit.commitsToday,
+        workLoopTask: getActiveTaskInfo('geordi')
       },
       uhura: {
-        status: crewActivity.uhura.active > 0 ? 'PROCESSING' :
-                (totalEmails > 0 ? 'MONITORING' : 'STANDBY'),
+        status: isAgentActive('uhura') ? 'PROCESSING' : (crewActivity.uhura.active > 0 ? 'PROCESSING' :
+                (totalEmails > 0 ? 'MONITORING' : 'STANDBY')),
         role: 'Communications',
         description: 'Email & Messages',
         activeTasks: crewActivity.uhura.active,
@@ -981,12 +1037,23 @@ async function gatherBridgeData() {
           vanderveer: emailCounts.vanderveer,
           settlemint: emailCounts.settlemint,
           total: totalEmails
-        }
+        },
+        workLoopTask: getActiveTaskInfo('uhura')
       },
       quark: {
         ...quarkData,
         role: 'Trading',
-        description: 'Crypto Trading'
+        description: 'Crypto Trading',
+        workLoopTask: getActiveTaskInfo('quark')
+      },
+      data: {
+        status: isAgentActive('data') ? 'REVIEWING' : (qcReviewTasks > 0 ? 'MONITORING' : 'STANDBY'),
+        role: 'Quality Control',
+        description: 'QC & Review',
+        activeTasks: qcReviewTasks,
+        pendingReviews: qcReviewTasks,
+        efficiency: '100.0',
+        workLoopTask: getActiveTaskInfo('data')
       }
     }
   };
@@ -1202,9 +1269,50 @@ const httpServer = createServer(async (req, res) => {
   // TASKS API - Full CRUD
   // ═══════════════════════════════════════════════════════════════
   
-  // GET /api/tasks - List all tasks
+  // GET /api/tasks - List all tasks (enriched with git-locks file data)
   if (req.url === '/api/tasks' && req.method === 'GET') {
     const tasksData = loadTasks();
+    
+    // Enrich tasks with file/lock data from git-locks
+    try {
+      const gitLocksStateFile = join(process.env.HOME, '.openclaw/crew/.locks/git-locks-state.json');
+      if (existsSync(gitLocksStateFile)) {
+        const gitState = JSON.parse(readFileSync(gitLocksStateFile, 'utf8'));
+        const taskFiles = gitState.taskFiles || {};
+        const locks = gitState.locks || {};
+        
+        // Add files property to each task
+        tasksData.tasks = tasksData.tasks.map(task => {
+          const files = taskFiles[task.id] || [];
+          // Check if any of the files are currently locked
+          const filesWithLockStatus = files.map(filepath => {
+            const lock = locks[filepath];
+            const basename = filepath.split('/').pop();
+            return {
+              path: filepath,
+              name: basename,
+              locked: !!lock,
+              lockedBy: lock ? lock.agent : null
+            };
+          });
+          return {
+            ...task,
+            files: filesWithLockStatus,
+            fileCount: files.length
+          };
+        });
+        
+        // Add global lock stats to response
+        tasksData.gitLocks = {
+          totalLocks: Object.keys(locks).length,
+          activeConflicts: (gitState.conflicts || []).filter(c => !c.resolved).length,
+          stats: gitState.stats || {}
+        };
+      }
+    } catch (e) {
+      log('DEBUG', 'Git-locks enrichment failed:', { error: e.message });
+    }
+    
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(tasksData));
     return;
@@ -2022,50 +2130,31 @@ ${cleanMessage}
 🖖 Engage.
       `.trim();
       
-      // Use OpenClaw CLI to route to agent
+      // @mention routing returns the routing info
+      // Actual routing is handled by Seven's main session
+      // This API provides the metadata needed for the routing logic
+      
       const label = config.sessionLabel;
       const model = config.model;
+      const sessionKey = `agent:main:subagent:${label}`;
       
-      try {
-        // Route via openclaw agent --agent (spawns a new turn for the named agent)
-        // The agent responds back to main session automatically
-        const spawnCmd = [
-          'openclaw', 'agent',
-          '--agent', targetAgent,
-          '--message', JSON.stringify(agentTask),
-          '--deliver',  // Deliver response back to the source channel
-          '--json'
-        ].join(' ');
-        
-        const result = execSync(spawnCmd, { encoding: 'utf8', timeout: 60000 });
-        
-        log('INFO', '@mention routed to agent:', { agent: targetAgent });
-        
-        // Parse result if it's JSON
-        let parsedResult = result;
-        try {
-          parsedResult = JSON.parse(result);
-        } catch {}
-        
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-          success: true,
-          agent: targetAgent,
-          sessionKey: `agent:main:subagent:${label}`,
-          model,
-          message: cleanMessage,
-          response: parsedResult
-        }));
-      } catch (error) {
-        log('ERROR', '@mention routing failed:', { agent: targetAgent, error: error.message });
-        res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-          success: false,
-          agent: targetAgent,
-          sessionKey: `agent:main:subagent:${label}`,
-          error: error.message
-        }));
-      }
+      log('INFO', '@mention routing info prepared:', { agent: targetAgent, sessionKey });
+      
+      // Return routing information for Seven's main session to process
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        success: true,
+        agent: targetAgent,
+        sessionKey,
+        sessionLabel: label,
+        model,
+        message: cleanMessage,
+        routingType: 'direct_mention',
+        instructions: `Route this message to agent session: ${sessionKey}`,
+        // The actual session spawning is done by Seven's main session
+        // when it detects the @mention pattern in incoming messages
+        readyForRouting: true
+      }));
     } catch (e) {
       res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: e.message }));
