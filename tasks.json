@@ -1,0 +1,127 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-01-31T12:00:00Z",
+  "columns": ["inbox", "assigned", "in_progress", "review", "done"],
+  "tasks": [
+    {
+      "id": "task-001",
+      "title": "LCARS Dashboard Enhancement",
+      "description": "Add sophisticated Task and Agent Management System with three-panel layout",
+      "status": "in_progress",
+      "assignee": "geordi",
+      "category": "engineering",
+      "priority": "high",
+      "createdAt": "2025-01-31T10:00:00Z",
+      "updatedAt": "2025-01-31T12:00:00Z",
+      "comments": [
+        {
+          "id": "c1",
+          "author": "seven",
+          "text": "Captain has requested this enhancement. High priority.",
+          "timestamp": "2025-01-31T10:05:00Z"
+        }
+      ]
+    },
+    {
+      "id": "task-002",
+      "title": "Email Triage System",
+      "description": "Implement intelligent email sorting with priority detection",
+      "status": "assigned",
+      "assignee": "uhura",
+      "category": "communications",
+      "priority": "medium",
+      "createdAt": "2025-01-31T09:00:00Z",
+      "updatedAt": "2025-01-31T09:00:00Z",
+      "comments": []
+    },
+    {
+      "id": "task-003",
+      "title": "Research: Agentic Workflows",
+      "description": "Investigate best practices for multi-agent coordination patterns",
+      "status": "review",
+      "assignee": "spock",
+      "category": "research",
+      "priority": "medium",
+      "createdAt": "2025-01-30T14:00:00Z",
+      "updatedAt": "2025-01-31T08:00:00Z",
+      "comments": []
+    },
+    {
+      "id": "task-004",
+      "title": "Trading Strategy Optimization",
+      "description": "Analyze recent trades and optimize entry/exit conditions",
+      "status": "inbox",
+      "assignee": null,
+      "category": "trading",
+      "priority": "low",
+      "createdAt": "2025-01-31T11:00:00Z",
+      "updatedAt": "2025-01-31T11:00:00Z",
+      "comments": []
+    }
+  ],
+  "activity": [
+    {
+      "id": "act-001",
+      "type": "task",
+      "action": "created",
+      "agent": "seven",
+      "taskId": "task-001",
+      "taskTitle": "LCARS Dashboard Enhancement",
+      "timestamp": "2025-01-31T10:00:00Z"
+    },
+    {
+      "id": "act-002",
+      "type": "status",
+      "action": "assigned",
+      "agent": "seven",
+      "taskId": "task-001",
+      "target": "geordi",
+      "timestamp": "2025-01-31T10:02:00Z"
+    },
+    {
+      "id": "act-003",
+      "type": "comment",
+      "action": "added",
+      "agent": "seven",
+      "taskId": "task-001",
+      "timestamp": "2025-01-31T10:05:00Z"
+    }
+  ],
+  "agents": {
+    "seven": {
+      "name": "Seven of Nine",
+      "role": "Number One",
+      "department": "CMD",
+      "badges": ["LEAD"],
+      "color": "#cc99cc"
+    },
+    "geordi": {
+      "name": "Geordi La Forge",
+      "role": "Chief Engineer",
+      "department": "ENG",
+      "badges": ["SPC"],
+      "color": "#9999ff"
+    },
+    "uhura": {
+      "name": "Nyota Uhura",
+      "role": "Comms Officer",
+      "department": "COM",
+      "badges": [],
+      "color": "#cc6699"
+    },
+    "spock": {
+      "name": "Spock",
+      "role": "Science Officer",
+      "department": "SCI",
+      "badges": ["SPC"],
+      "color": "#99cc99"
+    },
+    "quark": {
+      "name": "Quark",
+      "role": "Trade Advisor",
+      "department": "TRD",
+      "badges": [],
+      "color": "#ffcc99"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * LCARS Bridge Dashboard v6 - Enhanced Visual Experience
+ * LCARS Bridge Dashboard v7 - Task & Agent Management
  * Real-time WebSocket server for USS Enterprise bridge crew
  * 
  * Features:
@@ -10,13 +10,15 @@
  * - Git status and worktrees
  * - System metrics with network/Docker
  * - Full session/agent introspection
+ * - Task Management System (Kanban)
+ * - Live Activity Feed
  * - Robust error handling
  * - Logging and monitoring
  */
 
 import { WebSocketServer, WebSocket } from 'ws';
 import { createServer } from 'http';
-import { readFileSync, existsSync, watchFile, statSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, watchFile, statSync } from 'fs';
 import { execSync, exec } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -31,6 +33,7 @@ const UPDATE_INTERVAL = 5000;
 const QUARK_PORTFOLIO = join(process.env.HOME, '.openclaw/workspace/quark/portfolio.json');
 const WORKSPACE_DIR = join(process.env.HOME, '.openclaw/workspace');
 const SKILLS_DIR = join(process.env.HOME, '.openclaw/skills');
+const TASKS_FILE = join(__dirname, 'tasks.json');
 
 // Store connected clients
 const clients = new Set();
@@ -241,6 +244,183 @@ async function updateEmailCountsAsync() {
     );
   } catch (e) {}
 }
+
+// ═══════════════════════════════════════════════════════════════
+// TASK MANAGEMENT SYSTEM
+// ═══════════════════════════════════════════════════════════════
+
+// Load tasks from file
+function loadTasks() {
+  try {
+    if (existsSync(TASKS_FILE)) {
+      return JSON.parse(readFileSync(TASKS_FILE, 'utf-8'));
+    }
+  } catch (e) {
+    log('ERROR', 'Error loading tasks:', { error: e.message });
+  }
+  return getDefaultTasks();
+}
+
+// Save tasks to file
+function saveTasks(tasksData) {
+  try {
+    tasksData.lastUpdated = new Date().toISOString();
+    writeFileSync(TASKS_FILE, JSON.stringify(tasksData, null, 2));
+    log('INFO', 'Tasks saved successfully');
+    return true;
+  } catch (e) {
+    log('ERROR', 'Error saving tasks:', { error: e.message });
+    return false;
+  }
+}
+
+// Get default tasks structure
+function getDefaultTasks() {
+  return {
+    version: "1.0",
+    lastUpdated: new Date().toISOString(),
+    columns: ["inbox", "assigned", "in_progress", "review", "done"],
+    tasks: [],
+    activity: [],
+    agents: {
+      seven: { name: "Seven of Nine", role: "Number One", department: "CMD", badges: ["LEAD"], color: "#cc99cc" },
+      geordi: { name: "Geordi La Forge", role: "Chief Engineer", department: "ENG", badges: ["SPC"], color: "#9999ff" },
+      uhura: { name: "Nyota Uhura", role: "Comms Officer", department: "COM", badges: [], color: "#cc6699" },
+      spock: { name: "Spock", role: "Science Officer", department: "SCI", badges: ["SPC"], color: "#99cc99" },
+      quark: { name: "Quark", role: "Trade Advisor", department: "TRD", badges: [], color: "#ffcc99" }
+    }
+  };
+}
+
+// Generate unique ID
+function generateId(prefix = 'item') {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+// Update a task
+function updateTask(taskId, updates) {
+  const tasksData = loadTasks();
+  const taskIndex = tasksData.tasks.findIndex(t => t.id === taskId);
+  
+  if (taskIndex === -1) {
+    log('WARN', 'Task not found:', { taskId });
+    return null;
+  }
+  
+  const oldTask = tasksData.tasks[taskIndex];
+  const updatedTask = { ...oldTask, ...updates, updatedAt: new Date().toISOString() };
+  tasksData.tasks[taskIndex] = updatedTask;
+  
+  // Add activity for status changes
+  if (updates.status && updates.status !== oldTask.status) {
+    tasksData.activity.push({
+      id: generateId('act'),
+      type: 'status',
+      action: 'moved',
+      agent: 'system',
+      taskId: taskId,
+      taskTitle: updatedTask.title,
+      from: oldTask.status,
+      to: updates.status,
+      timestamp: new Date().toISOString()
+    });
+  }
+  
+  saveTasks(tasksData);
+  return updatedTask;
+}
+
+// Add a comment to a task
+function addTaskComment(taskId, author, text) {
+  const tasksData = loadTasks();
+  const taskIndex = tasksData.tasks.findIndex(t => t.id === taskId);
+  
+  if (taskIndex === -1) {
+    log('WARN', 'Task not found for comment:', { taskId });
+    return null;
+  }
+  
+  const comment = {
+    id: generateId('c'),
+    author: author,
+    text: text,
+    timestamp: new Date().toISOString()
+  };
+  
+  if (!tasksData.tasks[taskIndex].comments) {
+    tasksData.tasks[taskIndex].comments = [];
+  }
+  tasksData.tasks[taskIndex].comments.push(comment);
+  tasksData.tasks[taskIndex].updatedAt = new Date().toISOString();
+  
+  // Add activity
+  tasksData.activity.push({
+    id: generateId('act'),
+    type: 'comment',
+    action: 'added',
+    agent: author,
+    taskId: taskId,
+    taskTitle: tasksData.tasks[taskIndex].title,
+    timestamp: new Date().toISOString()
+  });
+  
+  saveTasks(tasksData);
+  return comment;
+}
+
+// Create a new task
+function createTask(title, description, assignee = null, category = 'general', priority = 'medium') {
+  const tasksData = loadTasks();
+  
+  const task = {
+    id: generateId('task'),
+    title: title,
+    description: description,
+    status: assignee ? 'assigned' : 'inbox',
+    assignee: assignee,
+    category: category,
+    priority: priority,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    comments: []
+  };
+  
+  tasksData.tasks.push(task);
+  
+  // Add activity
+  tasksData.activity.push({
+    id: generateId('act'),
+    type: 'task',
+    action: 'created',
+    agent: 'system',
+    taskId: task.id,
+    taskTitle: task.title,
+    timestamp: new Date().toISOString()
+  });
+  
+  if (assignee) {
+    tasksData.activity.push({
+      id: generateId('act'),
+      type: 'status',
+      action: 'assigned',
+      agent: 'system',
+      taskId: task.id,
+      target: assignee,
+      timestamp: new Date().toISOString()
+    });
+  }
+  
+  saveTasks(tasksData);
+  return task;
+}
+
+// Broadcast tasks to all clients
+function broadcastTasks() {
+  const tasksData = loadTasks();
+  broadcast({ type: 'tasks_update', data: tasksData });
+}
+
+// ═══════════════════════════════════════════════════════════════
 
 // Analyze crew activity from sessions
 function analyzeCrewActivity(sessions) {
@@ -537,6 +717,28 @@ const httpServer = createServer((req, res) => {
     return;
   }
   
+  // API endpoint for tasks
+  if (req.url === '/api/tasks') {
+    const tasksData = loadTasks();
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(tasksData));
+    return;
+  }
+  
+  // Mission control route
+  if (req.url === '/mission' || req.url === '/mission/') {
+    try {
+      const missionFile = join(__dirname, 'mission.html');
+      if (existsSync(missionFile)) {
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end(readFileSync(missionFile));
+        return;
+      }
+    } catch (e) {
+      log('ERROR', 'Mission page error:', { error: e.message });
+    }
+  }
+  
   let filePath = join(__dirname, req.url === '/' ? 'index.html' : req.url);
   
   try {
@@ -576,10 +778,14 @@ wss.on('connection', async (ws, req) => {
   const clientIP = req.socket.remoteAddress;
   log('INFO', `Client connected from ${clientIP}. Total: ${clients.size}`);
   
-  // Send initial data
+  // Send initial data (bridge + tasks)
   try {
     const data = await gatherBridgeData();
     ws.send(JSON.stringify({ type: 'init', data }));
+    
+    // Also send task data
+    const tasksData = loadTasks();
+    ws.send(JSON.stringify({ type: 'tasks', data: tasksData }));
   } catch (e) {
     log('ERROR', 'Error sending init data:', { error: e.message });
   }
@@ -587,10 +793,57 @@ wss.on('connection', async (ws, req) => {
   ws.on('message', (message) => {
     try {
       const msg = JSON.parse(message);
-      if (msg.type === 'ping') {
-        ws.send(JSON.stringify({ type: 'pong' }));
+      
+      switch (msg.type) {
+        case 'ping':
+          ws.send(JSON.stringify({ type: 'pong' }));
+          break;
+          
+        case 'refresh':
+          gatherBridgeData().then(data => {
+            ws.send(JSON.stringify({ type: 'update', data }));
+          });
+          break;
+          
+        case 'get_tasks':
+          const tasksData = loadTasks();
+          ws.send(JSON.stringify({ type: 'tasks', data: tasksData }));
+          break;
+          
+        case 'update_task':
+          if (msg.taskId && msg.updates) {
+            const updated = updateTask(msg.taskId, msg.updates);
+            if (updated) {
+              broadcastTasks();
+              log('INFO', 'Task updated:', { taskId: msg.taskId, updates: msg.updates });
+            }
+          }
+          break;
+          
+        case 'add_comment':
+          if (msg.taskId && msg.text) {
+            const comment = addTaskComment(msg.taskId, msg.author || 'system', msg.text);
+            if (comment) {
+              broadcastTasks();
+              log('INFO', 'Comment added:', { taskId: msg.taskId });
+            }
+          }
+          break;
+          
+        case 'create_task':
+          if (msg.title) {
+            const task = createTask(msg.title, msg.description, msg.assignee, msg.category, msg.priority);
+            broadcastTasks();
+            log('INFO', 'Task created:', { taskId: task.id, title: task.title });
+          }
+          break;
+          
+        default:
+          log('DEBUG', 'Unknown message type:', { type: msg.type });
       }
-    } catch (e) {}
+    } catch (e) {
+      log('ERROR', 'Message handling error:', { error: e.message });
+    }
   });
   
   ws.on('close', () => {
@@ -647,28 +900,41 @@ if (existsSync(QUARK_PORTFOLIO)) {
   });
 }
 
+// Watch tasks file for external changes
+if (existsSync(TASKS_FILE)) {
+  watchFile(TASKS_FILE, { interval: 2000 }, () => {
+    log('INFO', 'Tasks file changed - broadcasting update');
+    broadcastTasks();
+  });
+}
+
 // Start server
 httpServer.listen(PORT, '0.0.0.0', () => {
   console.log(`
-╔══════════════════════════════════════════════════════════════════╗
-║         LCARS BRIDGE DASHBOARD v6 - ENHANCED EXPERIENCE          ║
-╠══════════════════════════════════════════════════════════════════╣
-║  Status:     ▓▓▓▓▓▓▓▓▓▓ ONLINE                                   ║
-║  Port:       ${PORT}                                                 ║
-║  HTTP:       http://localhost:${PORT}                                ║
-║  WebSocket:  ws://localhost:${PORT}                                  ║
-║  Health:     http://localhost:${PORT}/health                         ║
-║  API:        http://localhost:${PORT}/api/data                       ║
-╠══════════════════════════════════════════════════════════════════╣
-║  Data Sources:                                                   ║
-║  • Quark: Portfolio & trade history                              ║
-║  • Uhura: Email counts (vanderveer + settlemint)                 ║
-║  • Spock: Research sessions                                      ║
-║  • Geordi: Git status & worktrees                                ║
-║  • Seven: OpenClaw sessions & activity                           ║
-║  • Sessions: Full agent introspection                            ║
-║  • System: CPU, Memory, Disk, Network, Docker                    ║
-╚══════════════════════════════════════════════════════════════════╝
+╔═══════════════════════════════════════════════════════════════════╗
+║       LCARS BRIDGE DASHBOARD v7 - TASK & AGENT MANAGEMENT         ║
+╠═══════════════════════════════════════════════════════════════════╣
+║  Status:     ▓▓▓▓▓▓▓▓▓▓ ONLINE                                    ║
+║  Port:       ${PORT}                                                  ║
+║  HTTP:       http://localhost:${PORT}                                 ║
+║  WebSocket:  ws://localhost:${PORT}                                   ║
+║  Health:     http://localhost:${PORT}/health                          ║
+║  Bridge:     http://localhost:${PORT}/                                ║
+║  Mission:    http://localhost:${PORT}/mission                         ║
+╠═══════════════════════════════════════════════════════════════════╣
+║  API Endpoints:                                                   ║
+║  • /api/data    - Bridge dashboard data                           ║
+║  • /api/tasks   - Task management data                            ║
+╠═══════════════════════════════════════════════════════════════════╣
+║  Data Sources:                                                    ║
+║  • Quark: Portfolio & trade history                               ║
+║  • Uhura: Email counts (vanderveer + settlemint)                  ║
+║  • Spock: Research sessions                                       ║
+║  • Geordi: Git status & worktrees                                 ║
+║  • Seven: OpenClaw sessions & activity                            ║
+║  • Tasks: Mission queue & activity feed                           ║
+║  • System: CPU, Memory, Disk, Network, Docker                     ║
+╚═══════════════════════════════════════════════════════════════════╝
   `);
   updateLoop();
 });
