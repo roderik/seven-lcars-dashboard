@@ -227,7 +227,7 @@ async function getSessions() {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 3000);
     
-    const response = await fetch('http://127.0.0.1:4000/api/sessions', { 
+    const response = await fetch('http://127.0.0.1:18789/api/sessions', { 
       signal: controller.signal 
     });
     clearTimeout(timeout);
@@ -1125,6 +1125,36 @@ const httpServer = createServer(async (req, res) => {
         return `${Math.floor(hours / 24)}d`;
       };
       
+      // Try to get crew names from running work-loop processes
+      let processCrewMap = {};
+      try {
+        const psOutput = execSync('ps aux | grep "openclaw agent" | grep workloop | grep -v grep', { encoding: 'utf8', timeout: 2000 });
+        const lines = psOutput.split('\n').filter(l => l.trim());
+        for (const line of lines) {
+          // Extract session-id and crew name from: --session-id "workloop-<crew>-task-..."
+          const sessionMatch = line.match(/--session-id\s+"?workloop-(\w+)-task-(\d+)/);
+          if (sessionMatch) {
+            const crew = sessionMatch[1];
+            const taskPrefix = sessionMatch[2];
+            // Map task prefix to crew name
+            processCrewMap[taskPrefix] = crew;
+          }
+        }
+      } catch (e) {}
+      
+      // Cross-reference with tasks to get crew names
+      const tasksData = loadTasks();
+      const taskAssignees = {};
+      (tasksData.tasks || []).forEach(t => {
+        if (t.assignee && t.id) {
+          // Extract numeric prefix from task ID (e.g., task-1769858335746-geordi -> 1769858335)
+          const match = t.id.match(/task-(\d+)/);
+          if (match) {
+            taskAssignees[match[1].substring(0, 10)] = t.assignee;
+          }
+        }
+      });
+      
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         total: data.count || sessions.length,
@@ -1132,9 +1162,19 @@ const httpServer = createServer(async (req, res) => {
         runningCrons: crons.length,
         subagents: subagents.map(s => {
           const uuid = s.key.split(':').pop();
+          const shortId = uuid.substring(0, 8);
+          // Try to find crew name from process map or tasks
+          let crewName = null;
+          for (const [prefix, crew] of Object.entries(processCrewMap)) {
+            if (s.key.includes(prefix) || s.sessionId?.includes(prefix)) {
+              crewName = crew;
+              break;
+            }
+          }
           return {
             key: s.key,
-            label: uuid.substring(0, 8), // Short UUID as label
+            label: crewName || shortId,
+            crew: crewName,
             fullId: uuid,
             model: s.model || 'unknown',
             age: formatAge(s.ageMs),
