@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LCARS • Bridge Status</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖖</text></svg>">
+    <style>
+        /* ═══════════════════════════════════════════════════════════════
+           LCARS DESIGN SYSTEM v5 - Production Ready
+           Authentic Star Trek LCARS color palette and design language
+           ═══════════════════════════════════════════════════════════════ */
+        
+        @import url('https://fonts.googleapis.com/css2?family=Antonio:wght@400;500;700&display=swap');
+        
+        :root {
+            /* Authentic LCARS Colors */
+            --lcars-orange: #ff9900;
+            --lcars-gold: #ffcc99;
+            --lcars-tan: #cc9966;
+            --lcars-peach: #ffcc66;
+            --lcars-purple: #cc99cc;
+            --lcars-violet: #9999cc;
+            --lcars-blue: #9999ff;
+            --lcars-sky: #99ccff;
+            --lcars-red: #cc6666;
+            --lcars-pink: #cc6699;
+            --lcars-green: #99cc99;
+            --lcars-teal: #66cccc;
+            --lcars-white: #ffffcc;
+            --lcars-bg: #000000;
+            --lcars-text: #ff9900;
+            
+            /* Semantic colors */
+            --status-active: #99ff99;
+            --status-warning: #ffcc00;
+            --status-alert: #ff6666;
+            --status-offline: #666666;
+            
+            /* Layout */
+            --sidebar-width: 180px;
+            --header-height: 80px;
+            --elbow-size: 40px;
+            --border-radius: 25px;
+            --gap: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--lcars-bg);
+            color: var(--lcars-text);
+            font-family: 'Antonio', 'Helvetica Neue', Arial, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           LCARS Frame Structure
+           ═══════════════════════════════════════════════════════════════ */
+        
+        .lcars-frame {
+            display: grid;
+            grid-template-columns: var(--sidebar-width) 1fr;
+            grid-template-rows: var(--header-height) 1fr auto;
+            min-height: 100vh;
+            gap: 0;
+        }
+
+        /* Header Bar */
+        .lcars-header {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: stretch;
+            background: var(--lcars-bg);
+            position: relative;
+        }
+
+        .header-elbow {
+            width: var(--sidebar-width);
+            background: var(--lcars-tan);
+            border-radius: 0 0 var(--border-radius) 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--lcars-bg);
+            letter-spacing: 2px;
+        }
+
+        .header-bar {
+            flex: 1;
+            display: flex;
+            align-items: stretch;
+            gap: 4px;
+            padding-left: 4px;
+        }
+
+        .header-segment {
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--lcars-bg);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header-segment.purple { background: var(--lcars-purple); flex: 1; }
+        .header-segment.blue { background: var(--lcars-blue); flex: 2; }
+        .header-segment.sky { background: var(--lcars-sky); flex: 1; }
+        .header-segment.peach { 
+            background: var(--lcars-peach); 
+            flex: 3;
+            justify-content: flex-end;
+            border-radius: 0 0 0 var(--border-radius);
+        }
+
+        .header-title {
+            background: var(--lcars-bg);
+            color: var(--lcars-peach);
+            padding: 0 30px;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-end {
+            width: 60px;
+            background: var(--lcars-orange);
+            border-radius: 0 0 0 50px;
+        }
+
+        /* Sidebar */
+        .lcars-sidebar {
+            background: var(--lcars-bg);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding-top: 4px;
+        }
+
+        .sidebar-button {
+            background: var(--lcars-tan);
+            height: 50px;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--lcars-bg);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: filter 0.2s;
+        }
+
+        .sidebar-button:hover {
+            filter: brightness(1.2);
+        }
+
+        .sidebar-button.purple { background: var(--lcars-purple); }
+        .sidebar-button.blue { background: var(--lcars-blue); }
+        .sidebar-button.green { background: var(--lcars-green); }
+        .sidebar-button.orange { background: var(--lcars-orange); }
+        .sidebar-button.sky { background: var(--lcars-sky); }
+
+        .sidebar-spacer {
+            flex: 1;
+            background: var(--lcars-tan);
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            min-height: 100px;
+        }
+
+        .sidebar-elbow-bottom {
+            background: var(--lcars-tan);
+            height: var(--elbow-size);
+            border-radius: 0 0 0 var(--border-radius);
+        }
+
+        /* Main Content */
+        .lcars-main {
+            padding: var(--gap);
+            padding-left: var(--gap);
+            overflow-y: auto;
+        }
+
+        /* Footer */
+        .lcars-footer {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: stretch;
+            background: var(--lcars-bg);
+            height: 60px;
+            gap: 4px;
+        }
+
+        .footer-elbow {
+            width: var(--sidebar-width);
+            background: var(--lcars-tan);
+            border-radius: 0 var(--border-radius) 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--lcars-bg);
+        }
+
+        .footer-bar {
+            flex: 1;
+            display: flex;
+            gap: 4px;
+            padding-left: 4px;
+        }
+
+        .footer-segment {
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--lcars-bg);
+        }
+
+        .footer-segment.purple { background: var(--lcars-purple); flex: 1; border-radius: var(--border-radius) 0 0 0; }
+        .footer-segment.blue { background: var(--lcars-blue); flex: 1; }
+        .footer-segment.orange { background: var(--lcars-orange); flex: 2; }
+        .footer-segment.peach { background: var(--lcars-peach); flex: 1; border-radius: 0 0 0 var(--border-radius); }
+
+        /* ═══════════════════════════════════════════════════════════════
+           Crew Panels
+           ═══════════════════════════════════════════════════════════════ */
+        
+        .panels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: var(--gap);
+        }
+
+        .crew-panel {
+            background: rgba(20, 20, 30, 0.9);
+            border: 2px solid var(--lcars-tan);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: stretch;
+            height: 45px;
+            gap: 4px;
+        }
+
+        .panel-color-bar {
+            width: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--lcars-bg);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .panel-title-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .panel-name {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .panel-status {
+            padding: 4px 12px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-active { background: var(--status-active); color: #000; }
+        .status-standby { background: var(--lcars-violet); color: #000; }
+        .status-monitoring { background: var(--lcars-sky); color: #000; }
+        .status-building { background: var(--lcars-blue); color: #000; }
+        .status-researching { background: var(--lcars-green); color: #000; }
+        .status-processing { background: var(--lcars-pink); color: #000; }
+        .status-trading { background: var(--status-warning); color: #000; animation: pulse 1s infinite; }
+        .status-offline { background: var(--status-offline); color: #fff; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .panel-content {
+            padding: 15px;
+        }
+
+        .panel-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .metric {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid var(--lcars-tan);
+        }
+
+        .metric-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--lcars-gold);
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .metric-value.positive { color: var(--status-active); }
+        .metric-value.negative { color: var(--status-alert); }
+
+        .metric-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .metric-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+
+        .fill-orange { background: var(--lcars-orange); }
+        .fill-purple { background: var(--lcars-purple); }
+        .fill-blue { background: var(--lcars-blue); }
+        .fill-green { background: var(--lcars-green); }
+        .fill-red { background: var(--status-alert); }
+        .fill-gold { background: var(--lcars-gold); }
+
+        /* Panel specific colors */
+        .panel-seven { border-color: var(--lcars-purple); }
+        .panel-seven .panel-color-bar { background: var(--lcars-purple); }
+        .panel-seven .panel-name { color: var(--lcars-purple); }
+        .panel-seven .metric { border-color: var(--lcars-purple); }
+
+        .panel-spock { border-color: var(--lcars-green); }
+        .panel-spock .panel-color-bar { background: var(--lcars-green); }
+        .panel-spock .panel-name { color: var(--lcars-green); }
+        .panel-spock .metric { border-color: var(--lcars-green); }
+
+        .panel-geordi { border-color: var(--lcars-blue); }
+        .panel-geordi .panel-color-bar { background: var(--lcars-blue); }
+        .panel-geordi .panel-name { color: var(--lcars-blue); }
+        .panel-geordi .metric { border-color: var(--lcars-blue); }
+
+        .panel-uhura { border-color: var(--lcars-pink); }
+        .panel-uhura .panel-color-bar { background: var(--lcars-pink); }
+        .panel-uhura .panel-name { color: var(--lcars-pink); }
+        .panel-uhura .metric { border-color: var(--lcars-pink); }
+
+        .panel-quark { border-color: var(--lcars-gold); }
+        .panel-quark .panel-color-bar { background: var(--lcars-gold); }
+        .panel-quark .panel-name { color: var(--lcars-gold); }
+        .panel-quark .metric { border-color: var(--lcars-gold); }
+
+        .panel-system { border-color: var(--lcars-sky); }
+        .panel-system .panel-color-bar { background: var(--lcars-sky); }
+        .panel-system .panel-name { color: var(--lcars-sky); }
+        .panel-system .metric { border-color: var(--lcars-sky); }
+
+        /* Sparkline Chart */
+        .sparkline-container {
+            grid-column: 1 / -1;
+            height: 60px;
+            margin-top: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 8px;
+            position: relative;
+        }
+
+        .sparkline {
+            width: 100%;
+            height: 100%;
+        }
+
+        .sparkline-label {
+            position: absolute;
+            top: 4px;
+            right: 8px;
+            font-size: 9px;
+            color: var(--lcars-gold);
+            text-transform: uppercase;
+        }
+
+        /* Trade History */
+        .trades-list {
+            grid-column: 1 / -1;
+            max-height: 120px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 8px;
+            margin-top: 8px;
+        }
+
+        .trade-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 11px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .trade-item:last-child {
+            border-bottom: none;
+        }
+
+        .trade-direction {
+            width: 40px;
+            text-align: center;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 700;
+        }
+
+        .trade-direction.up { background: var(--status-active); color: #000; }
+        .trade-direction.down { background: var(--status-alert); color: #000; }
+
+        .trade-result {
+            width: 40px;
+            text-align: center;
+        }
+
+        .trade-result.win { color: var(--status-active); }
+        .trade-result.loss { color: var(--status-alert); }
+
+        .trade-profit {
+            flex: 1;
+            text-align: right;
+            font-weight: 700;
+        }
+
+        /* Task List */
+        .task-list {
+            grid-column: 1 / -1;
+            margin-top: 8px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            margin-bottom: 4px;
+            font-size: 11px;
+        }
+
+        .task-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--status-active);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .task-label {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Git Status */
+        .git-info {
+            font-size: 11px;
+            color: var(--lcars-sky);
+        }
+
+        .git-branch {
+            display: inline-block;
+            padding: 2px 8px;
+            background: rgba(153, 204, 255, 0.2);
+            border-radius: 3px;
+            margin-right: 8px;
+        }
+
+        .git-modified {
+            color: var(--status-warning);
+        }
+
+        /* Email breakdown */
+        .email-breakdown {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .email-account {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .email-account-name {
+            font-size: 10px;
+            color: var(--lcars-gold);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .email-count {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        /* System Stats Row */
+        .system-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .system-stat {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .system-stat-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            color: var(--lcars-gold);
+            margin-bottom: 4px;
+        }
+
+        .system-stat-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        /* Connection Status */
+        .connection-status {
+            position: fixed;
+            bottom: 70px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .connection-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-connected {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--status-active);
+            color: var(--status-active);
+        }
+
+        .status-connected .connection-dot {
+            background: var(--status-active);
+            animation: blink 2s infinite;
+        }
+
+        .status-disconnected {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--status-alert);
+            color: var(--status-alert);
+        }
+
+        .status-disconnected .connection-dot {
+            background: var(--status-alert);
+        }
+
+        .status-connecting {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--status-warning);
+            color: var(--status-warning);
+        }
+
+        .status-connecting .connection-dot {
+            background: var(--status-warning);
+            animation: blink 0.5s infinite;
+        }
+
+        /* Pending Trade Alert */
+        .pending-trade {
+            grid-column: 1 / -1;
+            background: rgba(255, 204, 0, 0.1);
+            border: 1px solid var(--status-warning);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .pending-trade-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .pending-trade-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--status-warning);
+            text-transform: uppercase;
+        }
+
+        .pending-trade-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            font-size: 11px;
+        }
+
+        .pending-detail {
+            text-align: center;
+        }
+
+        .pending-detail-label {
+            color: var(--lcars-gold);
+            font-size: 9px;
+            text-transform: uppercase;
+        }
+
+        .pending-detail-value {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .lcars-frame {
+                grid-template-columns: 120px 1fr;
+            }
+            
+            .header-elbow, .footer-elbow {
+                width: 120px;
+            }
+            
+            .sidebar-button {
+                font-size: 10px;
+                padding: 0 10px;
+            }
+            
+            .panels-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .lcars-frame {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr auto;
+            }
+            
+            .lcars-sidebar {
+                display: none;
+            }
+            
+            .header-elbow, .footer-elbow {
+                display: none;
+            }
+            
+            .header-title {
+                font-size: 24px;
+                padding: 0 15px;
+            }
+            
+            .panel-metrics {
+                grid-template-columns: 1fr;
+            }
+            
+            .system-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--lcars-tan);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--lcars-orange);
+        }
+    </style>
+</head>
+<body>
+    <div class="lcars-frame">
+        <!-- Header -->
+        <div class="lcars-header">
+            <div class="header-elbow">LCARS 47.5</div>
+            <div class="header-bar">
+                <div class="header-segment purple" id="stardate">47085.2</div>
+                <div class="header-title">BRIDGE STATUS</div>
+                <div class="header-segment blue" id="clock">--:--:--</div>
+                <div class="header-segment sky" id="uptime">--</div>
+                <div class="header-end"></div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lcars-sidebar">
+            <div class="sidebar-button purple" onclick="scrollToPanel('seven')">SEVEN</div>
+            <div class="sidebar-button green" onclick="scrollToPanel('spock')">SPOCK</div>
+            <div class="sidebar-button blue" onclick="scrollToPanel('geordi')">GEORDI</div>
+            <div class="sidebar-button orange" onclick="scrollToPanel('uhura')">UHURA</div>
+            <div class="sidebar-button" onclick="scrollToPanel('quark')">QUARK</div>
+            <div class="sidebar-button sky" onclick="scrollToPanel('system')">SYSTEM</div>
+            <div class="sidebar-spacer"></div>
+            <div class="sidebar-elbow-bottom"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="lcars-main">
+            <div class="panels-grid">
+                
+                <!-- Seven of Nine Panel -->
+                <div class="crew-panel panel-seven" id="panel-seven">
+                    <div class="panel-header">
+                        <div class="panel-color-bar">CMD</div>
+                        <div class="panel-title-area">
+                            <div class="panel-name">Seven of Nine</div>
+                            <div class="panel-status status-standby" id="seven-status">STANDBY</div>
+                        </div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="panel-metrics">
+                            <div class="metric">
+                                <div class="metric-label">Active Sessions</div>
+                                <div class="metric-value" id="seven-sessions">0</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Efficiency</div>
+                                <div class="metric-value" id="seven-efficiency">0%</div>
+                                <div class="metric-bar">
+                                    <div class="metric-fill fill-purple" id="seven-efficiency-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="task-list" id="seven-tasks"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Spock Panel -->
+                <div class="crew-panel panel-spock" id="panel-spock">
+                    <div class="panel-header">
+                        <div class="panel-color-bar">SCI</div>
+                        <div class="panel-title-area">
+                            <div class="panel-name">Spock</div>
+                            <div class="panel-status status-standby" id="spock-status">STANDBY</div>
+                        </div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="panel-metrics">
+                            <div class="metric">
+                                <div class="metric-label">Research Tasks</div>
+                                <div class="metric-value" id="spock-tasks">0</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Logic Index</div>
+                                <div class="metric-value" id="spock-efficiency">99.7%</div>
+                                <div class="metric-bar">
+                                    <div class="metric-fill fill-green" style="width: 99.7%"></div>
+                                </div>
+                            </div>
+                            <div class="task-list" id="spock-task-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Geordi Panel -->
+                <div class="crew-panel panel-geordi" id="panel-geordi">
+                    <div class="panel-header">
+                        <div class="panel-color-bar">ENG</div>
+                        <div class="panel-title-area">
+                            <div class="panel-name">Geordi La Forge</div>
+                            <div class="panel-status status-standby" id="geordi-status">STANDBY</div>
+                        </div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="panel-metrics">
+                            <div class="metric">
+                                <div class="metric-label">Modified Files</div>
+                                <div class="metric-value" id="geordi-modified">0</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Commits Today</div>
+                                <div class="metric-value" id="geordi-commits">0</div>
+                            </div>
+                            <div class="task-list">
+                                <div class="git-info" id="geordi-git"></div>
+                            </div>
+                            <div class="task-list" id="geordi-tasks"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Uhura Panel -->
+                <div class="crew-panel panel-uhura" id="panel-uhura">
+                    <div class="panel-header">
+                        <div class="panel-color-bar">COM</div>
+                        <div class="panel-title-area">
+                            <div class="panel-name">Nyota Uhura</div>
+                            <div class="panel-status status-standby" id="uhura-status">STANDBY</div>
+                        </div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="panel-metrics">
+                            <div class="metric">
+                                <div class="metric-label">Total Unread</div>
+                                <div class="metric-value" id="uhura-total">0</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Comm Tasks</div>
+                                <div class="metric-value" id="uhura-tasks">0</div>
+                            </div>
+                            <div class="email-breakdown">
+                                <div class="email-account">
+                                    <div class="email-account-name">vanderveer.be</div>
+                                    <div class="email-count" id="uhura-vv">0</div>
+                                </div>
+                                <div class="email-account">
+                                    <div class="email-account-name">settlemint.com</div>
+                                    <div class="email-count" id="uhura-sm">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quark Panel -->
+                <div class="crew-panel panel-quark" id="panel-quark">
+                    <div class="panel-header">
+                        <div class="panel-color-bar">TRD</div>
+                        <div class="panel-title-area">
+                            <div class="panel-name">Quark</div>
+                            <div class="panel-status status-standby" id="quark-status">OFFLINE</div>
+                        </div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="panel-metrics">
+                            <div class="metric">
+                                <div class="metric-label">Balance</div>
+                                <div class="metric-value" id="quark-balance">$0.00</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">P&L</div>
+                                <div class="metric-value" id="quark-pnl">$0.00</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Win Rate</div>
+                                <div class="metric-value" id="quark-winrate">0%</div>
+                                <div class="metric-bar">
+                                    <div class="metric-fill fill-gold" id="quark-winrate-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Trades (W/L)</div>
+                                <div class="metric-value" id="quark-trades">0 (0/0)</div>
+                            </div>
+                            <div class="pending-trade" id="quark-pending" style="display: none;">
+                                <div class="pending-trade-header">
+                                    <span>⚡</span>
+                                    <span class="pending-trade-title">Active Trade</span>
+                                </div>
+                                <div class="pending-trade-details">
+                                    <div class="pending-detail">
+                                        <div class="pending-detail-label">Direction</div>
+                                        <div class="pending-detail-value" id="pending-direction">--</div>
+                                    </div>
+                                    <div class="pending-detail">
+                                        <div class="pending-detail-label">Entry</div>
+                                        <div class="pending-detail-value" id="pending-entry">--</div>
+                                    </div>
+                                    <div class="pending-detail">
+                                        <div class="pending-detail-label">Stake</div>
+                                        <div class="pending-detail-value" id="pending-stake">--</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sparkline-container">
+                                <div class="sparkline-label">Balance History</div>
+                                <canvas id="sparkline-canvas" class="sparkline"></canvas>
+                            </div>
+                            <div class="trades-list" id="quark-trades-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Panel -->
+                <div class="crew-panel panel-system" id="panel-system">
+                    <div class="panel-header">
+                        <div class="panel-color-bar">SYS</div>
+                        <div class="panel-title-area">
+                            <div class="panel-name">System Status</div>
+                            <div class="panel-status status-active" id="system-status">ONLINE</div>
+                        </div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="panel-metrics">
+                            <div class="metric">
+                                <div class="metric-label">CPU Usage</div>
+                                <div class="metric-value" id="sys-cpu">0%</div>
+                                <div class="metric-bar">
+                                    <div class="metric-fill fill-blue" id="sys-cpu-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Memory</div>
+                                <div class="metric-value" id="sys-mem">0%</div>
+                                <div class="metric-bar">
+                                    <div class="metric-fill fill-purple" id="sys-mem-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Disk</div>
+                                <div class="metric-value" id="sys-disk">0%</div>
+                                <div class="metric-bar">
+                                    <div class="metric-fill fill-orange" id="sys-disk-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Docker</div>
+                                <div class="metric-value" id="sys-docker">0</div>
+                            </div>
+                        </div>
+                        <div class="system-row" style="margin-top: 12px;">
+                            <div class="system-stat">
+                                <div class="system-stat-label">Load (1m)</div>
+                                <div class="system-stat-value" id="sys-load">0.00</div>
+                            </div>
+                            <div class="system-stat">
+                                <div class="system-stat-label">Net In</div>
+                                <div class="system-stat-value" id="sys-netin">0 KB/s</div>
+                            </div>
+                            <div class="system-stat">
+                                <div class="system-stat-label">Net Out</div>
+                                <div class="system-stat-value" id="sys-netout">0 KB/s</div>
+                            </div>
+                            <div class="system-stat">
+                                <div class="system-stat-label">Temp</div>
+                                <div class="system-stat-value" id="sys-temp">--</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="lcars-footer">
+            <div class="footer-elbow" id="footer-clients">0 CLIENTS</div>
+            <div class="footer-bar">
+                <div class="footer-segment purple" id="footer-status">INITIALIZING</div>
+                <div class="footer-segment blue" id="footer-version">v5.0</div>
+                <div class="footer-segment orange" id="footer-update">Last Update: --:--:--</div>
+                <div class="footer-segment peach" id="footer-uptime">Uptime: --</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connection Status Indicator -->
+    <div class="connection-status status-disconnected" id="connection-status">
+        <div class="connection-dot"></div>
+        <span id="connection-text">DISCONNECTED</span>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        // LCARS Bridge Dashboard v5 - Client
+        // ═══════════════════════════════════════════════════════════════
+
+        class LCARSDashboard {
+            constructor() {
+                this.ws = null;
+                this.reconnectAttempts = 0;
+                this.maxReconnectAttempts = 100;
+                this.reconnectDelay = 1000;
+                this.data = null;
+                this.sparklineData = [];
+                
+                this.connect();
+                this.startClock();
+            }
+
+            connect() {
+                this.updateConnectionStatus('connecting');
+                
+                try {
+                    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                    const wsUrl = `${wsProtocol}//${window.location.host}`;
+                    console.log('[LCARS] Connecting to:', wsUrl);
+                    
+                    this.ws = new WebSocket(wsUrl);
+                    
+                    this.ws.onopen = () => {
+                        console.log('[LCARS] Connected');
+                        this.reconnectAttempts = 0;
+                        this.updateConnectionStatus('connected');
+                        this.updateFooterStatus('ONLINE');
+                    };
+                    
+                    this.ws.onmessage = (event) => {
+                        try {
+                            const msg = JSON.parse(event.data);
+                            this.handleMessage(msg);
+                        } catch (e) {
+                            console.error('[LCARS] Parse error:', e);
+                        }
+                    };
+                    
+                    this.ws.onclose = () => {
+                        console.log('[LCARS] Disconnected');
+                        this.updateConnectionStatus('disconnected');
+                        this.updateFooterStatus('OFFLINE');
+                        this.scheduleReconnect();
+                    };
+                    
+                    this.ws.onerror = (error) => {
+                        console.error('[LCARS] WebSocket error');
+                    };
+                    
+                } catch (e) {
+                    console.error('[LCARS] Connection error:', e);
+                    this.scheduleReconnect();
+                }
+            }
+
+            scheduleReconnect() {
+                if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+                    console.log('[LCARS] Max reconnect attempts reached');
+                    return;
+                }
+                
+                this.reconnectAttempts++;
+                const delay = Math.min(this.reconnectDelay * Math.pow(1.5, this.reconnectAttempts - 1), 30000);
+                
+                console.log(`[LCARS] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`);
+                setTimeout(() => this.connect(), delay);
+            }
+
+            updateConnectionStatus(status) {
+                const el = document.getElementById('connection-status');
+                const text = document.getElementById('connection-text');
+                
+                el.className = `connection-status status-${status}`;
+                
+                switch (status) {
+                    case 'connected':
+                        text.textContent = 'CONNECTED';
+                        break;
+                    case 'disconnected':
+                        text.textContent = 'DISCONNECTED';
+                        break;
+                    case 'connecting':
+                        text.textContent = 'CONNECTING';
+                        break;
+                }
+            }
+
+            updateFooterStatus(status) {
+                document.getElementById('footer-status').textContent = status;
+            }
+
+            handleMessage(msg) {
+                if (msg.type === 'init' || msg.type === 'update' || msg.type === 'trade_update') {
+                    this.data = msg.data;
+                    this.render();
+                }
+            }
+
+            render() {
+                if (!this.data) return;
+                
+                const { crew, system, stardate, timestamp } = this.data;
+                
+                // Update stardate
+                document.getElementById('stardate').textContent = stardate;
+                
+                // Update footer
+                document.getElementById('footer-update').textContent = 
+                    `Last Update: ${new Date(timestamp).toLocaleTimeString()}`;
+                document.getElementById('footer-uptime').textContent = 
+                    `Uptime: ${system.uptime || '--'}`;
+                
+                // Render each crew member
+                this.renderSeven(crew.seven);
+                this.renderSpock(crew.spock);
+                this.renderGeordi(crew.geordi);
+                this.renderUhura(crew.uhura);
+                this.renderQuark(crew.quark);
+                this.renderSystem(system);
+            }
+
+            renderSeven(data) {
+                this.setStatus('seven-status', data.status);
+                document.getElementById('seven-sessions').textContent = data.runningSessions || 0;
+                document.getElementById('seven-efficiency').textContent = data.efficiency + '%';
+                document.getElementById('seven-efficiency-bar').style.width = data.efficiency + '%';
+                
+                const taskList = document.getElementById('seven-tasks');
+                taskList.innerHTML = '';
+                if (data.tasks && data.tasks.length > 0) {
+                    data.tasks.slice(0, 3).forEach(task => {
+                        taskList.innerHTML += `
+                            <div class="task-item">
+                                <div class="task-dot"></div>
+                                <div class="task-label">${this.escapeHtml(task.label)}</div>
+                            </div>
+                        `;
+                    });
+                }
+            }
+
+            renderSpock(data) {
+                this.setStatus('spock-status', data.status);
+                document.getElementById('spock-tasks').textContent = data.activeTasks || 0;
+                document.getElementById('spock-efficiency').textContent = data.efficiency + '%';
+                
+                const taskList = document.getElementById('spock-task-list');
+                taskList.innerHTML = '';
+                if (data.tasks && data.tasks.length > 0) {
+                    data.tasks.slice(0, 3).forEach(task => {
+                        taskList.innerHTML += `
+                            <div class="task-item">
+                                <div class="task-dot"></div>
+                                <div class="task-label">${this.escapeHtml(task.label)}</div>
+                            </div>
+                        `;
+                    });
+                }
+            }
+
+            renderGeordi(data) {
+                this.setStatus('geordi-status', data.status);
+                document.getElementById('geordi-modified').textContent = data.totalModified || 0;
+                document.getElementById('geordi-commits').textContent = data.totalCommitsToday || 0;
+                
+                // Git info
+                const gitInfo = document.getElementById('geordi-git');
+                if (data.git && data.git.workspace) {
+                    const ws = data.git.workspace;
+                    gitInfo.innerHTML = `
+                        <span class="git-branch">⎇ ${ws.branch}</span>
+                        ${ws.modified > 0 ? `<span class="git-modified">${ws.modified} modified</span>` : ''}
+                    `;
+                }
+                
+                // Tasks
+                const taskList = document.getElementById('geordi-tasks');
+                taskList.innerHTML = '';
+                if (data.tasks && data.tasks.length > 0) {
+                    data.tasks.slice(0, 3).forEach(task => {
+                        taskList.innerHTML += `
+                            <div class="task-item">
+                                <div class="task-dot"></div>
+                                <div class="task-label">${this.escapeHtml(task.label)}</div>
+                            </div>
+                        `;
+                    });
+                }
+            }
+
+            renderUhura(data) {
+                this.setStatus('uhura-status', data.status);
+                document.getElementById('uhura-total').textContent = data.inbox?.total || 0;
+                document.getElementById('uhura-tasks').textContent = data.activeTasks || 0;
+                document.getElementById('uhura-vv').textContent = data.inbox?.vanderveer?.inbox || 0;
+                document.getElementById('uhura-sm').textContent = data.inbox?.settlemint?.inbox || 0;
+            }
+
+            renderQuark(data) {
+                this.setStatus('quark-status', data.status);
+                
+                // Balance
+                document.getElementById('quark-balance').textContent = `$${(data.balance || 0).toFixed(2)}`;
+                
+                // P&L with color
+                const pnlEl = document.getElementById('quark-pnl');
+                const pnl = data.pnl || 0;
+                pnlEl.textContent = `${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)} (${data.pnlPercent || 0}%)`;
+                pnlEl.className = `metric-value ${pnl >= 0 ? 'positive' : 'negative'}`;
+                
+                // Win rate
+                const winRate = data.winRate || 0;
+                document.getElementById('quark-winrate').textContent = `${winRate}%`;
+                document.getElementById('quark-winrate-bar').style.width = `${winRate}%`;
+                
+                // Trades
+                document.getElementById('quark-trades').textContent = 
+                    `${data.trades || 0} (${data.wins || 0}/${data.losses || 0})`;
+                
+                // Pending trade
+                const pendingEl = document.getElementById('quark-pending');
+                if (data.pendingTrade) {
+                    pendingEl.style.display = 'block';
+                    document.getElementById('pending-direction').textContent = data.pendingTrade.direction;
+                    document.getElementById('pending-entry').textContent = 
+                        `$${(data.pendingTrade.entry_price || 0).toLocaleString()}`;
+                    document.getElementById('pending-stake').textContent = 
+                        `$${(data.pendingTrade.stake || 0).toFixed(2)}`;
+                } else {
+                    pendingEl.style.display = 'none';
+                }
+                
+                // Sparkline
+                if (data.sparkline && data.sparkline.length > 1) {
+                    this.drawSparkline(data.sparkline, data.startingBalance);
+                }
+                
+                // Recent trades
+                const tradesList = document.getElementById('quark-trades-list');
+                tradesList.innerHTML = '';
+                if (data.recentTrades && data.recentTrades.length > 0) {
+                    data.recentTrades.slice(0, 5).forEach(trade => {
+                        const dirClass = trade.direction === 'UP' ? 'up' : 'down';
+                        const resultClass = trade.result === 'WIN' ? 'win' : 'loss';
+                        tradesList.innerHTML += `
+                            <div class="trade-item">
+                                <span class="trade-direction ${dirClass}">${trade.direction}</span>
+                                <span class="trade-result ${resultClass}">${trade.result}</span>
+                                <span class="trade-profit ${resultClass}">
+                                    ${trade.profit >= 0 ? '+' : ''}$${(trade.profit || 0).toFixed(2)}
+                                </span>
+                            </div>
+                        `;
+                    });
+                }
+            }
+
+            renderSystem(data) {
+                // CPU
+                const cpuUsage = data.cpuUsage || 0;
+                document.getElementById('sys-cpu').textContent = `${cpuUsage.toFixed(1)}%`;
+                document.getElementById('sys-cpu-bar').style.width = `${Math.min(100, cpuUsage)}%`;
+                
+                // Memory
+                const memPercent = data.memPercent || 0;
+                document.getElementById('sys-mem').textContent = 
+                    `${memPercent.toFixed(1)}% (${data.memUsed || 0}/${data.memTotal || 0}MB)`;
+                document.getElementById('sys-mem-bar').style.width = `${memPercent}%`;
+                
+                // Disk
+                const diskPercent = data.diskPercent || 0;
+                document.getElementById('sys-disk').textContent = 
+                    `${diskPercent}% (${data.diskUsed || '0'}/${data.diskTotal || '0'})`;
+                document.getElementById('sys-disk-bar').style.width = `${diskPercent}%`;
+                
+                // Docker
+                document.getElementById('sys-docker').textContent = 
+                    `${data.docker?.running || 0}/${data.docker?.total || 0}`;
+                
+                // Load
+                document.getElementById('sys-load').textContent = 
+                    (data.load?.[0] || 0).toFixed(2);
+                
+                // Network
+                document.getElementById('sys-netin').textContent = `${data.netIn || 0} KB/s`;
+                document.getElementById('sys-netout').textContent = `${data.netOut || 0} KB/s`;
+                
+                // Temperature
+                document.getElementById('sys-temp').textContent = 
+                    data.cpuTemp ? `${data.cpuTemp}°C` : '--';
+                
+                // Uptime in header
+                document.getElementById('uptime').textContent = data.uptime || '--';
+            }
+
+            drawSparkline(data, baseline) {
+                const canvas = document.getElementById('sparkline-canvas');
+                if (!canvas) return;
+                
+                const ctx = canvas.getContext('2d');
+                const rect = canvas.parentElement.getBoundingClientRect();
+                
+                // Set canvas size
+                canvas.width = rect.width - 16;
+                canvas.height = rect.height - 20;
+                
+                const width = canvas.width;
+                const height = canvas.height;
+                const padding = 4;
+                
+                // Find min/max
+                const min = Math.min(...data, baseline) * 0.95;
+                const max = Math.max(...data, baseline) * 1.05;
+                const range = max - min || 1;
+                
+                // Clear
+                ctx.clearRect(0, 0, width, height);
+                
+                // Draw baseline
+                const baselineY = height - padding - ((baseline - min) / range) * (height - padding * 2);
+                ctx.strokeStyle = 'rgba(255, 153, 0, 0.3)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(0, baselineY);
+                ctx.lineTo(width, baselineY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                // Draw sparkline
+                ctx.strokeStyle = '#ffcc99';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                const stepX = (width - padding * 2) / (data.length - 1);
+                
+                data.forEach((value, i) => {
+                    const x = padding + i * stepX;
+                    const y = height - padding - ((value - min) / range) * (height - padding * 2);
+                    
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                });
+                
+                ctx.stroke();
+                
+                // Draw gradient fill
+                const gradient = ctx.createLinearGradient(0, 0, 0, height);
+                gradient.addColorStop(0, 'rgba(255, 204, 153, 0.3)');
+                gradient.addColorStop(1, 'rgba(255, 204, 153, 0)');
+                
+                ctx.lineTo(padding + (data.length - 1) * stepX, height);
+                ctx.lineTo(padding, height);
+                ctx.closePath();
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                
+                // Draw current value dot
+                const lastValue = data[data.length - 1];
+                const lastX = padding + (data.length - 1) * stepX;
+                const lastY = height - padding - ((lastValue - min) / range) * (height - padding * 2);
+                
+                ctx.beginPath();
+                ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
+                ctx.fillStyle = lastValue >= baseline ? '#99ff99' : '#ff6666';
+                ctx.fill();
+            }
+
+            setStatus(elementId, status) {
+                const el = document.getElementById(elementId);
+                if (!el) return;
+                
+                const statusMap = {
+                    'ACTIVE': 'status-active',
+                    'STANDBY': 'status-standby',
+                    'MONITORING': 'status-monitoring',
+                    'BUILDING': 'status-building',
+                    'RESEARCHING': 'status-researching',
+                    'PROCESSING': 'status-processing',
+                    'TRADING': 'status-trading',
+                    'OFFLINE': 'status-offline'
+                };
+                
+                el.className = `panel-status ${statusMap[status] || 'status-standby'}`;
+                el.textContent = status;
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            startClock() {
+                const updateClock = () => {
+                    const now = new Date();
+                    document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', { 
+                        hour12: false,
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                };
+                
+                updateClock();
+                setInterval(updateClock, 1000);
+            }
+        }
+
+        // Panel navigation
+        function scrollToPanel(panelId) {
+            const panel = document.getElementById(`panel-${panelId}`);
+            if (panel) {
+                panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            window.lcars = new LCARSDashboard();
+            console.log('[LCARS] Dashboard v5 initialized');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+{
+  "name": "lcars-bridge-dashboard",
+  "version": "5.0.0",
+  "description": "LCARS Bridge Status Dashboard - Production Ready",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "health": "curl -s http://localhost:4242/health | jq",
+    "api": "curl -s http://localhost:4242/api/data | jq"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "Geordi La Forge",
+  "license": "Starfleet",
+  "keywords": [
+    "lcars",
+    "star-trek",
+    "dashboard",
+    "websocket",
+    "real-time"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/roderik/seven-lcars-dashboard"
+  }
+}
