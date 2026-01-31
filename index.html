@@ -1297,7 +1297,7 @@
                     return;
                 }
 
-                const columns = this.tasksData.columns || ['inbox', 'assigned', 'in_progress', 'review', 'peer_review', 'done'];
+                const columns = this.tasksData.columns || ['inbox', 'assigned', 'in_progress', 'peer_review', 'review', 'done'];
                 const tasks = this.tasksData.tasks;
                 const agents = this.tasksData.agents || {};
 
@@ -1349,14 +1349,11 @@
                 // - review (Data QC): show Data as QC reviewer
                 // - default: show assignee
                 let responsibleKey = task.assignee;
-                let roleLabel = null;
                 
                 if (task.status === 'peer_review' && task.peerReviewer) {
                     responsibleKey = task.peerReviewer;
-                    roleLabel = 'REVIEWER';
                 } else if (task.status === 'review') {
-                    responsibleKey = 'data';  // QC is always Data (or Lal rotation)
-                    roleLabel = 'QC';
+                    responsibleKey = task.dataReview?.reviewer || 'data';  // Use assigned QC reviewer from rotation
                 }
                 
                 const agent = responsibleKey ? agents[responsibleKey] : null;
@@ -1390,7 +1387,7 @@
                             ${agent ? `
                                 <div class="flex items-center gap-1">
                                     <div class="min-w-5 h-5 px-1 rounded-sm flex items-center justify-center text-[10px] font-bold text-black whitespace-nowrap" style="background: ${agent.color}">${agent.department}</div>
-                                    <span class="text-xs text-lcars-sky">${agent.name.split(' ')[0]}${roleLabel ? ` <span class="text-lcars-gold">(${roleLabel})</span>` : ''}</span>
+                                    <span class="text-xs text-lcars-sky">${agent.name.split(' ')[0]}</span>
                                 </div>
                             ` : '<span></span>'}
                             <span class="px-1.5 py-0.5 rounded-sm text-xs font-bold uppercase bg-lcars-blue/20 text-lcars-blue">${task.category || 'general'}</span>
