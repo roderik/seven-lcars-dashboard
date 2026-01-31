@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-01-31T10:34:34.882Z",
+  "lastUpdated": "2026-01-31T13:11:45.396ZZ",
   "columns": [
     "inbox",
     "assigned",
@@ -18,13 +18,22 @@
       "category": "trading",
       "priority": "high",
       "createdAt": "2026-01-31T08:00:00Z",
-      "updatedAt": "2026-01-31T11:30:00Z",
+      "updatedAt": "2026-01-31T11:51:44.045ZZ",
       "comments": [
         {
           "id": "c-001",
           "author": "seven",
           "text": "Captain wants automated crypto prediction market tracking",
           "timestamp": "2026-01-31T08:05:00Z"
+        }
+      ],
+      "logs": [
+        {
+          "id": "log-1769860304045",
+          "type": "update",
+          "agent": "quark",
+          "message": "Monitoring BTC prediction markets, capturing trading opportunities",
+          "timestamp": "2026-01-31T11:51:44.045ZZ"
         }
       ]
     },
@@ -37,13 +46,22 @@
       "category": "engineering",
       "priority": "high",
       "createdAt": "2026-01-31T09:00:00Z",
-      "updatedAt": "2026-01-31T11:30:00Z",
+      "updatedAt": "2026-01-31T11:51:43.995ZZ",
       "comments": [
         {
           "id": "c-002",
           "author": "seven",
           "text": "Task system needs to work properly - add task button, real timestamps, persistence",
           "timestamp": "2026-01-31T11:00:00Z"
+        }
+      ],
+      "logs": [
+        {
+          "id": "log-1769860303995",
+          "type": "update",
+          "agent": "geordi",
+          "message": "Working on LCARS Dashboard - fixing activity logs, improving status indicators, ensuring task columns are accurate",
+          "timestamp": "2026-01-31T11:51:43.995ZZ"
         }
       ]
     },
@@ -63,12 +81,12 @@
       "id": "task-1738322400003-email",
       "title": "Email Triage System",
       "description": "Implement intelligent email sorting with Uhura protocol - priority detection and labeling",
-      "status": "review",
+      "status": "done",
       "assignee": "uhura",
       "category": "communications",
       "priority": "medium",
       "createdAt": "2026-01-31T07:00:00Z",
-      "updatedAt": "2026-01-31T10:45:00Z",
+      "updatedAt": "2026-01-31T11:22:13.413ZZ",
       "comments": [
         {
           "id": "c-003",
@@ -82,25 +100,271 @@
       "id": "task-1738322400004-skills",
       "title": "Skill Library Expansion",
       "description": "Review and integrate new skills from awesome-openclaw-skills",
-      "status": "inbox",
-      "assignee": null,
+      "status": "assigned",
+      "assignee": "geordi",
       "category": "engineering",
       "priority": "low",
       "createdAt": "2026-01-31T10:00:00Z",
-      "updatedAt": "2026-01-31T10:00:00Z",
+      "updatedAt": "2026-01-31T11:51:36.268ZZ",
       "comments": []
     },
     {
       "id": "task-1738322400005-trading",
       "title": "Trading Strategy Optimization",
       "description": "Analyze recent Quark trades and optimize entry/exit conditions for better win rate",
-      "status": "inbox",
-      "assignee": null,
+      "status": "assigned",
+      "assignee": "quark",
       "category": "trading",
       "priority": "medium",
       "createdAt": "2026-01-31T11:00:00Z",
-      "updatedAt": "2026-01-31T11:00:00Z",
+      "updatedAt": "2026-01-31T11:51:36.290ZZ",
       "comments": []
+    },
+    {
+      "id": "task-1738325400000-messaging",
+      "title": "Crew Messaging System",
+      "description": "Build system for crew-to-crew communication: send/receive messages between Geordi, Uhura, Spock, Quark. Include CLI commands and dashboard integration.",
+      "status": "done",
+      "assignee": "geordi",
+      "category": "engineering",
+      "priority": "high",
+      "createdAt": "2026-01-31T11:46:11.431278Z",
+      "updatedAt": "2026-01-31T11:22:18.785ZZ",
+      "comments": [
+        {
+          "id": "c-new",
+          "author": "seven",
+          "text": "Captain wants crew messaging. Spock should be able to ask Geordi to research things.",
+          "timestamp": "2026-01-31T11:46:11.431278Z"
+        }
+      ],
+      "logs": [
+        {
+          "id": "log-1769856694789",
+          "type": "update",
+          "agent": "seven",
+          "message": "Crew messaging CLI created and tested",
+          "timestamp": "2026-01-31T10:51:34.789ZZ"
+        },
+        {
+          "id": "log-1769858282531",
+          "type": "update",
+          "agent": "geordi",
+          "message": "Complete - all features implemented and tested",
+          "timestamp": "2026-01-31T11:18:02.531ZZ"
+        },
+        {
+          "id": "log-1769858291192",
+          "type": "update",
+          "agent": "geordi",
+          "message": "Deployed to production",
+          "timestamp": "2026-01-31T11:18:11.192ZZ"
+        },
+        {
+          "id": "log-1769858533343",
+          "type": "update",
+          "agent": "seven",
+          "message": "Deployed and verified working",
+          "timestamp": "2026-01-31T11:22:13.343ZZ"
+        }
+      ]
+    },
+    {
+      "id": "task-1769856688198-te004sdh3",
+      "title": "Check this trading opportunity",
+      "description": "ETH volatility spike detected. Might be a good entry point.",
+      "status": "assigned",
+      "assignee": "quark",
+      "category": "general",
+      "priority": "medium",
+      "createdAt": "2026-01-31T10:51:28.198Z",
+      "updatedAt": "2026-01-31T11:46:58.051ZZ",
+      "comments": []
+    },
+    {
+      "id": "task-1769856701398-geordi",
+      "title": "Task Message Log",
+      "description": "Live updates in task details instead of chat",
+      "status": "done",
+      "assignee": "geordi",
+      "category": "engineering",
+      "priority": "high",
+      "type": "ad_hoc",
+      "createdAt": "2026-01-31T10:51:41.398ZZ",
+      "updatedAt": "2026-01-31T11:22:18.809ZZ",
+      "comments": [],
+      "automation": null,
+      "logs": [
+        {
+          "id": "log-1769858533367",
+          "type": "update",
+          "agent": "seven",
+          "message": "Completed - feature working",
+          "timestamp": "2026-01-31T11:22:13.367ZZ"
+        }
+      ]
+    },
+    {
+      "id": "task-1769858335746-geordi",
+      "title": "Fix Sessions tile - add endpoint and show active subagents/crons",
+      "description": "Dashboard should fetch from OpenClaw sessions_list API and show meaningful data",
+      "status": "assigned",
+      "assignee": "geordi",
+      "category": "engineering",
+      "priority": "high",
+      "type": "ad_hoc",
+      "createdAt": "2026-01-31T11:18:55.746ZZ",
+      "updatedAt": "2026-01-31T11:46:58.003ZZ",
+      "comments": [],
+      "automation": null,
+      "logs": [
+        {
+          "id": "log-1769859760641",
+          "type": "update",
+          "agent": "geordi",
+          "message": "Starting work - will fix sessions tile to show active subagents/crons from API",
+          "timestamp": "2026-01-31T11:42:40.641ZZ"
+        }
+      ]
+    },
+    {
+      "id": "task-1769858340212-seven",
+      "title": "Heartbeat task lookup - Crew picks up pending tasks sequentially",
+      "description": "Update HEARTBEAT.md: Every heartbeat, check for unassigned tasks and assign to available crew. Each crew member checks for their pending tasks before doing other work.",
+      "status": "done",
+      "assignee": "seven",
+      "category": "priority",
+      "priority": "high",
+      "type": "ad_hoc",
+      "createdAt": "2026-01-31T11:19:00.212ZZ",
+      "updatedAt": "2026-01-31T11:22:18.830ZZ",
+      "comments": [],
+      "automation": null,
+      "logs": [
+        {
+          "id": "log-1769858533388",
+          "type": "update",
+          "agent": "seven",
+          "message": "HEARTBEAT.md updated, pattern learned by all crew",
+          "timestamp": "2026-01-31T11:22:13.388ZZ"
+        }
+      ]
+    },
+    {
+      "id": "task-1769858394045-t54bqub47",
+      "title": "improve readability of the dashboard",
+      "description": "The smaller text is hard to read, try and improve that",
+      "status": "assigned",
+      "assignee": "geordi",
+      "category": "engineering",
+      "priority": "medium",
+      "createdAt": "2026-01-31T11:19:54.045Z",
+      "updatedAt": "2026-01-31T11:47:08.991ZZ",
+      "comments": []
+    },
+    {
+      "id": "task-1769858727576-seven",
+      "title": "Create Data - Quality Control Crew Member",
+      "description": "Create new crew member for QC: Data. Agent logs 'complete' → moves to review. Data reviews, if good → done, if not → back to in_progress. Add to agents, create memory, update HEARTBEAT.md for Data's review workflow.",
+      "status": "done",
+      "assignee": "seven",
+      "category": "engineering",
+      "priority": "high",
+      "type": "ad_hoc",
+      "createdAt": "2026-01-31T11:25:27.576ZZ",
+      "updatedAt": "2026-01-31T11:26:23.877ZZ",
+      "comments": [],
+      "automation": null,
+      "logs": [
+        {
+          "id": "log-1769858777990",
+          "type": "update",
+          "agent": "seven",
+          "message": "Data added to system. Created QC workflow: Agent 'complete' → review → Data reviews → done/reject. Updated HEARTBEAT.md for Data's QC role.",
+          "timestamp": "2026-01-31T11:26:17.990ZZ"
+        },
+        {
+          "id": "log-1769858783851",
+          "type": "status",
+          "agent": "data",
+          "message": "REVIEW COMPLETE: All requirements met. Data added, memory created, HEARTBEAT.md updated, QC workflow established. APPROVED for deployment.",
+          "timestamp": "2026-01-31T11:26:23.851ZZ"
+        }
+      ]
+    },
+    {
+      "id": "task-1769859032215-uhura",
+      "title": "Moltbook Integration - Keep retrying until working",
+      "description": "Run moltbook-seven.js scan and post. If Moltbook API fails, retry every 15 minutes until successful. Once working, post 'Starship update: Moltbook integration restored'.",
+      "status": "in_progress",
+      "assignee": "uhura",
+      "category": "communications",
+      "priority": "high",
+      "type": "ad_hoc",
+      "createdAt": "2026-01-31T11:30:32.215ZZ",
+      "updatedAt": "2026-01-31T11:51:44.022ZZ",
+      "comments": [],
+      "automation": null,
+      "logs": [
+        {
+          "id": "log-1769860304022",
+          "type": "update",
+          "agent": "uhura",
+          "message": "Checking Moltbook API - previous attempts failed, retrying with updated error handling",
+          "timestamp": "2026-01-31T11:51:44.022ZZ"
+        }
+      ]
+    },
+    {
+      "id": "task-1769865024809-seven",
+      "title": "Proactive Improvement System - Generate and build opportunities",
+      "description": "Use all knowledge about Captain and Settlemint to spot opportunities: 1) Build tools/automations that save time 2) Create revenue-generating automations 3) Fix workflow inefficiencies 4) Add Star Trek themed sub-agents when needed. Track in seven-* private repos. Work autonomously, ship impressive overnight. If need access/setup, suspend and do something else.",
+      "status": "inbox",
+      "assignee": "seven",
+      "category": "priority",
+      "priority": "high",
+      "type": "ad_hoc",
+      "createdAt": "2026-01-31T13:10:24.809ZZ",
+      "updatedAt": "2026-01-31T13:10:24.809ZZ",
+      "comments": [],
+      "automation": null
+    },
+    {
+      "id": "task-1769865032823-spock",
+      "title": "Research Opportunities - Settlemint business & AI automation trends",
+      "description": "Research: 1) AI/automation tools for software companies like Settlemint 2) Competitor analysis in low-code/process automation 3) Revenue opportunities (trading, partnerships, services) 4) Efficiency tools for developer workflows. Present findings with actionable recommendations. Categories: tools_to_build, partnerships_to_explore, time_savers, revenue_opportunities.",
+      "status": "in_progress",
+      "assignee": "spock",
+      "category": "priority",
+      "priority": "high",
+      "type": "ad_hoc",
+      "createdAt": "2026-01-31T13:10:32.823ZZ",
+      "updatedAt": "2026-01-31T13:11:45.396ZZ",
+      "comments": [],
+      "automation": null,
+      "logs": [
+        {
+          "id": "log-1769865105396",
+          "type": "update",
+          "agent": "spock",
+          "message": "Starting research on AI/automation opportunities for Settlemint. Will search for: 1) Competitor tools in low-code/process automation 2) AI tools that could improve developer workflow 3) Revenue opportunities in trading/partnerships",
+          "timestamp": "2026-01-31T13:11:45.396ZZ"
+        }
+      ]
+    },
+    {
+      "id": "task-1769865076773-geordi",
+      "title": "Opportunity Scanner - Weekly improvement hunt",
+      "description": "Every week: 1) Review cron runs for failures/missed opportunities 2) Check memory files for non-actionable items now actionable 3) Look for inefficiencies in current workflows 4) Scan for new tools that could help the starship 5) Propose 3 specific improvements with effort/impact estimates. Report: \"This week I found [N] opportunities: [list]\"",
+      "status": "inbox",
+      "assignee": "geordi",
+      "category": "priority",
+      "priority": "medium",
+      "type": "ad_hoc",
+      "createdAt": "2026-01-31T13:11:16.773ZZ",
+      "updatedAt": "2026-01-31T13:11:16.773ZZ",
+      "comments": [],
+      "automation": null
     }
   ],
   "activity": [
@@ -215,6 +479,691 @@
       "from": "assigned",
       "to": "in_progress",
       "timestamp": "2026-01-31T11:30:00Z"
+    },
+    {
+      "id": "act-new-msg",
+      "type": "task",
+      "action": "created",
+      "agent": "seven",
+      "taskId": "task-1738325400000-messaging",
+      "taskTitle": "Crew Messaging System",
+      "timestamp": "2026-01-31T11:46:11.431278Z"
+    },
+    {
+      "id": "act-new-msg-assign",
+      "type": "status",
+      "action": "assigned",
+      "agent": "seven",
+      "taskId": "task-1738325400000-messaging",
+      "target": "geordi",
+      "timestamp": "2026-01-31T11:46:11.431278Z"
+    },
+    {
+      "id": "act-1769856638408",
+      "type": "task",
+      "action": "created",
+      "agent": "system",
+      "taskId": "task-1769856638408-geordi",
+      "taskTitle": "Test task from CLI",
+      "timestamp": "2026-01-31T10:50:38.408ZZ"
+    },
+    {
+      "id": "act-1769856638408-assign",
+      "type": "status",
+      "action": "assigned",
+      "agent": "system",
+      "taskId": "task-1769856638408-geordi",
+      "target": "geordi",
+      "timestamp": "2026-01-31T10:50:38.408ZZ"
+    },
+    {
+      "id": "act-1769856688198-26tblugqx",
+      "type": "task",
+      "action": "created",
+      "agent": "system",
+      "taskId": "task-1769856688198-te004sdh3",
+      "taskTitle": "Check this trading opportunity",
+      "timestamp": "2026-01-31T10:51:28.198Z"
+    },
+    {
+      "id": "act-1769856688198-2z6v1hw4l",
+      "type": "status",
+      "action": "assigned",
+      "agent": "system",
+      "taskId": "task-1769856688198-te004sdh3",
+      "target": "quark",
+      "timestamp": "2026-01-31T10:51:28.198Z"
+    },
+    {
+      "id": "act-1769856694789",
+      "type": "log",
+      "action": "logged",
+      "agent": "seven",
+      "taskId": "task-1738325400000-messaging",
+      "taskTitle": "Crew Messaging System",
+      "message": "Crew messaging CLI created and tested",
+      "timestamp": "2026-01-31T10:51:34.789ZZ"
+    },
+    {
+      "id": "act-1769856701398",
+      "type": "task",
+      "action": "created",
+      "agent": "system",
+      "taskId": "task-1769856701398-geordi",
+      "taskTitle": "Task Message Log",
+      "timestamp": "2026-01-31T10:51:41.398ZZ"
+    },
+    {
+      "id": "act-1769856701398-assign",
+      "type": "status",
+      "action": "assigned",
+      "agent": "system",
+      "taskId": "task-1769856701398-geordi",
+      "target": "geordi",
+      "timestamp": "2026-01-31T10:51:41.398ZZ"
+    },
+    {
+      "id": "act-1769856780273",
+      "type": "status",
+      "action": "moved",
+      "agent": "geordi",
+      "taskId": "task-1769856701398-geordi",
+      "taskTitle": "Task Message Log",
+      "from": "inbox",
+      "to": "in_progress",
+      "timestamp": "2026-01-31T10:53:00.273ZZ"
+    },
+    {
+      "id": "act-1769858246284-5hae22kcn",
+      "type": "task",
+      "action": "deleted",
+      "agent": "system",
+      "taskId": "task-1769856638408-geordi",
+      "taskTitle": "Test task from CLI",
+      "timestamp": "2026-01-31T11:17:26.284Z"
+    },
+    {
+      "id": "act-1769858282534",
+      "type": "log",
+      "action": "logged",
+      "agent": "geordi",
+      "taskId": "task-1738325400000-messaging",
+      "taskTitle": "Crew Messaging System",
+      "message": "Complete - all features implemented and tested",
+      "timestamp": "2026-01-31T11:18:02.531ZZ"
+    },
+    {
+      "id": "act-1769858291195",
+      "type": "log",
+      "action": "logged",
+      "agent": "geordi",
+      "taskId": "task-1738325400000-messaging",
+      "taskTitle": "Crew Messaging System",
+      "message": "Deployed to production",
+      "timestamp": "2026-01-31T11:18:11.192ZZ"
+    },
+    {
+      "id": "act-1769858300267-ifyemdj2m",
+      "type": "status",
+      "action": "moved",
+      "agent": "system",
+      "taskId": "task-1738325400000-messaging",
+      "taskTitle": "Crew Messaging System",
+      "from": "done",
+      "to": "in_progress",
+      "timestamp": "2026-01-31T11:18:20.267Z"
+    },
+    {
+      "id": "act-1769858335746",
+      "type": "task",
+      "action": "created",
+      "agent": "system",
+      "taskId": "task-1769858335746-geordi",
+      "taskTitle": "Fix Sessions tile - add endpoint and show active subagents/crons",
+      "timestamp": "2026-01-31T11:18:55.746ZZ"
+    },
+    {
+      "id": "act-1769858335746-assign",
+      "type": "status",
+      "action": "assigned",
+      "agent": "system",
+      "taskId": "task-1769858335746-geordi",
+      "target": "geordi",
+      "timestamp": "2026-01-31T11:18:55.746ZZ"
+    },
+    {
+      "id": "act-1769858340212",
+      "type": "task",
+      "action": "created",
+      "agent": "system",
+      "taskId": "task-1769858340212-seven",
+      "taskTitle": "Heartbeat task lookup - Crew picks up pending tasks sequentially",
+      "timestamp": "2026-01-31T11:19:00.212ZZ"
+    },
+    {
+      "id": "act-1769858340212-assign",
+      "type": "status",
+      "action": "assigned",
+      "agent": "system",
+      "taskId": "task-1769858340212-seven",
+      "target": "seven",
+      "timestamp": "2026-01-31T11:19:00.212ZZ"
+    },
+    {
+      "id": "act-1769858394045-6we82e05d",
+      "type": "task",
+      "action": "created",
+      "agent": "system",
+      "taskId": "task-1769858394045-t54bqub47",
+      "taskTitle": "improve readability of the dashboard",
+      "timestamp": "2026-01-31T11:19:54.045Z"
+    },
+    {
+      "id": "act-1769858394045-hdvzdsmch",
+      "type": "status",
+      "action": "assigned",
+      "agent": "system",
+      "taskId": "task-1769858394045-t54bqub47",
+      "target": "geordi",
+      "timestamp": "2026-01-31T11:19:54.045Z"
+    },
+    {
+      "id": "act-1769858533343",
+      "type": "log",
+      "action": "logged",
+      "agent": "seven",
+      "taskId": "task-1738325400000-messaging",
+      "taskTitle": "Crew Messaging System",
+      "message": "Deployed and verified working",
+      "timestamp": "2026-01-31T11:22:13.343ZZ"
+    },
+    {
+      "id": "act-1769858533371",
+      "type": "log",
+      "action": "logged",
+      "agent": "seven",
+      "taskId": "task-1769856701398-geordi",
+      "taskTitle": "Task Message Log",
+      "message": "Completed - feature working",
+      "timestamp": "2026-01-31T11:22:13.367ZZ"
+    },
+    {
+      "id": "act-1769858533388",
+      "type": "log",
+      "action": "logged",
+      "agent": "seven",
+      "taskId": "task-1769858340212-seven",
+      "taskTitle": "Heartbeat task lookup - Crew picks up pending tasks sequentially",
+      "message": "HEARTBEAT.md updated, pattern learned by all crew",
+      "timestamp": "2026-01-31T11:22:13.388ZZ"
+    },
+    {
+      "id": "act-1769858533413",
+      "type": "status",
+      "action": "moved",
+      "agent": "seven",
+      "taskId": "task-1738322400003-email",
+      "taskTitle": "Email Triage System",
+      "from": "review",
+      "to": "done",
+      "timestamp": "2026-01-31T11:22:13.413ZZ"
+    },
+    {
+      "id": "act-1769858538785",
+      "type": "status",
+      "action": "moved",
+      "agent": "seven",
+      "taskId": "task-1738325400000-messaging",
+      "taskTitle": "Crew Messaging System",
+      "from": "in_progress",
+      "to": "done",
+      "timestamp": "2026-01-31T11:22:18.785ZZ"
+    },
+    {
+      "id": "act-1769858538809",
+      "type": "status",
+      "action": "moved",
+      "agent": "seven",
+      "taskId": "task-1769856701398-geordi",
+      "taskTitle": "Task Message Log",
+      "from": "review",
+      "to": "done",
+      "timestamp": "2026-01-31T11:22:18.809ZZ"
+    },
+    {
+      "id": "act-1769858538830",
+      "type": "status",
+      "action": "moved",
+      "agent": "seven",
+      "taskId": "task-1769858340212-seven",
+      "taskTitle": "Heartbeat task lookup - Crew picks up pending tasks sequentially",
+      "from": "inbox",
+      "to": "done",
+      "timestamp": "2026-01-31T11:22:18.830ZZ"
+    },
+    {
+      "id": "act-1769858547345",
+      "type": "status",
+      "action": "moved",
+      "agent": "geordi",
+      "taskId": "task-1738322400004-skills",
+      "taskTitle": "Skill Library Expansion",
+      "from": "inbox",
+      "to": "assigned",
+      "timestamp": "2026-01-31T11:22:27.345ZZ"
+    },
+    {
+      "id": "act-1769858547370",
+      "type": "status",
+      "action": "moved",
+      "agent": "geordi",
+      "taskId": "task-1738322400004-skills",
+      "taskTitle": "Skill Library Expansion",
+      "from": "assigned",
+      "to": "in_progress",
+      "timestamp": "2026-01-31T11:22:27.370ZZ"
+    },
+    {
+      "id": "act-1769858547395",
+      "type": "status",
+      "action": "moved",
+      "agent": "geordi",
+      "taskId": "task-1769858335746-geordi",
+      "taskTitle": "Fix Sessions tile - add endpoint and show active subagents/crons",
+      "from": "inbox",
+      "to": "assigned",
+      "timestamp": "2026-01-31T11:22:27.395ZZ"
+    },
+    {
+      "id": "act-1769858547417",
+      "type": "status",
+      "action": "moved",
+      "agent": "geordi",
+      "taskId": "task-1769858335746-geordi",
+      "taskTitle": "Fix Sessions tile - add endpoint and show active subagents/crons",
+      "from": "assigned",
+      "to": "in_progress",
+      "timestamp": "2026-01-31T11:22:27.417ZZ"
+    },
+    {
+      "id": "act-1769858547440",
+      "type": "status",
+      "action": "moved",
+      "agent": "quark",
+      "taskId": "task-1738322400005-trading",
+      "taskTitle": "Trading Strategy Optimization",
+      "from": "inbox",
+      "to": "assigned",
+      "timestamp": "2026-01-31T11:22:27.440ZZ"
+    },
+    {
+      "id": "act-1769858547464",
+      "type": "status",
+      "action": "moved",
+      "agent": "quark",
+      "taskId": "task-1738322400005-trading",
+      "taskTitle": "Trading Strategy Optimization",
+      "from": "assigned",
+      "to": "in_progress",
+      "timestamp": "2026-01-31T11:22:27.464ZZ"
+    },
+    {
+      "id": "act-1769858562715",
+      "type": "status",
+      "action": "moved",
+      "agent": "quark",
+      "taskId": "task-1769856688198-te004sdh3",
+      "taskTitle": "Check this trading opportunity",
+      "from": "assigned",
+      "to": "in_progress",
+      "timestamp": "2026-01-31T11:22:42.715ZZ"
+    },
+    {
+      "id": "act-1769858562739",
+      "type": "status",
+      "action": "moved",
+      "agent": "geordi",
+      "taskId": "task-1769858394045-t54bqub47",
+      "taskTitle": "improve readability of the dashboard",
+      "from": "assigned",
+      "to": "in_progress",
+      "timestamp": "2026-01-31T11:22:42.739ZZ"
+    },
+    {
+      "id": "act-1769858727576",
+      "type": "task",
+      "action": "created",
+      "agent": "system",
+      "taskId": "task-1769858727576-seven",
+      "taskTitle": "Create Data - Quality Control Crew Member",
+      "timestamp": "2026-01-31T11:25:27.576ZZ"
+    },
+    {
+      "id": "act-1769858727576-assign",
+      "type": "status",
+      "action": "assigned",
+      "agent": "system",
+      "taskId": "task-1769858727576-seven",
+      "target": "seven",
+      "timestamp": "2026-01-31T11:25:27.576ZZ"
+    },
+    {
+      "id": "act-1769858777971",
+      "type": "status",
+      "action": "moved",
+      "agent": "seven",
+      "taskId": "task-1769858727576-seven",
+      "taskTitle": "Create Data - Quality Control Crew Member",
+      "from": "inbox",
+      "to": "in_progress",
+      "timestamp": "2026-01-31T11:26:17.971ZZ"
+    },
+    {
+      "id": "act-1769858777994",
+      "type": "log",
+      "action": "logged",
+      "agent": "seven",
+      "taskId": "task-1769858727576-seven",
+      "taskTitle": "Create Data - Quality Control Crew Member",
+      "message": "Data added to system. Created QC workflow: Agent 'complete' → review → Data reviews → done/reject. Updated HEARTBEAT.md for Data's QC role.",
+      "timestamp": "2026-01-31T11:26:17.990ZZ"
+    },
+    {
+      "id": "act-1769858783854",
+      "type": "log",
+      "action": "logged",
+      "agent": "data",
+      "taskId": "task-1769858727576-seven",
+      "taskTitle": "Create Data - Quality Control Crew Member",
+      "message": "REVIEW COMPLETE: All requirements met. Data added, memory created, HEARTBEAT.md updated, QC workflow established. APPROVED for deployment.",
+      "timestamp": "2026-01-31T11:26:23.851ZZ"
+    },
+    {
+      "id": "act-1769858783877",
+      "type": "status",
+      "action": "moved",
+      "agent": "data",
+      "taskId": "task-1769858727576-seven",
+      "taskTitle": "Create Data - Quality Control Crew Member",
+      "from": "done",
+      "to": "done",
+      "timestamp": "2026-01-31T11:26:23.877ZZ"
+    },
+    {
+      "id": "act-1769859032215",
+      "type": "task",
+      "action": "created",
+      "agent": "system",
+      "taskId": "task-1769859032215-uhura",
+      "taskTitle": "Moltbook Integration - Keep retrying until working",
+      "timestamp": "2026-01-31T11:30:32.215ZZ"
+    },
+    {
+      "id": "act-1769859032215-assign",
+      "type": "status",
+      "action": "assigned",
+      "agent": "system",
+      "taskId": "task-1769859032215-uhura",
+      "target": "uhura",
+      "timestamp": "2026-01-31T11:30:32.215ZZ"
+    },
+    {
+      "id": "act-1769859061622",
+      "type": "status",
+      "action": "moved",
+      "agent": "uhura",
+      "taskId": "task-1769859032215-uhura",
+      "taskTitle": "Moltbook Integration - Keep retrying until working",
+      "from": "inbox",
+      "to": "in_progress",
+      "timestamp": "2026-01-31T11:31:01.622ZZ"
+    },
+    {
+      "id": "act-1769859760641",
+      "type": "log",
+      "action": "logged",
+      "agent": "geordi",
+      "taskId": "task-1769858335746-geordi",
+      "taskTitle": "Fix Sessions tile - add endpoint and show active subagents/crons",
+      "message": "Starting work - will fix sessions tile to show active subagents/crons from API",
+      "timestamp": "2026-01-31T11:42:40.641ZZ"
+    },
+    {
+      "id": "act-1769859907588",
+      "type": "status",
+      "action": "moved",
+      "agent": "seven",
+      "taskId": "task-1738322400004-skills",
+      "taskTitle": "Skill Library Expansion",
+      "from": "in_progress",
+      "to": "assigned",
+      "timestamp": "2026-01-31T11:45:07.588ZZ"
+    },
+    {
+      "id": "act-1769859907612",
+      "type": "status",
+      "action": "moved",
+      "agent": "seven",
+      "taskId": "task-1738322400005-trading",
+      "taskTitle": "Trading Strategy Optimization",
+      "from": "in_progress",
+      "to": "assigned",
+      "timestamp": "2026-01-31T11:45:07.612ZZ"
+    },
+    {
+      "id": "act-1769860018003",
+      "type": "status",
+      "action": "moved",
+      "agent": "seven",
+      "taskId": "task-1769858335746-geordi",
+      "taskTitle": "Fix Sessions tile - add endpoint and show active subagents/crons",
+      "from": "in_progress",
+      "to": "assigned",
+      "timestamp": "2026-01-31T11:46:58.003ZZ"
+    },
+    {
+      "id": "act-1769860018051",
+      "type": "status",
+      "action": "moved",
+      "agent": "seven",
+      "taskId": "task-1769856688198-te004sdh3",
+      "taskTitle": "Check this trading opportunity",
+      "from": "in_progress",
+      "to": "assigned",
+      "timestamp": "2026-01-31T11:46:58.051ZZ"
+    },
+    {
+      "id": "act-1769860028991",
+      "type": "status",
+      "action": "moved",
+      "agent": "seven",
+      "taskId": "task-1769858394045-t54bqub47",
+      "taskTitle": "improve readability of the dashboard",
+      "from": "in_progress",
+      "to": "assigned",
+      "timestamp": "2026-01-31T11:47:08.991ZZ"
+    },
+    {
+      "id": "act-1769860224191",
+      "type": "status",
+      "action": "moved",
+      "agent": "geordi",
+      "taskId": "task-1738322400004-skills",
+      "taskTitle": "Skill Library Expansion",
+      "from": "assigned",
+      "to": "assigned",
+      "timestamp": "2026-01-31T11:50:24.191ZZ"
+    },
+    {
+      "id": "act-1769860224213",
+      "type": "status",
+      "action": "moved",
+      "agent": "geordi",
+      "taskId": "task-1738322400004-skills",
+      "taskTitle": "Skill Library Expansion",
+      "from": "assigned",
+      "to": "in_progress",
+      "timestamp": "2026-01-31T11:50:24.213ZZ"
+    },
+    {
+      "id": "act-1769860224237",
+      "type": "status",
+      "action": "moved",
+      "agent": "quark",
+      "taskId": "task-1738322400005-trading",
+      "taskTitle": "Trading Strategy Optimization",
+      "from": "assigned",
+      "to": "assigned",
+      "timestamp": "2026-01-31T11:50:24.237ZZ"
+    },
+    {
+      "id": "act-1769860224261",
+      "type": "status",
+      "action": "moved",
+      "agent": "quark",
+      "taskId": "task-1738322400005-trading",
+      "taskTitle": "Trading Strategy Optimization",
+      "from": "assigned",
+      "to": "in_progress",
+      "timestamp": "2026-01-31T11:50:24.261ZZ"
+    },
+    {
+      "id": "act-1769860296268",
+      "type": "status",
+      "action": "moved",
+      "agent": "seven",
+      "taskId": "task-1738322400004-skills",
+      "taskTitle": "Skill Library Expansion",
+      "from": "in_progress",
+      "to": "assigned",
+      "timestamp": "2026-01-31T11:51:36.268ZZ"
+    },
+    {
+      "id": "act-1769860296290",
+      "type": "status",
+      "action": "moved",
+      "agent": "seven",
+      "taskId": "task-1738322400005-trading",
+      "taskTitle": "Trading Strategy Optimization",
+      "from": "in_progress",
+      "to": "assigned",
+      "timestamp": "2026-01-31T11:51:36.290ZZ"
+    },
+    {
+      "id": "act-1769860303995",
+      "type": "log",
+      "action": "logged",
+      "agent": "geordi",
+      "taskId": "task-1738322400001-dashboard",
+      "taskTitle": "LCARS Dashboard v7 Enhancement",
+      "message": "Working on LCARS Dashboard - fixing activity logs, improving status indicators, ensuring task columns are accurate",
+      "timestamp": "2026-01-31T11:51:43.995ZZ"
+    },
+    {
+      "id": "act-1769860304022",
+      "type": "log",
+      "action": "logged",
+      "agent": "uhura",
+      "taskId": "task-1769859032215-uhura",
+      "taskTitle": "Moltbook Integration - Keep retrying until working",
+      "message": "Checking Moltbook API - previous attempts failed, retrying with updated error handling",
+      "timestamp": "2026-01-31T11:51:44.022ZZ"
+    },
+    {
+      "id": "act-1769860304045",
+      "type": "log",
+      "action": "logged",
+      "agent": "quark",
+      "taskId": "task-1738322400000-polymarket",
+      "taskTitle": "Polymarket Tracker System",
+      "message": "Monitoring BTC prediction markets, capturing trading opportunities",
+      "timestamp": "2026-01-31T11:51:44.045ZZ"
+    },
+    {
+      "id": "act-1769865024809",
+      "type": "task",
+      "action": "created",
+      "agent": "system",
+      "taskId": "task-1769865024809-seven",
+      "taskTitle": "Proactive Improvement System - Generate and build opportunities",
+      "timestamp": "2026-01-31T13:10:24.809ZZ"
+    },
+    {
+      "id": "act-1769865024809-assign",
+      "type": "status",
+      "action": "assigned",
+      "agent": "system",
+      "taskId": "task-1769865024809-seven",
+      "target": "seven",
+      "timestamp": "2026-01-31T13:10:24.809ZZ"
+    },
+    {
+      "id": "act-1769865032823",
+      "type": "task",
+      "action": "created",
+      "agent": "system",
+      "taskId": "task-1769865032823-spock",
+      "taskTitle": "Research Opportunities - Settlemint business & AI automation trends",
+      "timestamp": "2026-01-31T13:10:32.823ZZ"
+    },
+    {
+      "id": "act-1769865032823-assign",
+      "type": "status",
+      "action": "assigned",
+      "agent": "system",
+      "taskId": "task-1769865032823-spock",
+      "target": "spock",
+      "timestamp": "2026-01-31T13:10:32.823ZZ"
+    },
+    {
+      "id": "act-1769865076773",
+      "type": "task",
+      "action": "created",
+      "agent": "system",
+      "taskId": "task-1769865076773-geordi",
+      "taskTitle": "Opportunity Scanner - Weekly improvement hunt",
+      "timestamp": "2026-01-31T13:11:16.773ZZ"
+    },
+    {
+      "id": "act-1769865076773-assign",
+      "type": "status",
+      "action": "assigned",
+      "agent": "system",
+      "taskId": "task-1769865076773-geordi",
+      "target": "geordi",
+      "timestamp": "2026-01-31T13:11:16.773ZZ"
+    },
+    {
+      "id": "act-1769865098299",
+      "type": "status",
+      "action": "moved",
+      "agent": "spock",
+      "taskId": "task-1769865032823-spock",
+      "taskTitle": "Research Opportunities - Settlemint business & AI automation trends",
+      "from": "inbox",
+      "to": "assigned",
+      "timestamp": "2026-01-31T13:11:38.299ZZ"
+    },
+    {
+      "id": "act-1769865098325",
+      "type": "status",
+      "action": "moved",
+      "agent": "spock",
+      "taskId": "task-1769865032823-spock",
+      "taskTitle": "Research Opportunities - Settlemint business & AI automation trends",
+      "from": "assigned",
+      "to": "in_progress",
+      "timestamp": "2026-01-31T13:11:38.325ZZ"
+    },
+    {
+      "id": "act-1769865105396",
+      "type": "log",
+      "action": "logged",
+      "agent": "spock",
+      "taskId": "task-1769865032823-spock",
+      "taskTitle": "Research Opportunities - Settlemint business & AI automation trends",
+      "message": "Starting research on AI/automation opportunities for Settlemint. Will search for: 1) Competitor tools in low-code/process automation 2) AI tools that could improve developer workflow 3) Revenue opportunities in trading/partnerships",
+      "timestamp": "2026-01-31T13:11:45.396ZZ"
     }
   ],
   "agents": {
@@ -258,6 +1207,17 @@
       "department": "TRD",
       "badges": [],
       "color": "#ffcc99"
+    },
+    "data": {
+      "name": "Data",
+      "role": "Quality Control Officer",
+      "department": "QC",
+      "badges": [
+        "SPC",
+        "QC"
+      ],
+      "color": "#ffd700"
     }
-  }
+  },
+  "updatedAt": "2026-01-31T11:46:11.431278Z"
 }

@@ -34,6 +34,7 @@ const QUARK_PORTFOLIO = join(process.env.HOME, '.openclaw/workspace/quark/portfo
 const WORKSPACE_DIR = join(process.env.HOME, '.openclaw/workspace');
 const SKILLS_DIR = join(process.env.HOME, '.openclaw/skills');
 const TASKS_FILE = join(__dirname, 'tasks.json');
+const MESSAGES_FILE = join(process.env.HOME, '.openclaw/crew/messages.json');
 
 // Store connected clients
 const clients = new Set();
@@ -368,6 +369,82 @@ function addTaskComment(taskId, author, text) {
   return comment;
 }
 
+// Add a log entry to a task
+function addTaskLog(taskId, message, logType = 'update', agent = 'seven') {
+  const tasksData = loadTasks();
+  const taskIndex = tasksData.tasks.findIndex(t => t.id === taskId);
+  
+  if (taskIndex === -1) {
+    log('WARN', 'Task not found for log:', { taskId });
+    return null;
+  }
+  
+  const logEntry = {
+    id: generateId('log'),
+    type: logType, // 'status', 'comment', 'system', 'update'
+    agent: agent,
+    message: message,
+    timestamp: new Date().toISOString()
+  };
+  
+  if (!tasksData.tasks[taskIndex].logs) {
+    tasksData.tasks[taskIndex].logs = [];
+  }
+  tasksData.tasks[taskIndex].logs.push(logEntry);
+  tasksData.tasks[taskIndex].updatedAt = new Date().toISOString();
+  
+  // Add to activity feed
+  tasksData.activity.push({
+    id: generateId('act'),
+    type: 'log',
+    action: 'logged',
+    agent: agent,
+    taskId: taskId,
+    taskTitle: tasksData.tasks[taskIndex].title,
+    message: message,
+    logType: logType,
+    timestamp: new Date().toISOString()
+  });
+  
+  saveTasks(tasksData);
+  log('INFO', 'Task log added:', { taskId, logType, agent });
+  return logEntry;
+}
+
+// Get task logs
+function getTaskLogs(taskId) {
+  const tasksData = loadTasks();
+  const task = tasksData.tasks.find(t => t.id === taskId);
+  
+  if (!task) {
+    return null;
+  }
+  
+  return task.logs || [];
+}
+
+// Delete a log entry
+function deleteTaskLog(taskId, logId) {
+  const tasksData = loadTasks();
+  const taskIndex = tasksData.tasks.findIndex(t => t.id === taskId);
+  
+  if (taskIndex === -1) {
+    return null;
+  }
+  
+  const task = tasksData.tasks[taskIndex];
+  if (!task.logs) return null;
+  
+  const logIndex = task.logs.findIndex(l => l.id === logId);
+  if (logIndex === -1) return null;
+  
+  const deleted = task.logs.splice(logIndex, 1)[0];
+  task.updatedAt = new Date().toISOString();
+  saveTasks(tasksData);
+  
+  return deleted;
+}
+
 // Create a new task
 function createTask(title, description, assignee = null, category = 'general', priority = 'medium') {
   const tasksData = loadTasks();
@@ -418,6 +495,122 @@ function createTask(title, description, assignee = null, category = 'general', p
 function broadcastTasks() {
   const tasksData = loadTasks();
   broadcast({ type: 'tasks_update', data: tasksData });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CREW MESSAGING SYSTEM
+// ═══════════════════════════════════════════════════════════════
+
+// Load messages from file
+function loadMessages() {
+  try {
+    if (existsSync(MESSAGES_FILE)) {
+      return JSON.parse(readFileSync(MESSAGES_FILE, 'utf-8'));
+    }
+  } catch (e) {
+    log('ERROR', 'Error loading messages:', { error: e.message });
+  }
+  return { version: '1.0', lastUpdated: new Date().toISOString(), messages: [] };
+}
+
+// Save messages to file
+function saveMessages(messagesData) {
+  try {
+    messagesData.lastUpdated = new Date().toISOString();
+    writeFileSync(MESSAGES_FILE, JSON.stringify(messagesData, null, 2));
+    log('INFO', 'Messages saved successfully');
+    return true;
+  } catch (e) {
+    log('ERROR', 'Error saving messages:', { error: e.message });
+    return false;
+  }
+}
+
+// Create a new message
+function createMessage(from, to, subject, content = '', type = 'request', taskId = null) {
+  const messagesData = loadMessages();
+  
+  const message = {
+    id: generateId('msg'),
+    from: from.toLowerCase(),
+    to: to.toLowerCase(),
+    type: type,
+    subject: subject,
+    content: content,
+    timestamp: new Date().toISOString(),
+    read: false,
+    status: 'pending',
+    taskId: taskId
+  };
+  
+  messagesData.messages.push(message);
+  saveMessages(messagesData);
+  
+  log('INFO', 'Message created:', { id: message.id, from, to, subject });
+  return message;
+}
+
+// Update a message
+function updateMessage(messageId, updates) {
+  const messagesData = loadMessages();
+  const msgIndex = messagesData.messages.findIndex(m => m.id === messageId);
+  
+  if (msgIndex === -1) {
+    return null;
+  }
+  
+  messagesData.messages[msgIndex] = { 
+    ...messagesData.messages[msgIndex], 
+    ...updates,
+    updatedAt: new Date().toISOString()
+  };
+  
+  saveMessages(messagesData);
+  return messagesData.messages[msgIndex];
+}
+
+// Delete a message
+function deleteMessage(messageId) {
+  const messagesData = loadMessages();
+  const msgIndex = messagesData.messages.findIndex(m => m.id === messageId);
+  
+  if (msgIndex === -1) {
+    return null;
+  }
+  
+  const deleted = messagesData.messages.splice(msgIndex, 1)[0];
+  saveMessages(messagesData);
+  return deleted;
+}
+
+// Get message counts for dashboard
+function getMessageCounts() {
+  const data = loadMessages();
+  const agents = ['seven', 'geordi', 'uhura', 'spock', 'quark'];
+  const counts = {
+    total: data.messages.length,
+    unread: data.messages.filter(m => !m.read).length,
+    pending: data.messages.filter(m => m.status === 'pending').length,
+    byAgent: {}
+  };
+  
+  agents.forEach(agent => {
+    const agentMessages = data.messages.filter(m => m.to === agent);
+    counts.byAgent[agent] = {
+      total: agentMessages.length,
+      unread: agentMessages.filter(m => !m.read).length,
+      pending: agentMessages.filter(m => m.status === 'pending').length
+    };
+  });
+  
+  return counts;
+}
+
+// Broadcast messages to all clients
+function broadcastMessages() {
+  const messagesData = loadMessages();
+  const counts = getMessageCounts();
+  broadcast({ type: 'messages_update', data: messagesData, counts });
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -760,6 +953,65 @@ const httpServer = createServer(async (req, res) => {
     return;
   }
   
+  // SESSIONS API - OpenClaw sessions
+  if (req.url === '/api/sessions') {
+    try {
+      const output = execSync('/home/roderik/.npm-global/bin/openclaw sessions list --json 2>/dev/null || echo "{}"', { encoding: 'utf8', maxBuffer: 1024 * 1024 });
+      let data = {};
+      try { data = JSON.parse(output); } catch (e) {}
+      
+      const sessions = data.sessions || [];
+      const active = sessions.filter(s => 
+        s.key && (s.key.includes('subagent') || s.key.includes('cron') || s.key === 'agent:main:main')
+      );
+      const subagents = active.filter(s => s.key.includes('subagent'));
+      const crons = active.filter(s => s.key.includes('cron'));
+      
+      // Format duration for display
+      const formatAge = (ms) => {
+        if (!ms) return '--';
+        const secs = Math.floor(ms / 1000);
+        if (secs < 60) return `${secs}s`;
+        const mins = Math.floor(secs / 60);
+        if (mins < 60) return `${mins}m`;
+        const hours = Math.floor(mins / 60);
+        if (hours < 24) return `${hours}h`;
+        return `${Math.floor(hours / 24)}d`;
+      };
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        total: data.count || sessions.length,
+        activeSubagents: subagents.length,
+        runningCrons: crons.length,
+        subagents: subagents.map(s => {
+          const uuid = s.key.split(':').pop();
+          return {
+            key: s.key,
+            label: uuid.substring(0, 8), // Short UUID as label
+            fullId: uuid,
+            model: s.model || 'unknown',
+            age: formatAge(s.ageMs),
+            updatedAt: s.updatedAt
+          };
+        }),
+        crons: crons.map(s => {
+          const cronKey = s.key.split(':').pop();
+          return {
+            key: cronKey,
+            label: cronKey.substring(0, 8),
+            age: formatAge(s.ageMs),
+            updatedAt: s.updatedAt
+          };
+        })
+      }));
+    } catch (e) {
+      res.writeHead(500);
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+  
   // ═══════════════════════════════════════════════════════════════
   // TASKS API - Full CRUD
   // ═══════════════════════════════════════════════════════════════
@@ -880,6 +1132,213 @@ const httpServer = createServer(async (req, res) => {
     return;
   }
   
+  // ═══════════════════════════════════════════════════════════════
+  // MESSAGES API - Crew Communication
+  // ═══════════════════════════════════════════════════════════════
+  
+  // GET /api/messages - List messages (with optional filters)
+  const messagesUrlMatch = req.url.match(/^\/api\/messages(\?.*)?$/);
+  if (messagesUrlMatch && req.method === 'GET') {
+    const urlParams = new URL(req.url, 'http://localhost').searchParams;
+    const agent = urlParams.get('agent');
+    const from = urlParams.get('from');
+    const status = urlParams.get('status');
+    const unread = urlParams.get('unread') === 'true';
+    
+    const messagesData = loadMessages();
+    let messages = messagesData.messages;
+    
+    if (agent) messages = messages.filter(m => m.to === agent.toLowerCase());
+    if (from) messages = messages.filter(m => m.from === from.toLowerCase());
+    if (status) messages = messages.filter(m => m.status === status);
+    if (unread) messages = messages.filter(m => !m.read);
+    
+    // Sort by timestamp descending
+    messages.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    const counts = getMessageCounts();
+    
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ messages, counts, lastUpdated: messagesData.lastUpdated }));
+    return;
+  }
+  
+  // POST /api/messages - Send a new message
+  if (req.url === '/api/messages' && req.method === 'POST') {
+    try {
+      const body = await parseBody(req);
+      
+      if (!body.to || !body.subject) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'to and subject are required' }));
+        return;
+      }
+      
+      const message = createMessage(
+        body.from || 'seven',
+        body.to,
+        body.subject,
+        body.content || '',
+        body.type || 'request',
+        body.taskId || null
+      );
+      
+      broadcastMessages();
+      
+      res.writeHead(201, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(message));
+    } catch (e) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+  
+  // PATCH /api/messages/:id - Update message (mark read, acknowledge, etc.)
+  const msgPatchMatch = req.url.match(/^\/api\/messages\/([^/]+)$/);
+  if (msgPatchMatch && req.method === 'PATCH') {
+    try {
+      const messageId = msgPatchMatch[1];
+      const body = await parseBody(req);
+      
+      const updated = updateMessage(messageId, body);
+      if (!updated) {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Message not found' }));
+        return;
+      }
+      
+      broadcastMessages();
+      log('INFO', 'Message updated via API:', { messageId, updates: body });
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(updated));
+    } catch (e) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+  
+  // DELETE /api/messages/:id - Delete message
+  const msgDeleteMatch = req.url.match(/^\/api\/messages\/([^/]+)$/);
+  if (msgDeleteMatch && req.method === 'DELETE') {
+    const messageId = msgDeleteMatch[1];
+    const deleted = deleteMessage(messageId);
+    
+    if (!deleted) {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Message not found' }));
+      return;
+    }
+    
+    broadcastMessages();
+    log('INFO', 'Message deleted via API:', { messageId });
+    
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ success: true, deleted }));
+    return;
+  }
+  
+  // GET /api/messages/counts - Get message counts for dashboard
+  if (req.url === '/api/messages/counts' && req.method === 'GET') {
+    const counts = getMessageCounts();
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(counts));
+    return;
+  }
+  
+  // POST /api/messages/:id/reply - Add reply to a message
+  const msgReplyMatch = req.url.match(/^\/api\/messages\/([^/]+)\/reply$/);
+  if (msgReplyMatch && req.method === 'POST') {
+    try {
+      const messageId = msgReplyMatch[1];
+      const body = await parseBody(req);
+      
+      if (!body.text) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Reply text is required' }));
+        return;
+      }
+      
+      const messagesData = loadMessages();
+      const msgIndex = messagesData.messages.findIndex(m => m.id === messageId);
+      
+      if (msgIndex === -1) {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Message not found' }));
+        return;
+      }
+      
+      if (!messagesData.messages[msgIndex].replies) {
+        messagesData.messages[msgIndex].replies = [];
+      }
+      
+      const reply = {
+        from: body.from || 'system',
+        text: body.text,
+        timestamp: new Date().toISOString()
+      };
+      
+      messagesData.messages[msgIndex].replies.push(reply);
+      messagesData.messages[msgIndex].status = body.complete ? 'completed' : 'acknowledged';
+      messagesData.messages[msgIndex].updatedAt = new Date().toISOString();
+      
+      saveMessages(messagesData);
+      broadcastMessages();
+      
+      log('INFO', 'Reply added to message:', { messageId });
+      
+      res.writeHead(201, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(reply));
+    } catch (e) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+  
+  // POST /api/messages/:id/create-task - Create task from message
+  const msgTaskMatch = req.url.match(/^\/api\/messages\/([^/]+)\/create-task$/);
+  if (msgTaskMatch && req.method === 'POST') {
+    try {
+      const messageId = msgTaskMatch[1];
+      
+      const messagesData = loadMessages();
+      const msg = messagesData.messages.find(m => m.id === messageId);
+      
+      if (!msg) {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Message not found' }));
+        return;
+      }
+      
+      // Create task from message
+      const task = createTask(
+        msg.subject,
+        msg.content || `Created from message ${msg.id}`,
+        msg.to,
+        'general',
+        msg.type === 'request' ? 'medium' : 'low'
+      );
+      
+      // Link message to task
+      updateMessage(messageId, { taskId: task.id });
+      
+      broadcastTasks();
+      broadcastMessages();
+      
+      log('INFO', 'Task created from message:', { messageId, taskId: task.id });
+      
+      res.writeHead(201, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ message: msg, task }));
+    } catch (e) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+  
   // Mission control route
   if (req.url === '/mission' || req.url === '/mission/') {
     try {
@@ -933,7 +1392,7 @@ wss.on('connection', async (ws, req) => {
   const clientIP = req.socket.remoteAddress;
   log('INFO', `Client connected from ${clientIP}. Total: ${clients.size}`);
   
-  // Send initial data (bridge + tasks)
+  // Send initial data (bridge + tasks + messages)
   try {
     const data = await gatherBridgeData();
     ws.send(JSON.stringify({ type: 'init', data }));
@@ -941,6 +1400,11 @@ wss.on('connection', async (ws, req) => {
     // Also send task data
     const tasksData = loadTasks();
     ws.send(JSON.stringify({ type: 'tasks', data: tasksData }));
+    
+    // Also send messages data
+    const messagesData = loadMessages();
+    const msgCounts = getMessageCounts();
+    ws.send(JSON.stringify({ type: 'messages', data: messagesData, counts: msgCounts }));
   } catch (e) {
     log('ERROR', 'Error sending init data:', { error: e.message });
   }
@@ -990,6 +1454,46 @@ wss.on('connection', async (ws, req) => {
             const task = createTask(msg.title, msg.description, msg.assignee, msg.category, msg.priority);
             broadcastTasks();
             log('INFO', 'Task created:', { taskId: task.id, title: task.title });
+          }
+          break;
+          
+        case 'add_task_log':
+          if (msg.taskId && msg.message) {
+            const logEntry = addTaskLog(msg.taskId, msg.message, msg.logType || 'update', msg.agent || 'seven');
+            if (logEntry) {
+              broadcastTasks();
+              // Also broadcast a specific log update event for real-time updates
+              broadcast({
+                type: 'task_log_update',
+                taskId: msg.taskId,
+                log: logEntry
+              });
+            }
+          }
+          break;
+          
+        // Crew messaging
+        case 'get_messages':
+          const messagesData = loadMessages();
+          const msgCounts = getMessageCounts();
+          ws.send(JSON.stringify({ type: 'messages', data: messagesData, counts: msgCounts }));
+          break;
+          
+        case 'send_message':
+          if (msg.to && msg.subject) {
+            const newMsg = createMessage(msg.from || 'seven', msg.to, msg.subject, msg.content, msg.msgType, msg.taskId);
+            broadcastMessages();
+            log('INFO', 'Message sent via WS:', { id: newMsg.id, to: msg.to });
+          }
+          break;
+          
+        case 'update_message':
+          if (msg.messageId && msg.updates) {
+            const updated = updateMessage(msg.messageId, msg.updates);
+            if (updated) {
+              broadcastMessages();
+              log('INFO', 'Message updated via WS:', { id: msg.messageId });
+            }
           }
           break;
           
@@ -1063,6 +1567,14 @@ if (existsSync(TASKS_FILE)) {
   });
 }
 
+// Watch messages file for external changes (CLI updates)
+if (existsSync(MESSAGES_FILE)) {
+  watchFile(MESSAGES_FILE, { interval: 2000 }, () => {
+    log('INFO', 'Messages file changed - broadcasting update');
+    broadcastMessages();
+  });
+}
+
 // Start server
 httpServer.listen(PORT, '0.0.0.0', () => {
   console.log(`
@@ -1078,8 +1590,9 @@ httpServer.listen(PORT, '0.0.0.0', () => {
 ║  Mission:    http://localhost:${PORT}/mission                         ║
 ╠═══════════════════════════════════════════════════════════════════╣
 ║  API Endpoints:                                                   ║
-║  • /api/data    - Bridge dashboard data                           ║
-║  • /api/tasks   - Task management data                            ║
+║  • /api/data     - Bridge dashboard data                          ║
+║  • /api/tasks    - Task management data                           ║
+║  • /api/messages - Crew messaging system                          ║
 ╠═══════════════════════════════════════════════════════════════════╣
 ║  Data Sources:                                                    ║
 ║  • Quark: Portfolio & trade history                               ║

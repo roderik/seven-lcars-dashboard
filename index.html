@@ -3,80 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LCARS • Bridge Status</title>
+    <title>LCARS • Command Center</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖖</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        lcars: {
+                            orange: '#FF9900',
+                            gold: '#FFCC99',
+                            purple: '#CC99CC',
+                            violet: '#9999CC',
+                            blue: '#9999FF',
+                            sky: '#99CCFF',
+                            red: '#CC6666',
+                            pink: '#CC6699',
+                            green: '#99CC99',
+                            teal: '#66CCCC',
+                            tan: '#CC9966',
+                            peach: '#FFCC66',
+                            bg: '#000000',
+                            white: '#FFFFCC',
+                            panel: 'rgba(20, 20, 30, 0.95)'
+                        },
+                        status: {
+                            active: '#99FF99',
+                            warning: '#FFCC00',
+                            alert: '#FF6666',
+                            offline: '#666666'
+                        }
+                    },
+                    fontFamily: {
+                        lcars: ['Antonio', 'Helvetica Neue', 'Arial', 'sans-serif']
+                    },
+                    borderRadius: {
+                        'lcars': '25px',
+                        'lcars-sm': '15px',
+                        'lcars-xs': '10px'
+                    },
+                    animation: {
+                        'twinkle': 'twinkle var(--duration) ease-in-out infinite',
+                        'pulse-badge': 'pulse-badge 2s infinite',
+                        'status-blink': 'statusBlink 1.5s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        twinkle: {
+                            '0%, 100%': { opacity: 'var(--base-opacity)' },
+                            '50%': { opacity: '1' }
+                        },
+                        'pulse-badge': {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '0.6' }
+                        },
+                        statusBlink: {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '0.4' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        /* ═══════════════════════════════════════════════════════════════
-           LCARS DESIGN SYSTEM v6 - Enhanced Visual Experience
-           Authentic Star Trek LCARS with modern polish
-           ═══════════════════════════════════════════════════════════════ */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        @import url('https://fonts.googleapis.com/css2?family=Antonio:wght@400;500;700&display=swap');
-        
-        :root {
-            /* Authentic LCARS Colors */
-            --lcars-orange: #ff9900;
-            --lcars-gold: #ffcc99;
-            --lcars-tan: #cc9966;
-            --lcars-peach: #ffcc66;
-            --lcars-purple: #cc99cc;
-            --lcars-violet: #9999cc;
-            --lcars-blue: #9999ff;
-            --lcars-sky: #99ccff;
-            --lcars-red: #cc6666;
-            --lcars-pink: #cc6699;
-            --lcars-green: #99cc99;
-            --lcars-teal: #66cccc;
-            --lcars-white: #ffffcc;
-            --lcars-bg: #000000;
-            --lcars-text: #ff9900;
-            
-            /* Semantic colors */
-            --status-active: #99ff99;
-            --status-warning: #ffcc00;
-            --status-alert: #ff6666;
-            --status-offline: #666666;
-            
-            /* Layout */
-            --sidebar-width: 180px;
-            --header-height: 80px;
-            --elbow-size: 40px;
-            --border-radius: 25px;
-            --gap: 12px;
-            
-            /* Glow effects */
-            --glow-orange: 0 0 10px rgba(255, 153, 0, 0.5);
-            --glow-purple: 0 0 10px rgba(204, 153, 204, 0.5);
-            --glow-blue: 0 0 10px rgba(153, 153, 255, 0.5);
-            --glow-green: 0 0 10px rgba(153, 204, 153, 0.5);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background: var(--lcars-bg);
-            color: var(--lcars-text);
-            font-family: 'Antonio', 'Helvetica Neue', Arial, sans-serif;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Starfield background */
-        .starfield {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-            overflow: hidden;
-        }
-
+        /* Starfield */
         .star {
             position: absolute;
             width: 2px;
@@ -85,21 +81,13 @@
             border-radius: 50%;
             animation: twinkle var(--duration) ease-in-out infinite;
         }
-
         @keyframes twinkle {
             0%, 100% { opacity: var(--base-opacity); }
             50% { opacity: 1; }
         }
 
-        /* Scan line effect */
+        /* Scanlines */
         .scanlines {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1000;
             background: repeating-linear-gradient(
                 0deg,
                 rgba(0, 0, 0, 0.1) 0px,
@@ -107,1458 +95,471 @@
                 transparent 1px,
                 transparent 3px
             );
-            opacity: 0.3;
         }
 
-        /* ═══════════════════════════════════════════════════════════════
-           LCARS Frame Structure
-           ═══════════════════════════════════════════════════════════════ */
-        
-        .lcars-frame {
-            display: grid;
-            grid-template-columns: var(--sidebar-width) 1fr;
-            grid-template-rows: var(--header-height) 1fr auto;
-            min-height: 100vh;
-            gap: 0;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Header Bar */
-        .lcars-header {
-            grid-column: 1 / -1;
-            display: flex;
-            align-items: stretch;
-            background: var(--lcars-bg);
-            position: relative;
-        }
-
-        .header-elbow {
-            width: var(--sidebar-width);
-            background: var(--lcars-tan);
-            border-radius: 0 0 var(--border-radius) 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--lcars-bg);
-            letter-spacing: 2px;
-            transition: all 0.3s ease;
-        }
-
-        .header-elbow:hover {
-            filter: brightness(1.2);
-            box-shadow: var(--glow-orange);
-        }
-
-        .header-bar {
-            flex: 1;
-            display: flex;
-            align-items: stretch;
-            gap: 4px;
-            padding-left: 4px;
-        }
-
-        .header-segment {
-            padding: 8px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: 500;
-            color: var(--lcars-bg);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-        }
-
-        .header-segment:hover {
-            filter: brightness(1.2);
-        }
-
-        .header-segment.purple { background: var(--lcars-purple); flex: 1; }
-        .header-segment.blue { background: var(--lcars-blue); flex: 2; }
-        .header-segment.sky { background: var(--lcars-sky); flex: 1; }
-        .header-segment.peach { 
-            background: var(--lcars-peach); 
-            flex: 3;
-            justify-content: flex-end;
-            border-radius: 0 0 0 var(--border-radius);
-        }
-
-        .header-title {
-            background: var(--lcars-bg);
-            color: var(--lcars-peach);
-            padding: 0 30px;
-            font-size: 32px;
-            font-weight: 700;
-            letter-spacing: 4px;
-            display: flex;
-            align-items: center;
-            text-shadow: 0 0 20px rgba(255, 204, 102, 0.5);
-        }
-
-        .header-end {
-            width: 60px;
-            background: var(--lcars-orange);
-            border-radius: 0 0 0 50px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header-end::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            animation: shimmer 3s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        /* Alert Ticker */
-        .alert-ticker {
-            grid-column: 1 / -1;
-            background: rgba(20, 20, 30, 0.9);
-            border-bottom: 2px solid var(--lcars-orange);
-            padding: 6px 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            font-size: 12px;
-            overflow: hidden;
-        }
-
-        .ticker-label {
-            background: var(--lcars-orange);
-            color: #000;
-            padding: 2px 10px;
-            border-radius: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            flex-shrink: 0;
-        }
-
-        .ticker-content {
-            display: flex;
-            gap: 30px;
-            animation: scroll-ticker 30s linear infinite;
-        }
-
-        .ticker-content:hover {
-            animation-play-state: paused;
-        }
-
-        .ticker-item {
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .ticker-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--status-active);
-        }
-
-        .ticker-dot.warning { background: var(--status-warning); }
-        .ticker-dot.alert { background: var(--status-alert); }
-
-        @keyframes scroll-ticker {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-
-        /* Sidebar */
-        .lcars-sidebar {
-            background: var(--lcars-bg);
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            padding-top: 4px;
-        }
-
-        .sidebar-button {
-            background: var(--lcars-tan);
-            height: 50px;
-            border-radius: 0 var(--border-radius) var(--border-radius) 0;
-            display: flex;
-            align-items: center;
-            padding: 0 15px;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--lcars-bg);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .sidebar-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .sidebar-button:hover::before {
-            left: 100%;
-        }
-
-        .sidebar-button:hover {
-            filter: brightness(1.2);
-            transform: translateX(5px);
-        }
-
-        .sidebar-button.active {
-            box-shadow: var(--glow-orange);
-        }
-
-        .sidebar-button.purple { background: var(--lcars-purple); }
-        .sidebar-button.blue { background: var(--lcars-blue); }
-        .sidebar-button.green { background: var(--lcars-green); }
-        .sidebar-button.orange { background: var(--lcars-orange); }
-        .sidebar-button.sky { background: var(--lcars-sky); }
-        .sidebar-button.pink { background: var(--lcars-pink); }
-        .sidebar-button.gold { background: var(--lcars-gold); }
-
-        .sidebar-spacer {
-            flex: 1;
-            background: var(--lcars-tan);
-            border-radius: 0 var(--border-radius) var(--border-radius) 0;
-            min-height: 50px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Animated data stream in spacer */
-        .sidebar-spacer::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 10px;
-            right: 10px;
-            height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent 0px,
-                transparent 8px,
-                rgba(0,0,0,0.3) 8px,
-                rgba(0,0,0,0.3) 10px
-            );
-            animation: datastream 2s linear infinite;
-        }
-
-        @keyframes datastream {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(10px); }
-        }
-
+        /* Sidebar elbow shapes */
         .sidebar-elbow-bottom {
-            background: var(--lcars-tan);
-            height: var(--elbow-size);
-            border-radius: 0 0 0 var(--border-radius);
+            border-radius: 0 0 0 25px;
         }
-
-        /* Main Content */
-        .lcars-main {
-            padding: var(--gap);
-            padding-left: var(--gap);
-            overflow-y: auto;
+        
+        /* Header elbow */
+        .header-elbow {
+            border-radius: 0 0 25px 0;
         }
-
-        /* Footer */
-        .lcars-footer {
-            grid-column: 1 / -1;
-            display: flex;
-            align-items: stretch;
-            background: var(--lcars-bg);
-            height: 60px;
-            gap: 4px;
-        }
-
+        
+        /* Footer elbow */
         .footer-elbow {
-            width: var(--sidebar-width);
-            background: var(--lcars-tan);
-            border-radius: 0 var(--border-radius) 0 0;
-            display: flex;
+            border-radius: 0 25px 0 0;
+        }
+
+        /* Kanban drag state */
+        .task-card.dragging { opacity: 0.5; }
+
+        /* Activity log types */
+        .activity-log-type.status { background: #99CC99; color: #000; }
+        .activity-log-type.comment { background: #99CCFF; color: #000; }
+        .activity-log-type.system { background: #FF9900; color: #000; }
+        .activity-log-type.update { background: #CC99CC; color: #000; }
+        .activity-log-type.tool { background: #66CCCC; color: #000; }
+        .activity-log-type.thinking { background: #9999FF; color: #000; }
+        .activity-log-type.building { background: #99FF99; color: #000; }
+        .activity-log-type.research { background: #FFCC66; color: #000; }
+
+        /* Platform badges */
+        .platform-badge {
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--lcars-bg);
-        }
-
-        .footer-bar {
-            flex: 1;
-            display: flex;
-            gap: 4px;
-            padding-left: 4px;
-        }
-
-        .footer-segment {
-            padding: 8px 15px;
-            display: flex;
-            align-items: center;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--lcars-bg);
-            transition: all 0.3s ease;
-        }
-
-        .footer-segment:hover {
-            filter: brightness(1.2);
-        }
-
-        .footer-segment.purple { background: var(--lcars-purple); flex: 1; border-radius: var(--border-radius) 0 0 0; }
-        .footer-segment.blue { background: var(--lcars-blue); flex: 1; }
-        .footer-segment.orange { background: var(--lcars-orange); flex: 2; }
-        .footer-segment.peach { background: var(--lcars-peach); flex: 1; border-radius: 0 0 0 var(--border-radius); }
-
-        /* ═══════════════════════════════════════════════════════════════
-           Panel System - Enhanced
-           ═══════════════════════════════════════════════════════════════ */
-        
-        .panels-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: var(--gap);
-        }
-
-        .crew-panel {
-            background: rgba(20, 20, 30, 0.9);
-            border: 2px solid var(--lcars-tan);
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            position: relative;
-            animation: panelFadeIn 0.5s ease forwards;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        .crew-panel:nth-child(1) { animation-delay: 0.1s; }
-        .crew-panel:nth-child(2) { animation-delay: 0.2s; }
-        .crew-panel:nth-child(3) { animation-delay: 0.3s; }
-        .crew-panel:nth-child(4) { animation-delay: 0.4s; }
-        .crew-panel:nth-child(5) { animation-delay: 0.5s; }
-        .crew-panel:nth-child(6) { animation-delay: 0.6s; }
-        .crew-panel:nth-child(7) { animation-delay: 0.7s; }
-
-        @keyframes panelFadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .crew-panel::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%);
-            pointer-events: none;
-        }
-
-        .crew-panel:hover {
-            box-shadow: 0 0 20px rgba(255, 153, 0, 0.2);
-        }
-
-        .panel-header {
-            display: flex;
-            align-items: stretch;
-            height: 45px;
-            gap: 4px;
-        }
-
-        .panel-color-bar {
-            width: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--lcars-bg);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            position: relative;
-        }
-
-        .panel-title-area {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 15px;
-            background: rgba(0, 0, 0, 0.5);
-        }
-
-        .panel-name {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .panel-status {
-            padding: 4px 12px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            position: relative;
-        }
-
-        .status-active { 
-            background: var(--status-active); 
-            color: #000;
-            box-shadow: 0 0 10px rgba(153, 255, 153, 0.5);
-        }
-        .status-standby { background: var(--lcars-violet); color: #000; }
-        .status-monitoring { background: var(--lcars-sky); color: #000; }
-        .status-building { 
-            background: var(--lcars-blue); 
-            color: #000;
-            animation: pulseGlow 2s infinite;
-        }
-        .status-researching { 
-            background: var(--lcars-green); 
-            color: #000;
-            animation: pulseGlow 2s infinite;
-        }
-        .status-processing { 
-            background: var(--lcars-pink); 
-            color: #000;
-            animation: pulseGlow 2s infinite;
-        }
-        .status-trading { 
-            background: var(--status-warning); 
-            color: #000; 
-            animation: pulse 1s infinite;
-        }
-        .status-offline { background: var(--status-offline); color: #fff; }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-
-        @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 5px currentColor; }
-            50% { box-shadow: 0 0 15px currentColor; }
-        }
-
-        .panel-content {
-            padding: 15px;
-        }
-
-        .panel-metrics {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-
-        .metric {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 12px;
-            border-radius: 8px;
-            border-left: 3px solid var(--lcars-tan);
-            transition: all 0.3s ease;
-        }
-
-        .metric:hover {
-            background: rgba(0, 0, 0, 0.5);
-            transform: translateX(3px);
-        }
-
-        .metric-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--lcars-gold);
-            margin-bottom: 4px;
-        }
-
-        .metric-value {
-            font-size: 24px;
-            font-weight: 700;
-            transition: all 0.3s ease;
-        }
-
-        .metric-value.positive { color: var(--status-active); text-shadow: 0 0 10px rgba(153, 255, 153, 0.5); }
-        .metric-value.negative { color: var(--status-alert); text-shadow: 0 0 10px rgba(255, 102, 102, 0.5); }
-
-        .metric-bar {
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-            margin-top: 8px;
-            overflow: hidden;
-        }
-
-        .metric-fill {
-            height: 100%;
-            border-radius: 2px;
-            transition: width 0.5s ease;
-            position: relative;
-        }
-
-        .metric-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: barShimmer 2s infinite;
-        }
-
-        @keyframes barShimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        .fill-orange { background: var(--lcars-orange); }
-        .fill-purple { background: var(--lcars-purple); }
-        .fill-blue { background: var(--lcars-blue); }
-        .fill-green { background: var(--lcars-green); }
-        .fill-red { background: var(--status-alert); }
-        .fill-gold { background: var(--lcars-gold); }
-        .fill-pink { background: var(--lcars-pink); }
-        .fill-sky { background: var(--lcars-sky); }
-
-        /* Panel specific colors */
-        .panel-seven { border-color: var(--lcars-purple); }
-        .panel-seven .panel-color-bar { background: var(--lcars-purple); }
-        .panel-seven .panel-name { color: var(--lcars-purple); }
-        .panel-seven .metric { border-color: var(--lcars-purple); }
-
-        .panel-spock { border-color: var(--lcars-green); }
-        .panel-spock .panel-color-bar { background: var(--lcars-green); }
-        .panel-spock .panel-name { color: var(--lcars-green); }
-        .panel-spock .metric { border-color: var(--lcars-green); }
-
-        .panel-geordi { border-color: var(--lcars-blue); }
-        .panel-geordi .panel-color-bar { background: var(--lcars-blue); }
-        .panel-geordi .panel-name { color: var(--lcars-blue); }
-        .panel-geordi .metric { border-color: var(--lcars-blue); }
-
-        .panel-uhura { border-color: var(--lcars-pink); }
-        .panel-uhura .panel-color-bar { background: var(--lcars-pink); }
-        .panel-uhura .panel-name { color: var(--lcars-pink); }
-        .panel-uhura .metric { border-color: var(--lcars-pink); }
-
-        .panel-quark { border-color: var(--lcars-gold); }
-        .panel-quark .panel-color-bar { background: var(--lcars-gold); }
-        .panel-quark .panel-name { color: var(--lcars-gold); }
-        .panel-quark .metric { border-color: var(--lcars-gold); }
-
-        .panel-system { border-color: var(--lcars-sky); }
-        .panel-system .panel-color-bar { background: var(--lcars-sky); }
-        .panel-system .panel-name { color: var(--lcars-sky); }
-        .panel-system .metric { border-color: var(--lcars-sky); }
-
-        .panel-sessions { border-color: var(--lcars-orange); }
-        .panel-sessions .panel-color-bar { background: var(--lcars-orange); }
-        .panel-sessions .panel-name { color: var(--lcars-orange); }
-        .panel-sessions .metric { border-color: var(--lcars-orange); }
-
-        /* ═══════════════════════════════════════════════════════════════
-           Sessions Panel - Agent Introspection
-           ═══════════════════════════════════════════════════════════════ */
-        
-        .sessions-list {
-            grid-column: 1 / -1;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .session-item {
-            display: grid;
-            grid-template-columns: auto 1fr auto auto;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 12px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            margin-bottom: 6px;
-            border-left: 3px solid var(--lcars-orange);
-            transition: all 0.3s ease;
-        }
-
-        .session-item:hover {
-            background: rgba(0, 0, 0, 0.5);
-            transform: translateX(3px);
-        }
-
-        .session-indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            position: relative;
-        }
-
-        .session-indicator.running {
-            background: var(--status-active);
-            animation: pulseIndicator 1.5s infinite;
-        }
-
-        .session-indicator.idle {
-            background: var(--lcars-violet);
-        }
-
-        .session-indicator.stopped {
-            background: var(--status-offline);
-        }
-
-        @keyframes pulseIndicator {
-            0%, 100% { 
-                box-shadow: 0 0 0 0 rgba(153, 255, 153, 0.7); 
-            }
-            50% { 
-                box-shadow: 0 0 0 6px rgba(153, 255, 153, 0); 
-            }
-        }
-
-        .session-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            min-width: 0;
-        }
-
-        .session-label {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--lcars-orange);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .session-meta {
-            font-size: 10px;
-            color: var(--lcars-gold);
-            display: flex;
-            gap: 10px;
-        }
-
-        .session-channel {
-            padding: 2px 8px;
-            background: rgba(255, 153, 0, 0.2);
+            padding: 2px 5px;
             border-radius: 4px;
-            font-size: 10px;
-            color: var(--lcars-orange);
+            font-size: 8px;
+            font-weight: 600;
             text-transform: uppercase;
+            margin-right: 3px;
+            letter-spacing: 0.5px;
         }
+        .platform-badge.github { background: #333; color: #fff; }
+        .platform-badge.cli { background: #4A4A4A; color: #00FF00; }
+        .platform-badge.telegram { background: #0088cc; color: #fff; }
+        .platform-badge.gmail { background: #EA4335; color: #fff; }
+        .platform-badge.moltbook { background: #7C3AED; color: #fff; }
+        .platform-badge.polymarket { background: #1652F0; color: #fff; }
+        .platform-badge.research { background: #FF9900; color: #000; }
+        .platform-badge.qc { background: #00CED1; color: #000; }
+        .platform-badge.review { background: #CC99CC; color: #000; }
 
-        .session-duration {
-            font-size: 11px;
-            color: var(--lcars-sky);
-            font-variant-numeric: tabular-nums;
-        }
-
-        .session-empty {
-            text-align: center;
-            padding: 30px;
-            color: var(--lcars-violet);
-            font-size: 14px;
-        }
-
-        /* ═══════════════════════════════════════════════════════════════
-           Sparkline Chart
-           ═══════════════════════════════════════════════════════════════ */
-        
-        .sparkline-container {
-            grid-column: 1 / -1;
-            height: 60px;
+        /* Expandable activity entries */
+        .activity-entry { cursor: pointer; }
+        .activity-entry:hover { background: rgba(255, 153, 0, 0.15); }
+        .activity-details {
+            display: none;
             margin-top: 8px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
             padding: 8px;
-            position: relative;
-        }
-
-        .sparkline {
-            width: 100%;
-            height: 100%;
-        }
-
-        .sparkline-label {
-            position: absolute;
-            top: 4px;
-            right: 8px;
-            font-size: 9px;
-            color: var(--lcars-gold);
-            text-transform: uppercase;
-        }
-
-        /* Trade History */
-        .trades-list {
-            grid-column: 1 / -1;
-            max-height: 120px;
-            overflow-y: auto;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            padding: 8px;
-            margin-top: 8px;
-        }
-
-        .trade-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 4px 0;
-            font-size: 11px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .trade-item:last-child {
-            border-bottom: none;
-        }
-
-        .trade-direction {
-            width: 40px;
-            text-align: center;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-weight: 700;
-        }
-
-        .trade-direction.up { background: var(--status-active); color: #000; }
-        .trade-direction.down { background: var(--status-alert); color: #000; }
-
-        .trade-result {
-            width: 40px;
-            text-align: center;
-        }
-
-        .trade-result.win { color: var(--status-active); }
-        .trade-result.loss { color: var(--status-alert); }
-
-        .trade-profit {
-            flex: 1;
-            text-align: right;
-            font-weight: 700;
-        }
-
-        /* Task List */
-        .task-list {
-            grid-column: 1 / -1;
-            margin-top: 8px;
-        }
-
-        .task-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 10px;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.5);
             border-radius: 6px;
-            margin-bottom: 4px;
-            font-size: 11px;
-            transition: all 0.3s ease;
+            border-left: 2px solid #CC99CC;
         }
-
-        .task-item:hover {
-            background: rgba(0, 0, 0, 0.5);
-            transform: translateX(3px);
-        }
-
-        .task-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--status-active);
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        .task-label {
-            flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Git Status */
-        .git-info {
-            font-size: 11px;
-            color: var(--lcars-sky);
-        }
-
-        .git-branch {
-            display: inline-block;
-            padding: 2px 8px;
-            background: rgba(153, 204, 255, 0.2);
-            border-radius: 3px;
-            margin-right: 8px;
-        }
-
-        .git-modified {
-            color: var(--status-warning);
-        }
-
-        /* Email breakdown */
-        .email-breakdown {
-            grid-column: 1 / -1;
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
-        }
-
-        .email-account {
-            flex: 1;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .email-account:hover {
-            background: rgba(0, 0, 0, 0.5);
-        }
-
-        .email-account-name {
+        .activity-entry.expanded .activity-details { display: block; }
+        .activity-expand-icon {
+            transition: transform 0.2s ease;
             font-size: 10px;
-            color: var(--lcars-gold);
-            text-transform: uppercase;
-            margin-bottom: 4px;
+            opacity: 0.7;
         }
+        .activity-entry.expanded .activity-expand-icon { transform: rotate(90deg); }
 
-        .email-count {
-            font-size: 28px;
-            font-weight: 700;
-        }
+        /* Agent state colors */
+        .agent-state.thinking { background: #9999FF; color: #000; animation: pulse-badge 1.5s infinite; }
+        .agent-state.building { background: #99FF99; color: #000; animation: pulse-badge 1s infinite; }
+        .agent-state.researching { background: #FFCC66; color: #000; animation: pulse-badge 2s infinite; }
+        .agent-state.waiting { background: #FFCC00; color: #000; animation: statusBlink 2s infinite; }
+        .agent-state.idle { background: #9999CC; color: #000; }
+        .agent-state.offline { background: #666666; color: #fff; }
 
-        /* System Stats Row */
-        .system-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-        }
-
-        .system-stat {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .system-stat:hover {
-            background: rgba(0, 0, 0, 0.5);
-        }
-
-        .system-stat-label {
-            font-size: 9px;
-            text-transform: uppercase;
-            color: var(--lcars-gold);
-            margin-bottom: 4px;
-        }
-
-        .system-stat-value {
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        /* Connection Status */
-        .connection-status {
-            position: fixed;
-            bottom: 70px;
-            right: 20px;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            backdrop-filter: blur(10px);
-        }
-
-        .connection-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-
-        .status-connected {
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid var(--status-active);
-            color: var(--status-active);
-        }
-
-        .status-connected .connection-dot {
-            background: var(--status-active);
-            animation: blink 2s infinite;
-        }
-
-        .status-disconnected {
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid var(--status-alert);
-            color: var(--status-alert);
-        }
-
-        .status-disconnected .connection-dot {
-            background: var(--status-alert);
-        }
-
-        .status-connecting {
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid var(--status-warning);
-            color: var(--status-warning);
-        }
-
-        .status-connecting .connection-dot {
-            background: var(--status-warning);
-            animation: blink 0.5s infinite;
-        }
-
-        /* Pending Trade Alert */
-        .pending-trade {
-            grid-column: 1 / -1;
-            background: rgba(255, 204, 0, 0.1);
-            border: 1px solid var(--status-warning);
-            border-radius: 8px;
-            padding: 12px;
-            margin-top: 8px;
-            animation: pulse 2s infinite;
-        }
-
-        .pending-trade-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-
-        .pending-trade-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--status-warning);
-            text-transform: uppercase;
-        }
-
-        .pending-trade-details {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            font-size: 11px;
-        }
-
-        .pending-detail {
-            text-align: center;
-        }
-
-        .pending-detail-label {
-            color: var(--lcars-gold);
-            font-size: 9px;
-            text-transform: uppercase;
-        }
-
-        .pending-detail-value {
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        /* Keyboard shortcuts tooltip */
-        .shortcuts-hint {
-            position: fixed;
-            bottom: 70px;
-            left: 20px;
-            padding: 8px 16px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid var(--lcars-tan);
-            border-radius: 10px;
-            font-size: 10px;
-            color: var(--lcars-gold);
-            z-index: 100;
-            display: flex;
-            gap: 15px;
-            backdrop-filter: blur(10px);
-        }
-
-        .shortcut {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .shortcut kbd {
-            background: var(--lcars-tan);
-            color: #000;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: inherit;
-            font-weight: 700;
-        }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: #CC9966; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #FF9900; }
 
         /* Responsive */
         @media (max-width: 1200px) {
-            .panels-grid {
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            }
-            
-            .shortcuts-hint {
-                display: none;
-            }
+            .agents-panel { }
+            .shortcuts-hint { display: none !important; }
+            .mission-content { grid-template-columns: 1fr 1fr !important; }
         }
-
-        @media (max-width: 1024px) {
-            .lcars-frame {
-                grid-template-columns: 120px 1fr;
-            }
-            
-            .header-elbow, .footer-elbow {
-                width: 120px;
-            }
-            
-            .sidebar-button {
-                font-size: 10px;
-                padding: 0 10px;
-            }
-        }
-
         @media (max-width: 768px) {
-            .lcars-frame {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto auto 1fr auto;
-            }
-            
-            .lcars-sidebar {
-                display: none;
-            }
-            
-            .header-elbow, .footer-elbow {
-                display: none;
-            }
-            
-            .header-title {
-                font-size: 24px;
-                padding: 0 15px;
-            }
-            
-            .panel-metrics {
-                grid-template-columns: 1fr;
-            }
-            
-            .system-row {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .alert-ticker {
-                display: none;
-            }
-        }
-
-        /* Scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--lcars-tan);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--lcars-orange);
+            .lcars-frame { grid-template-columns: 1fr !important; }
+            .lcars-sidebar { display: none !important; }
+            .stats-bar, .mission-content { grid-column: 1 !important; }
+            .mission-content { grid-template-columns: 1fr !important; }
+            .feed-panel { max-height: 200px; }
         }
     </style>
 </head>
-<body>
-    <!-- Starfield Background -->
-    <div class="starfield" id="starfield"></div>
+<body class="bg-lcars-bg text-lcars-orange font-lcars min-h-screen overflow-hidden">
+    <!-- Starfield -->
+    <div id="starfield" class="fixed inset-0 pointer-events-none -z-10"></div>
     
-    <!-- Scanlines Overlay -->
-    <div class="scanlines"></div>
+    <!-- Scanlines -->
+    <div class="scanlines fixed inset-0 pointer-events-none z-[1000] opacity-30"></div>
 
-    <div class="lcars-frame">
+    <!-- Main Frame -->
+    <div class="lcars-frame grid grid-cols-[160px_1fr] grid-rows-[70px_auto_1fr_50px] h-screen relative z-10">
+        
         <!-- Header -->
-        <div class="lcars-header">
-            <div class="header-elbow">LCARS 47.6</div>
-            <div class="header-bar">
-                <div class="header-segment purple" id="stardate">47085.2</div>
-                <div class="header-title">BRIDGE STATUS</div>
-                <div class="header-segment blue" id="clock">--:--:--</div>
-                <div class="header-segment sky" id="uptime">--</div>
-                <div class="header-end"></div>
+        <header class="col-span-2 flex items-stretch">
+            <div class="header-elbow w-40 bg-lcars-purple flex items-center justify-center text-xs font-bold text-lcars-bg tracking-wider cursor-pointer hover:brightness-125 transition-all">
+                LCARS 47.6
             </div>
-        </div>
-
-        <!-- Alert Ticker -->
-        <div class="alert-ticker">
-            <div class="ticker-label">Status</div>
-            <div class="ticker-content" id="ticker-content">
-                <div class="ticker-item"><span class="ticker-dot"></span> All systems nominal</div>
-                <div class="ticker-item"><span class="ticker-dot"></span> Dashboard v6 operational</div>
+            <div class="flex-1 flex items-stretch gap-1 pl-1">
+                <div id="stardate" class="flex-1 bg-lcars-purple flex items-center justify-center px-4 text-sm font-medium text-lcars-bg uppercase tracking-wider hover:brightness-125 transition-all">
+                    47085.2
+                </div>
+                <div class="bg-lcars-bg text-lcars-purple px-6 text-2xl font-bold tracking-[4px] flex items-center drop-shadow-[0_0_20px_rgba(204,153,204,0.5)]">
+                    COMMAND CENTER
+                </div>
+                <div id="clock" class="flex-[2] bg-lcars-blue flex items-center justify-center px-4 text-sm font-medium text-lcars-bg uppercase tracking-wider hover:brightness-125 transition-all">
+                    --:--:--
+                </div>
+                <div id="task-count" class="flex-1 bg-lcars-sky flex items-center justify-center px-4 text-sm font-medium text-lcars-bg uppercase tracking-wider hover:brightness-125 transition-all">
+                    0 TASKS
+                </div>
+                <div id="uptime" class="flex-[2] bg-lcars-peach flex items-center justify-end px-4 text-sm font-medium text-lcars-bg uppercase tracking-wider rounded-bl-lcars hover:brightness-125 transition-all">
+                    --
+                </div>
+                <div class="w-12 bg-lcars-orange rounded-bl-[50px]"></div>
             </div>
-        </div>
+        </header>
 
         <!-- Sidebar -->
-        <div class="lcars-sidebar">
-            <a href="/mission" class="sidebar-button tan" style="text-decoration:none;">MISSIONS</a>
-            <div class="sidebar-button purple" onclick="scrollToPanel('seven')" data-key="1">SEVEN</div>
-            <div class="sidebar-button green" onclick="scrollToPanel('spock')" data-key="2">SPOCK</div>
-            <div class="sidebar-button blue" onclick="scrollToPanel('geordi')" data-key="3">GEORDI</div>
-            <div class="sidebar-button pink" onclick="scrollToPanel('uhura')" data-key="4">UHURA</div>
-            <div class="sidebar-button gold" onclick="scrollToPanel('quark')" data-key="5">QUARK</div>
-            <div class="sidebar-button sky" onclick="scrollToPanel('system')" data-key="6">SYSTEM</div>
-            <div class="sidebar-button orange" onclick="scrollToPanel('sessions')" data-key="7">SESSIONS</div>
-            <div class="sidebar-spacer"></div>
-            <div class="sidebar-elbow-bottom"></div>
-        </div>
+        <aside class="lcars-sidebar row-span-2 flex flex-col gap-1 pt-1">
+            <button class="bg-lcars-purple h-10 rounded-r-lcars flex items-center px-3 text-[11px] font-bold text-lcars-bg uppercase tracking-wider cursor-pointer hover:brightness-125 hover:translate-x-1 transition-all shadow-[0_0_15px_rgba(255,153,0,0.5)]">
+                COMMAND
+            </button>
+            <button onclick="showAddTask()" class="bg-lcars-blue h-10 rounded-r-lcars flex items-center px-3 text-[11px] font-bold text-lcars-bg uppercase tracking-wider cursor-pointer hover:brightness-125 hover:translate-x-1 transition-all">
+                NEW TASK
+            </button>
+            <button onclick="toggleView('agents')" class="bg-lcars-green h-10 rounded-r-lcars flex items-center px-3 text-[11px] font-bold text-lcars-bg uppercase tracking-wider cursor-pointer hover:brightness-125 hover:translate-x-1 transition-all">
+                CREW
+            </button>
+            <button onclick="toggleView('system')" class="bg-lcars-sky h-10 rounded-r-lcars flex items-center px-3 text-[11px] font-bold text-lcars-bg uppercase tracking-wider cursor-pointer hover:brightness-125 hover:translate-x-1 transition-all">
+                SYSTEM
+            </button>
+            <button onclick="openMessagesModal()" id="messages-btn" class="bg-lcars-violet h-10 rounded-r-lcars flex items-center px-3 text-[11px] font-bold text-lcars-bg uppercase tracking-wider cursor-pointer hover:brightness-125 hover:translate-x-1 transition-all">
+                MESSAGES <span id="msg-badge" class="hidden bg-status-alert text-black text-[10px] font-bold px-1.5 py-0.5 rounded-xl ml-1.5 animate-pulse">0</span>
+            </button>
+            <div class="flex-1 bg-lcars-tan rounded-r-lcars min-h-[20px]"></div>
+            <div class="sidebar-elbow-bottom bg-lcars-tan h-[30px]"></div>
+        </aside>
 
-        <!-- Main Content -->
-        <div class="lcars-main">
-            <div class="panels-grid">
-                
-                <!-- Seven of Nine Panel -->
-                <div class="crew-panel panel-seven" id="panel-seven">
-                    <div class="panel-header">
-                        <div class="panel-color-bar">CMD</div>
-                        <div class="panel-title-area">
-                            <div class="panel-name">Seven of Nine</div>
-                            <div class="panel-status status-standby" id="seven-status">STANDBY</div>
-                        </div>
-                    </div>
-                    <div class="panel-content">
-                        <div class="panel-metrics">
-                            <div class="metric">
-                                <div class="metric-label">Active Sessions</div>
-                                <div class="metric-value" id="seven-sessions">0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Efficiency</div>
-                                <div class="metric-value" id="seven-efficiency">0%</div>
-                                <div class="metric-bar">
-                                    <div class="metric-fill fill-purple" id="seven-efficiency-bar" style="width: 0%"></div>
-                                </div>
-                            </div>
-                            <div class="task-list" id="seven-tasks"></div>
-                        </div>
-                    </div>
+        <!-- Stats Bar -->
+        <div id="stats-bar" class="col-start-2 flex gap-3 p-3 pb-0 overflow-x-auto">
+            <!-- CPU -->
+            <div class="stat-card flex-shrink-0 min-w-[140px] bg-lcars-panel border-2 border-lcars-sky rounded-lcars-sm p-3 flex flex-col gap-1">
+                <div class="text-[9px] uppercase tracking-wider text-lcars-violet">CPU</div>
+                <div id="stat-cpu" class="text-xl font-bold text-lcars-gold">0%</div>
+                <div class="h-1 bg-white/10 rounded-sm mt-1 overflow-hidden">
+                    <div id="stat-cpu-bar" class="h-full bg-lcars-blue rounded-sm transition-all duration-500" style="width: 0%"></div>
                 </div>
-
-                <!-- Spock Panel -->
-                <div class="crew-panel panel-spock" id="panel-spock">
-                    <div class="panel-header">
-                        <div class="panel-color-bar">SCI</div>
-                        <div class="panel-title-area">
-                            <div class="panel-name">Spock</div>
-                            <div class="panel-status status-standby" id="spock-status">STANDBY</div>
-                        </div>
-                    </div>
-                    <div class="panel-content">
-                        <div class="panel-metrics">
-                            <div class="metric">
-                                <div class="metric-label">Research Tasks</div>
-                                <div class="metric-value" id="spock-tasks">0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Logic Index</div>
-                                <div class="metric-value" id="spock-efficiency">99.7%</div>
-                                <div class="metric-bar">
-                                    <div class="metric-fill fill-green" style="width: 99.7%"></div>
-                                </div>
-                            </div>
-                            <div class="task-list" id="spock-task-list"></div>
-                        </div>
-                    </div>
+            </div>
+            <!-- Memory -->
+            <div class="stat-card flex-shrink-0 min-w-[140px] bg-lcars-panel border-2 border-lcars-sky rounded-lcars-sm p-3 flex flex-col gap-1">
+                <div class="text-[9px] uppercase tracking-wider text-lcars-violet">Memory</div>
+                <div id="stat-mem" class="text-xl font-bold text-lcars-gold">0%</div>
+                <div class="h-1 bg-white/10 rounded-sm mt-1 overflow-hidden">
+                    <div id="stat-mem-bar" class="h-full bg-lcars-purple rounded-sm transition-all duration-500" style="width: 0%"></div>
                 </div>
-
-                <!-- Geordi Panel -->
-                <div class="crew-panel panel-geordi" id="panel-geordi">
-                    <div class="panel-header">
-                        <div class="panel-color-bar">ENG</div>
-                        <div class="panel-title-area">
-                            <div class="panel-name">Geordi La Forge</div>
-                            <div class="panel-status status-standby" id="geordi-status">STANDBY</div>
-                        </div>
-                    </div>
-                    <div class="panel-content">
-                        <div class="panel-metrics">
-                            <div class="metric">
-                                <div class="metric-label">Modified Files</div>
-                                <div class="metric-value" id="geordi-modified">0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Commits Today</div>
-                                <div class="metric-value" id="geordi-commits">0</div>
-                            </div>
-                            <div class="task-list">
-                                <div class="git-info" id="geordi-git"></div>
-                            </div>
-                            <div class="task-list" id="geordi-tasks"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Uhura Panel -->
-                <div class="crew-panel panel-uhura" id="panel-uhura">
-                    <div class="panel-header">
-                        <div class="panel-color-bar">COM</div>
-                        <div class="panel-title-area">
-                            <div class="panel-name">Nyota Uhura</div>
-                            <div class="panel-status status-standby" id="uhura-status">STANDBY</div>
-                        </div>
-                    </div>
-                    <div class="panel-content">
-                        <div class="panel-metrics">
-                            <div class="metric">
-                                <div class="metric-label">Total Unread</div>
-                                <div class="metric-value" id="uhura-total">0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Comm Tasks</div>
-                                <div class="metric-value" id="uhura-tasks">0</div>
-                            </div>
-                            <div class="email-breakdown">
-                                <div class="email-account">
-                                    <div class="email-account-name">vanderveer.be</div>
-                                    <div class="email-count" id="uhura-vv">0</div>
-                                </div>
-                                <div class="email-account">
-                                    <div class="email-account-name">settlemint.com</div>
-                                    <div class="email-count" id="uhura-sm">0</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Quark Panel -->
-                <div class="crew-panel panel-quark" id="panel-quark">
-                    <div class="panel-header">
-                        <div class="panel-color-bar">TRD</div>
-                        <div class="panel-title-area">
-                            <div class="panel-name">Quark</div>
-                            <div class="panel-status status-standby" id="quark-status">OFFLINE</div>
-                        </div>
-                    </div>
-                    <div class="panel-content">
-                        <div class="panel-metrics">
-                            <div class="metric">
-                                <div class="metric-label">Balance</div>
-                                <div class="metric-value" id="quark-balance">$0.00</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">P&L</div>
-                                <div class="metric-value" id="quark-pnl">$0.00</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Win Rate</div>
-                                <div class="metric-value" id="quark-winrate">0%</div>
-                                <div class="metric-bar">
-                                    <div class="metric-fill fill-gold" id="quark-winrate-bar" style="width: 0%"></div>
-                                </div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Trades (W/L)</div>
-                                <div class="metric-value" id="quark-trades">0 (0/0)</div>
-                            </div>
-                            <div class="pending-trade" id="quark-pending" style="display: none;">
-                                <div class="pending-trade-header">
-                                    <span>⚡</span>
-                                    <span class="pending-trade-title">Active Trade</span>
-                                </div>
-                                <div class="pending-trade-details">
-                                    <div class="pending-detail">
-                                        <div class="pending-detail-label">Direction</div>
-                                        <div class="pending-detail-value" id="pending-direction">--</div>
-                                    </div>
-                                    <div class="pending-detail">
-                                        <div class="pending-detail-label">Entry</div>
-                                        <div class="pending-detail-value" id="pending-entry">--</div>
-                                    </div>
-                                    <div class="pending-detail">
-                                        <div class="pending-detail-label">Stake</div>
-                                        <div class="pending-detail-value" id="pending-stake">--</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="sparkline-container">
-                                <div class="sparkline-label">Balance History</div>
-                                <canvas id="sparkline-canvas" class="sparkline"></canvas>
-                            </div>
-                            <div class="trades-list" id="quark-trades-list"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- System Panel -->
-                <div class="crew-panel panel-system" id="panel-system">
-                    <div class="panel-header">
-                        <div class="panel-color-bar">SYS</div>
-                        <div class="panel-title-area">
-                            <div class="panel-name">System Status</div>
-                            <div class="panel-status status-active" id="system-status">ONLINE</div>
-                        </div>
-                    </div>
-                    <div class="panel-content">
-                        <div class="panel-metrics">
-                            <div class="metric">
-                                <div class="metric-label">CPU Usage</div>
-                                <div class="metric-value" id="sys-cpu">0%</div>
-                                <div class="metric-bar">
-                                    <div class="metric-fill fill-blue" id="sys-cpu-bar" style="width: 0%"></div>
-                                </div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Memory</div>
-                                <div class="metric-value" id="sys-mem">0%</div>
-                                <div class="metric-bar">
-                                    <div class="metric-fill fill-purple" id="sys-mem-bar" style="width: 0%"></div>
-                                </div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Disk</div>
-                                <div class="metric-value" id="sys-disk">0%</div>
-                                <div class="metric-bar">
-                                    <div class="metric-fill fill-orange" id="sys-disk-bar" style="width: 0%"></div>
-                                </div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Docker</div>
-                                <div class="metric-value" id="sys-docker">0</div>
-                            </div>
-                        </div>
-                        <div class="system-row" style="margin-top: 12px;">
-                            <div class="system-stat">
-                                <div class="system-stat-label">Load (1m)</div>
-                                <div class="system-stat-value" id="sys-load">0.00</div>
-                            </div>
-                            <div class="system-stat">
-                                <div class="system-stat-label">Net In</div>
-                                <div class="system-stat-value" id="sys-netin">0 KB/s</div>
-                            </div>
-                            <div class="system-stat">
-                                <div class="system-stat-label">Net Out</div>
-                                <div class="system-stat-value" id="sys-netout">0 KB/s</div>
-                            </div>
-                            <div class="system-stat">
-                                <div class="system-stat-label">Temp</div>
-                                <div class="system-stat-value" id="sys-temp">--</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sessions Panel - Agent Introspection -->
-                <div class="crew-panel panel-sessions" id="panel-sessions">
-                    <div class="panel-header">
-                        <div class="panel-color-bar">AGT</div>
-                        <div class="panel-title-area">
-                            <div class="panel-name">Active Sessions</div>
-                            <div class="panel-status status-active" id="sessions-status">0 RUNNING</div>
-                        </div>
-                    </div>
-                    <div class="panel-content">
-                        <div class="panel-metrics">
-                            <div class="metric">
-                                <div class="metric-label">Total Sessions</div>
-                                <div class="metric-value" id="sessions-total">0</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Running Now</div>
-                                <div class="metric-value" id="sessions-running">0</div>
-                            </div>
-                            <div class="sessions-list" id="sessions-list">
-                                <div class="session-empty">No active sessions</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+            </div>
+            <!-- Sessions -->
+            <div class="stat-card flex-shrink-0 min-w-[140px] bg-lcars-panel border-2 border-lcars-orange rounded-lcars-sm p-3 flex flex-col gap-1">
+                <div class="text-[9px] uppercase tracking-wider text-lcars-violet">Sessions</div>
+                <div id="stat-sessions" class="text-xl font-bold text-lcars-gold">0</div>
+                <div id="stat-sessions-sub" class="text-[10px] text-lcars-tan">0 running</div>
+            </div>
+            <!-- Tasks -->
+            <div class="stat-card flex-shrink-0 min-w-[140px] bg-lcars-panel border-2 border-lcars-blue rounded-lcars-sm p-3 flex flex-col gap-1">
+                <div class="text-[9px] uppercase tracking-wider text-lcars-violet">Tasks</div>
+                <div id="stat-tasks" class="text-xl font-bold text-lcars-gold">0</div>
+                <div id="stat-tasks-sub" class="text-[10px] text-lcars-tan">0 active</div>
+            </div>
+            <!-- P&L -->
+            <div class="stat-card flex-shrink-0 min-w-[140px] bg-lcars-panel border-2 border-lcars-gold rounded-lcars-sm p-3 flex flex-col gap-1">
+                <div class="text-[9px] uppercase tracking-wider text-lcars-violet">P&L</div>
+                <div id="stat-pnl" class="text-xl font-bold text-lcars-gold">$0</div>
+                <div id="stat-pnl-sub" class="text-[10px] text-lcars-tan">0 trades</div>
             </div>
         </div>
+
+        <!-- Main Content - Three Panel Layout -->
+        <main class="mission-content col-start-2 grid grid-cols-[260px_1fr_320px] gap-3 p-3 overflow-hidden">
+            
+            <!-- Left Panel: Agents -->
+            <div class="agents-panel bg-lcars-panel border-2 border-lcars-purple rounded-lcars flex flex-col overflow-hidden">
+                <div class="flex items-stretch h-[38px] flex-shrink-0">
+                    <div class="w-[60px] bg-lcars-purple flex items-center justify-center text-[10px] font-bold text-lcars-bg uppercase tracking-wider">CREW</div>
+                    <div class="flex-1 flex items-center justify-between px-3 bg-black/50">
+                        <span class="text-sm font-bold tracking-widest uppercase text-lcars-purple">Agents</span>
+                    </div>
+                </div>
+                <div id="agents-list" class="flex-1 overflow-y-auto p-2">
+                    <!-- Agent cards rendered here -->
+                </div>
+            </div>
+
+            <!-- Center Panel: Mission Queue (Kanban) -->
+            <div class="mission-panel bg-lcars-panel border-2 border-lcars-blue rounded-lcars flex flex-col overflow-hidden">
+                <div class="flex items-stretch h-[38px] flex-shrink-0">
+                    <div class="w-[60px] bg-lcars-blue flex items-center justify-center text-[10px] font-bold text-lcars-bg uppercase tracking-wider">QUEUE</div>
+                    <div class="flex-1 flex items-center justify-between px-3 bg-black/50">
+                        <span class="text-sm font-bold tracking-widest uppercase text-lcars-blue">Mission Queue</span>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-2">
+                    <div id="kanban-container" class="flex gap-2 h-full overflow-x-auto pb-2">
+                        <!-- Kanban columns rendered here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: System Tasks + Live Feed -->
+            <div class="feed-panel bg-lcars-panel border-2 border-lcars-orange rounded-lcars flex flex-col overflow-hidden">
+                <div class="flex items-stretch h-[38px] flex-shrink-0">
+                    <div class="w-[60px] bg-lcars-orange flex items-center justify-center text-[10px] font-bold text-lcars-bg uppercase tracking-wider">FEED</div>
+                    <div class="flex-1 flex items-center justify-between px-3 bg-black/50">
+                        <span class="text-sm font-bold tracking-widest uppercase text-lcars-orange">Activity</span>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-y-auto" style="padding: 0;">
+                    <!-- System Tasks Section -->
+                    <div id="system-tasks-section" class="bg-lcars-teal/10 border border-lcars-teal rounded-lcars-xs p-2 m-2 mb-0">
+                        <div class="flex justify-between items-center mb-2 text-[10px]">
+                            <span class="text-lcars-teal font-bold tracking-wider">◈ SYSTEM TASKS</span>
+                            <span id="system-count" class="text-status-active text-[9px]">0 ACTIVE</span>
+                        </div>
+                        <div id="system-tasks-list">
+                            <!-- System tasks rendered here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Feed Filters -->
+                    <div id="feed-filters" class="flex flex-wrap gap-1 p-2 border-b border-white/10">
+                        <button class="feed-filter active px-2 py-1 bg-lcars-orange text-black border border-lcars-orange rounded-xl text-[9px] font-semibold cursor-pointer transition-all" data-filter="all">All</button>
+                        <button class="feed-filter px-2 py-1 bg-black/40 text-lcars-tan border border-lcars-tan rounded-xl text-[9px] font-semibold cursor-pointer transition-all hover:bg-lcars-orange/20" data-filter="task">Tasks</button>
+                        <button class="feed-filter px-2 py-1 bg-black/40 text-lcars-teal border border-lcars-teal rounded-xl text-[9px] font-semibold cursor-pointer transition-all hover:bg-lcars-teal/30" data-filter="tool">Tools</button>
+                        <button class="feed-filter px-2 py-1 bg-black/40 text-lcars-violet border border-lcars-violet rounded-xl text-[9px] font-semibold cursor-pointer transition-all hover:bg-lcars-violet/20" data-filter="thinking">Thinking</button>
+                        <button class="feed-filter px-2 py-1 bg-black/40 text-lcars-tan border border-lcars-tan rounded-xl text-[9px] font-semibold cursor-pointer transition-all hover:bg-lcars-orange/20" data-filter="status">Status</button>
+                    </div>
+                    
+                    <div id="feed-list" class="flex-1 overflow-y-auto p-2">
+                        <!-- Feed items rendered here -->
+                    </div>
+                </div>
+            </div>
+        </main>
 
         <!-- Footer -->
-        <div class="lcars-footer">
-            <div class="footer-elbow" id="footer-clients">0 CLIENTS</div>
-            <div class="footer-bar">
-                <div class="footer-segment purple" id="footer-status">INITIALIZING</div>
-                <div class="footer-segment blue" id="footer-version">v6.0</div>
-                <div class="footer-segment orange" id="footer-update">Last Update: --:--:--</div>
-                <div class="footer-segment peach" id="footer-uptime">Uptime: --</div>
+        <footer class="col-span-2 flex items-stretch gap-1">
+            <div id="footer-clients" class="footer-elbow w-40 bg-lcars-tan flex items-center justify-center text-[10px] font-bold text-lcars-bg">0 CLIENTS</div>
+            <div class="flex-1 flex gap-1 pl-1">
+                <div id="footer-status" class="flex-1 bg-lcars-purple flex items-center px-3 text-[11px] font-medium text-lcars-bg rounded-tl-lcars">ONLINE</div>
+                <div id="footer-active" class="flex-1 bg-lcars-blue flex items-center px-3 text-[11px] font-medium text-lcars-bg">0 ACTIVE</div>
+                <div id="footer-pending" class="flex-1 bg-lcars-sky flex items-center px-3 text-[11px] font-medium text-lcars-bg">0 PENDING</div>
+                <div id="footer-update" class="flex-[2] bg-lcars-orange flex items-center px-3 text-[11px] font-medium text-lcars-bg">Last Update: --:--:--</div>
+                <div id="footer-version" class="flex-1 bg-lcars-peach flex items-center px-3 text-[11px] font-medium text-lcars-bg rounded-bl-lcars">v7.0</div>
             </div>
-        </div>
+        </footer>
     </div>
 
-    <!-- Connection Status Indicator -->
-    <div class="connection-status status-disconnected" id="connection-status">
-        <div class="connection-dot"></div>
+    <!-- Connection Status -->
+    <div id="connection-status" class="fixed bottom-[60px] right-5 px-2.5 py-1.5 rounded-xl text-[9px] font-bold uppercase tracking-wider z-[100] flex items-center gap-1.5 backdrop-blur-xl bg-black/80 border border-status-alert text-status-alert">
+        <div id="connection-dot" class="w-1.5 h-1.5 rounded-full bg-status-alert"></div>
         <span id="connection-text">DISCONNECTED</span>
     </div>
 
-    <!-- Keyboard Shortcuts Hint -->
-    <div class="shortcuts-hint">
-        <div class="shortcut"><kbd>1-7</kbd> Navigate panels</div>
-        <div class="shortcut"><kbd>R</kbd> Refresh</div>
-        <div class="shortcut"><kbd>T</kbd> Toggle scanlines</div>
+    <!-- Keyboard Shortcuts -->
+    <div class="shortcuts-hint fixed bottom-[60px] left-[180px] px-3 py-1.5 bg-black/80 border border-lcars-tan rounded-lg text-[9px] text-lcars-gold z-[100] flex gap-3 backdrop-blur-xl">
+        <div class="flex items-center gap-1"><kbd class="bg-lcars-tan text-black px-1 rounded-sm font-bold">N</kbd> New Task</div>
+        <div class="flex items-center gap-1"><kbd class="bg-lcars-tan text-black px-1 rounded-sm font-bold">M</kbd> Messages</div>
+        <div class="flex items-center gap-1"><kbd class="bg-lcars-tan text-black px-1 rounded-sm font-bold">T</kbd> Scanlines</div>
+        <div class="flex items-center gap-1"><kbd class="bg-lcars-tan text-black px-1 rounded-sm font-bold">Esc</kbd> Close</div>
+    </div>
+
+    <!-- Task Detail Modal -->
+    <div id="task-modal-overlay" class="fixed inset-0 bg-black/80 z-[1001] hidden items-center justify-center backdrop-blur-sm">
+        <div class="task-modal w-[90%] max-w-[600px] max-h-[80vh] bg-lcars-panel border-2 border-lcars-orange rounded-lcars flex flex-col overflow-hidden">
+            <div class="flex items-stretch h-[45px]">
+                <div class="w-[70px] bg-lcars-orange flex items-center justify-center text-[10px] font-bold text-black">TASK</div>
+                <div class="flex-1 flex items-center justify-between px-4 bg-black/50">
+                    <div id="modal-task-title" class="text-base font-bold text-lcars-gold">Task Title</div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="deleteCurrentTask()" id="delete-task-btn" class="bg-transparent border-none text-lcars-red text-xs cursor-pointer px-2 hover:text-lcars-orange hover:underline" title="Delete task">DELETE</button>
+                        <button onclick="closeTaskModal()" class="bg-transparent border-none text-lcars-orange text-2xl cursor-pointer px-2 hover:text-lcars-gold">×</button>
+                    </div>
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4">
+                <div id="modal-task-meta" class="grid grid-cols-3 gap-3 mb-4 p-3 bg-black/30 rounded-lg"></div>
+                <div class="mb-4">
+                    <div class="text-[9px] font-bold uppercase tracking-wider text-lcars-tan mb-1">Description</div>
+                    <div id="modal-task-desc" class="text-sm text-lcars-gold leading-relaxed">Task description...</div>
+                </div>
+                
+                <!-- Tabs -->
+                <div class="flex border-b border-white/10 mb-3">
+                    <button class="task-modal-tab active flex-1 py-2 px-3 bg-transparent border-none text-lcars-orange font-bold text-[11px] uppercase tracking-wider cursor-pointer relative" data-tab="comments" onclick="switchTaskTab('comments')">
+                        Comments <span id="comments-count" class="inline-flex items-center justify-center min-w-[16px] h-4 px-1 bg-lcars-orange text-black rounded-lg text-[9px] ml-1">0</span>
+                    </button>
+                    <button class="task-modal-tab flex-1 py-2 px-3 bg-transparent border-none text-lcars-tan font-bold text-[11px] uppercase tracking-wider cursor-pointer relative hover:text-lcars-orange" data-tab="activity" onclick="switchTaskTab('activity')">
+                        Activity <span id="activity-count" class="inline-flex items-center justify-center min-w-[16px] h-4 px-1 bg-lcars-violet text-black rounded-lg text-[9px] ml-1">0</span>
+                    </button>
+                </div>
+                
+                <div id="tab-comments" class="task-tab-content">
+                    <div id="modal-task-comments" class="border-t border-white/10 pt-3"></div>
+                    <div class="flex gap-2 mt-3">
+                        <textarea id="comment-input" placeholder="Add a comment..." rows="2" class="flex-1 bg-black/40 border border-lcars-tan rounded-md p-2 text-lcars-gold font-lcars text-[11px] resize-none focus:outline-none focus:border-lcars-orange"></textarea>
+                        <button onclick="addComment()" class="px-4 py-2 bg-lcars-orange border-none rounded-md text-black font-bold text-[11px] uppercase cursor-pointer hover:brightness-125 transition-all">Send</button>
+                    </div>
+                </div>
+                
+                <div id="tab-activity" class="task-tab-content hidden">
+                    <div id="activity-log-list" class="max-h-[200px] overflow-y-auto">
+                        <div class="text-center text-lcars-violet text-[11px] py-5">No activity logged yet</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div id="add-task-modal-overlay" class="fixed inset-0 bg-black/80 z-[1001] hidden items-center justify-center backdrop-blur-sm">
+        <div class="task-modal w-[90%] max-w-[600px] max-h-[80vh] bg-lcars-panel border-2 border-lcars-green rounded-lcars flex flex-col overflow-hidden">
+            <div class="flex items-stretch h-[45px]">
+                <div class="w-[70px] bg-lcars-green flex items-center justify-center text-[10px] font-bold text-black">NEW</div>
+                <div class="flex-1 flex items-center justify-between px-4 bg-black/50">
+                    <div class="text-base font-bold text-lcars-green">Create New Task</div>
+                    <button onclick="closeAddTaskModal()" class="bg-transparent border-none text-lcars-green text-2xl cursor-pointer px-2 hover:text-lcars-gold">×</button>
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4">
+                <form id="add-task-form" onsubmit="submitNewTask(event)">
+                    <div class="mb-4">
+                        <div class="text-[9px] font-bold uppercase tracking-wider text-lcars-tan mb-1">Title *</div>
+                        <input type="text" id="new-task-title" placeholder="Task title..." required class="w-full mt-1 bg-black/40 border border-lcars-tan rounded-md p-2 text-lcars-gold font-lcars text-[11px] focus:outline-none focus:border-lcars-orange">
+                    </div>
+                    <div class="mb-4">
+                        <div class="text-[9px] font-bold uppercase tracking-wider text-lcars-tan mb-1">Description</div>
+                        <textarea id="new-task-desc" placeholder="Task description..." rows="3" class="w-full mt-1 bg-black/40 border border-lcars-tan rounded-md p-2 text-lcars-gold font-lcars text-[11px] resize-none focus:outline-none focus:border-lcars-orange"></textarea>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 mb-4 p-3 bg-black/30 rounded-lg">
+                        <div class="text-center">
+                            <div class="text-[9px] font-bold uppercase tracking-wider text-lcars-tan mb-1">Assignee</div>
+                            <select id="new-task-assignee" class="w-full p-1.5 mt-1 bg-black/40 border border-lcars-tan rounded-md text-lcars-gold font-lcars text-[11px] focus:outline-none focus:border-lcars-orange">
+                                <option value="">Unassigned</option>
+                                <option value="seven">Seven of Nine</option>
+                                <option value="geordi">Geordi La Forge</option>
+                                <option value="uhura">Nyota Uhura</option>
+                                <option value="spock">Spock</option>
+                                <option value="quark">Quark</option>
+                            </select>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-[9px] font-bold uppercase tracking-wider text-lcars-tan mb-1">Priority</div>
+                            <select id="new-task-priority" class="w-full p-1.5 mt-1 bg-black/40 border border-lcars-tan rounded-md text-lcars-gold font-lcars text-[11px] focus:outline-none focus:border-lcars-orange">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-[9px] font-bold uppercase tracking-wider text-lcars-tan mb-1">Category</div>
+                            <select id="new-task-category" class="w-full p-1.5 mt-1 bg-black/40 border border-lcars-tan rounded-md text-lcars-gold font-lcars text-[11px] focus:outline-none focus:border-lcars-orange">
+                                <option value="general">General</option>
+                                <option value="engineering">Engineering</option>
+                                <option value="research">Research</option>
+                                <option value="communications">Communications</option>
+                                <option value="trading">Trading</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex gap-2.5 justify-end mt-4">
+                        <button type="button" onclick="closeAddTaskModal()" class="px-4 py-2 bg-lcars-tan border-none rounded-md text-black font-bold text-[11px] uppercase cursor-pointer hover:brightness-125 transition-all">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-lcars-green border-none rounded-md text-black font-bold text-[11px] uppercase cursor-pointer hover:brightness-125 transition-all">Create Task</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages Modal -->
+    <div id="messages-modal" class="fixed inset-0 bg-black/85 z-[2000] hidden justify-center items-center">
+        <div class="bg-[#0a0a12] border-[3px] border-lcars-violet rounded-lcars w-[90%] max-w-[800px] max-h-[80vh] flex flex-col overflow-hidden">
+            <div class="flex items-stretch bg-lcars-violet text-black">
+                <div class="w-[70px] rounded-br-lcars flex items-center justify-center font-bold text-[11px]">COMMS</div>
+                <div class="flex-1 px-4 py-3 text-lg font-bold tracking-widest">CREW MESSAGES</div>
+                <div onclick="closeMessagesModal()" class="w-12 bg-lcars-red flex items-center justify-center cursor-pointer text-lg font-bold rounded-bl-lcars hover:bg-red-400 transition-colors">✕</div>
+            </div>
+            <div class="flex flex-1 overflow-hidden">
+                <div class="w-[150px] bg-[#0d0d15] border-r-2 border-lcars-violet flex flex-col gap-1 p-2">
+                    <div class="messages-filter active px-3 py-2 bg-lcars-gold text-black font-bold text-[10px] rounded-lcars cursor-pointer text-center hover:brightness-125 transition-all" data-filter="all" onclick="filterMessages('all')">ALL</div>
+                    <div class="messages-filter px-3 py-2 bg-lcars-gold text-black font-bold text-[10px] rounded-lcars cursor-pointer text-center hover:brightness-125 transition-all" data-filter="unread" onclick="filterMessages('unread')">UNREAD</div>
+                    <hr class="border-lcars-violet my-2">
+                    <div class="messages-filter px-3 py-2 bg-lcars-gold text-black font-bold text-[10px] rounded-lcars cursor-pointer text-center hover:brightness-125 transition-all" data-filter="seven" onclick="filterMessages('seven')">SEVEN</div>
+                    <div class="messages-filter px-3 py-2 bg-lcars-gold text-black font-bold text-[10px] rounded-lcars cursor-pointer text-center hover:brightness-125 transition-all" data-filter="spock" onclick="filterMessages('spock')">SPOCK</div>
+                    <div class="messages-filter px-3 py-2 bg-lcars-gold text-black font-bold text-[10px] rounded-lcars cursor-pointer text-center hover:brightness-125 transition-all" data-filter="geordi" onclick="filterMessages('geordi')">GEORDI</div>
+                    <div class="messages-filter px-3 py-2 bg-lcars-gold text-black font-bold text-[10px] rounded-lcars cursor-pointer text-center hover:brightness-125 transition-all" data-filter="uhura" onclick="filterMessages('uhura')">UHURA</div>
+                    <div class="messages-filter px-3 py-2 bg-lcars-gold text-black font-bold text-[10px] rounded-lcars cursor-pointer text-center hover:brightness-125 transition-all" data-filter="quark" onclick="filterMessages('quark')">QUARK</div>
+                </div>
+                <div id="messages-list" class="flex-1 overflow-y-auto p-3">
+                    <div class="text-lcars-tan text-center py-8">Loading messages...</div>
+                </div>
+                <div id="message-detail" class="flex-1 hidden flex-col p-4 border-l-2 border-lcars-violet">
+                    <div id="detail-subject" class="text-base font-bold text-lcars-gold mb-1.5">Select a message</div>
+                    <div id="detail-meta" class="text-[11px] text-lcars-tan"></div>
+                    <div id="detail-content" class="flex-1 p-3 bg-black/30 rounded-lcars my-3 overflow-y-auto leading-relaxed text-xs">Click a message to view details</div>
+                    <div id="detail-actions" class="hidden gap-2">
+                        <button onclick="ackMessage()" class="px-4 py-2 bg-lcars-green text-black border-none rounded-lcars font-bold text-[11px] cursor-pointer hover:brightness-125 transition-all">ACK</button>
+                        <button onclick="createTaskFromMsg()" class="px-4 py-2 bg-lcars-orange text-black border-none rounded-lcars font-bold text-[11px] cursor-pointer hover:brightness-125 transition-all">TASK</button>
+                        <button onclick="deleteCurrentMsg()" class="px-4 py-2 bg-lcars-red text-black border-none rounded-lcars font-bold text-[11px] cursor-pointer hover:brightness-125 transition-all">DELETE</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
         // ═══════════════════════════════════════════════════════════════
-        // LCARS Bridge Dashboard v6 - Enhanced Experience
+        // LCARS Command Center v7.0 - Unified Dashboard + Mission Control
+        // Tailwind CSS Edition with Authentic LCARS Colors
         // ═══════════════════════════════════════════════════════════════
 
-        class LCARSDashboard {
+        class CommandCenter {
             constructor() {
                 this.ws = null;
                 this.reconnectAttempts = 0;
-                this.maxReconnectAttempts = 100;
-                this.reconnectDelay = 1000;
-                this.data = null;
-                this.sparklineData = [];
-                this.rawSessions = [];
+                this.bridgeData = null;
+                this.tasksData = null;
+                this.sessionsData = null;
+                this.selectedTaskId = null;
+                this.activeFilter = 'all';
+                
+                this.columnLabels = {
+                    'inbox': 'Inbox',
+                    'assigned': 'Assigned',
+                    'in_progress': 'In Progress',
+                    'review': 'Review',
+                    'done': 'Done'
+                };
                 
                 this.initStarfield();
                 this.connect();
                 this.startClock();
-                this.setupKeyboardShortcuts();
+                this.setupEventListeners();
             }
 
             initStarfield() {
                 const container = document.getElementById('starfield');
-                const numStars = 100;
-                
-                for (let i = 0; i < numStars; i++) {
+                for (let i = 0; i < 80; i++) {
                     const star = document.createElement('div');
                     star.className = 'star';
                     star.style.left = Math.random() * 100 + '%';
@@ -1569,38 +570,46 @@
                 }
             }
 
-            setupKeyboardShortcuts() {
-                document.addEventListener('keydown', (e) => {
-                    // Ignore if typing in input
-                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-                    
-                    const panels = ['seven', 'spock', 'geordi', 'uhura', 'quark', 'system', 'sessions'];
-                    
-                    // Number keys 1-7 for panel navigation
-                    if (e.key >= '1' && e.key <= '7') {
-                        const index = parseInt(e.key) - 1;
-                        if (panels[index]) {
-                            scrollToPanel(panels[index]);
+            setupEventListeners() {
+                // Filter buttons
+                document.querySelectorAll('.feed-filter').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.feed-filter').forEach(b => {
+                            b.classList.remove('active', 'bg-lcars-orange', 'text-black');
+                            b.classList.add('bg-black/40', 'text-lcars-tan');
+                        });
+                        e.target.classList.remove('bg-black/40', 'text-lcars-tan');
+                        e.target.classList.add('active', 'bg-lcars-orange', 'text-black');
+                        this.activeFilter = e.target.dataset.filter;
+                        this.renderFeed();
+                    });
+                });
+
+                // Close modals on overlay click
+                ['task-modal-overlay', 'add-task-modal-overlay'].forEach(id => {
+                    document.getElementById(id)?.addEventListener('click', (e) => {
+                        if (e.target.id === id) {
+                            id === 'task-modal-overlay' ? closeTaskModal() : closeAddTaskModal();
                         }
-                    }
+                    });
+                });
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
                     
-                    // R for refresh
-                    if (e.key.toLowerCase() === 'r' && !e.ctrlKey && !e.metaKey) {
-                        this.requestRefresh();
+                    if (e.key === 'Escape') {
+                        closeTaskModal();
+                        closeAddTaskModal();
+                        closeMessagesModal();
                     }
-                    
-                    // T for toggle scanlines
+                    if (e.key.toLowerCase() === 'n') showAddTask();
+                    if (e.key.toLowerCase() === 'm') openMessagesModal();
                     if (e.key.toLowerCase() === 't') {
                         const scanlines = document.querySelector('.scanlines');
                         scanlines.style.display = scanlines.style.display === 'none' ? 'block' : 'none';
                     }
                 });
-            }
-
-            requestRefresh() {
-                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                    this.ws.send(JSON.stringify({ type: 'refresh' }));
-                }
             }
 
             connect() {
@@ -1609,15 +618,14 @@
                 try {
                     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
                     const wsUrl = `${wsProtocol}//${window.location.host}`;
-                    console.log('[LCARS] Connecting to:', wsUrl);
-                    
                     this.ws = new WebSocket(wsUrl);
                     
                     this.ws.onopen = () => {
                         console.log('[LCARS] Connected');
                         this.reconnectAttempts = 0;
                         this.updateConnectionStatus('connected');
-                        this.updateFooterStatus('ONLINE');
+                        document.getElementById('footer-status').textContent = 'ONLINE';
+                        this.ws.send(JSON.stringify({ type: 'get_tasks' }));
                     };
                     
                     this.ws.onmessage = (event) => {
@@ -1630,16 +638,12 @@
                     };
                     
                     this.ws.onclose = () => {
-                        console.log('[LCARS] Disconnected');
                         this.updateConnectionStatus('disconnected');
-                        this.updateFooterStatus('OFFLINE');
+                        document.getElementById('footer-status').textContent = 'OFFLINE';
                         this.scheduleReconnect();
                     };
                     
-                    this.ws.onerror = (error) => {
-                        console.error('[LCARS] WebSocket error');
-                    };
-                    
+                    this.ws.onerror = () => console.error('[LCARS] WebSocket error');
                 } catch (e) {
                     console.error('[LCARS] Connection error:', e);
                     this.scheduleReconnect();
@@ -1647,483 +651,736 @@
             }
 
             scheduleReconnect() {
-                if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-                    console.log('[LCARS] Max reconnect attempts reached');
-                    return;
-                }
-                
+                if (this.reconnectAttempts >= 50) return;
                 this.reconnectAttempts++;
-                const delay = Math.min(this.reconnectDelay * Math.pow(1.5, this.reconnectAttempts - 1), 30000);
-                
-                console.log(`[LCARS] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`);
+                const delay = Math.min(1000 * Math.pow(1.5, this.reconnectAttempts - 1), 30000);
                 setTimeout(() => this.connect(), delay);
             }
 
             updateConnectionStatus(status) {
                 const el = document.getElementById('connection-status');
+                const dot = document.getElementById('connection-dot');
                 const text = document.getElementById('connection-text');
                 
-                el.className = `connection-status status-${status}`;
-                
-                switch (status) {
-                    case 'connected':
-                        text.textContent = 'CONNECTED';
-                        break;
-                    case 'disconnected':
-                        text.textContent = 'DISCONNECTED';
-                        break;
-                    case 'connecting':
-                        text.textContent = 'CONNECTING';
-                        break;
+                if (status === 'connected') {
+                    el.classList.remove('border-status-alert', 'text-status-alert');
+                    el.classList.add('border-status-active', 'text-status-active');
+                    dot.classList.remove('bg-status-alert');
+                    dot.classList.add('bg-status-active', 'animate-pulse');
+                } else {
+                    el.classList.remove('border-status-active', 'text-status-active');
+                    el.classList.add('border-status-alert', 'text-status-alert');
+                    dot.classList.remove('bg-status-active', 'animate-pulse');
+                    dot.classList.add('bg-status-alert');
                 }
-            }
-
-            updateFooterStatus(status) {
-                document.getElementById('footer-status').textContent = status;
+                text.textContent = status.toUpperCase();
             }
 
             handleMessage(msg) {
                 if (msg.type === 'init' || msg.type === 'update' || msg.type === 'trade_update') {
-                    this.data = msg.data;
-                    if (msg.data.sessions) {
-                        this.rawSessions = msg.data.sessions;
-                    }
+                    this.bridgeData = msg.data;
+                    // Fetch sessions from dedicated API endpoint (don't overwrite with zeros)
+                    this.fetchSessions();
                     this.render();
-                    this.updateTicker();
                 }
-            }
-
-            updateTicker() {
-                const ticker = document.getElementById('ticker-content');
-                const items = [];
-                
-                // Add relevant status items
-                if (this.data) {
-                    const { crew, system } = this.data;
-                    
-                    // Session status
-                    if (crew.seven?.runningSessions > 0) {
-                        items.push({ text: `${crew.seven.runningSessions} active session${crew.seven.runningSessions > 1 ? 's' : ''}`, type: 'active' });
-                    }
-                    
-                    // Email status
-                    const totalEmails = crew.uhura?.inbox?.total || 0;
-                    if (totalEmails > 0) {
-                        items.push({ text: `${totalEmails} unread email${totalEmails > 1 ? 's' : ''}`, type: totalEmails > 10 ? 'warning' : 'normal' });
-                    }
-                    
-                    // Trading status
-                    if (crew.quark?.pendingTrade) {
-                        items.push({ text: `Active trade: ${crew.quark.pendingTrade.direction}`, type: 'warning' });
-                    }
-                    
-                    // Git status
-                    if (crew.geordi?.totalModified > 0) {
-                        items.push({ text: `${crew.geordi.totalModified} uncommitted changes`, type: 'warning' });
-                    }
-                    
-                    // System health
-                    if (system?.cpuUsage > 80) {
-                        items.push({ text: `High CPU: ${system.cpuUsage.toFixed(1)}%`, type: 'alert' });
-                    }
-                    if (system?.memPercent > 85) {
-                        items.push({ text: `High memory: ${system.memPercent.toFixed(1)}%`, type: 'alert' });
-                    }
-                    
-                    // Default
-                    if (items.length === 0) {
-                        items.push({ text: 'All systems nominal', type: 'normal' });
+                if (msg.type === 'tasks' || msg.type === 'tasks_update') {
+                    this.tasksData = msg.data;
+                    this.render();
+                }
+                if (msg.type === 'messages' || msg.type === 'messages_update') {
+                    window.crewMessages = msg.data?.messages || [];
+                    window.messageCounts = msg.counts || {};
+                    updateMessageBadge();
+                    if (document.getElementById('messages-modal').classList.contains('flex')) {
+                        renderMessageList();
                     }
                 }
-                
-                // Build ticker HTML (duplicate for seamless scroll)
-                const html = items.map(item => 
-                    `<div class="ticker-item"><span class="ticker-dot ${item.type}"></span> ${item.text}</div>`
-                ).join('');
-                
-                ticker.innerHTML = html + html; // Duplicate for seamless scroll
             }
 
             render() {
-                if (!this.data) return;
-                
-                const { crew, system, stardate, timestamp } = this.data;
-                
-                // Update stardate
-                document.getElementById('stardate').textContent = stardate;
-                
-                // Update footer
-                document.getElementById('footer-update').textContent = 
-                    `Last Update: ${new Date(timestamp).toLocaleTimeString()}`;
-                document.getElementById('footer-uptime').textContent = 
-                    `Uptime: ${system.uptime || '--'}`;
-                
-                // Render each crew member
-                this.renderSeven(crew.seven);
-                this.renderSpock(crew.spock);
-                this.renderGeordi(crew.geordi);
-                this.renderUhura(crew.uhura);
-                this.renderQuark(crew.quark);
-                this.renderSystem(system);
+                this.renderStatsBar();
                 this.renderSessions();
+                this.renderAgents();
+                this.renderKanban();
+                this.renderSystemTasks();
+                this.renderFeed();
+                this.updateFooter();
             }
 
-            renderSeven(data) {
-                this.setStatus('seven-status', data.status);
-                document.getElementById('seven-sessions').textContent = data.runningSessions || 0;
-                document.getElementById('seven-efficiency').textContent = data.efficiency + '%';
-                document.getElementById('seven-efficiency-bar').style.width = data.efficiency + '%';
-                
-                const taskList = document.getElementById('seven-tasks');
-                taskList.innerHTML = '';
-                if (data.tasks && data.tasks.length > 0) {
-                    data.tasks.slice(0, 3).forEach(task => {
-                        taskList.innerHTML += `
-                            <div class="task-item">
-                                <div class="task-dot"></div>
-                                <div class="task-label">${this.escapeHtml(task.label)}</div>
-                            </div>
-                        `;
-                    });
+            async fetchSessions() {
+                try {
+                    const res = await fetch('/api/sessions');
+                    if (res.ok) {
+                        this.sessionsData = await res.json();
+                        this.renderSessions();
+                    }
+                } catch (e) {
+                    console.log('Sessions fetch failed:', e.message);
                 }
             }
 
-            renderSpock(data) {
-                this.setStatus('spock-status', data.status);
-                document.getElementById('spock-tasks').textContent = data.activeTasks || 0;
-                document.getElementById('spock-efficiency').textContent = data.efficiency + '%';
-                
-                const taskList = document.getElementById('spock-task-list');
-                taskList.innerHTML = '';
-                if (data.tasks && data.tasks.length > 0) {
-                    data.tasks.slice(0, 3).forEach(task => {
-                        taskList.innerHTML += `
-                            <div class="task-item">
-                                <div class="task-dot"></div>
-                                <div class="task-label">${this.escapeHtml(task.label)}</div>
-                            </div>
-                        `;
-                    });
+            async fetchTasks() {
+                try {
+                    const res = await fetch('/api/tasks');
+                    if (res.ok) {
+                        this.tasksData = await res.json();
+                        this.render(); // Full render to update all components including activity logs
+                    }
+                } catch (e) {
+                    console.log('Tasks fetch failed:', e.message);
                 }
-            }
-
-            renderGeordi(data) {
-                this.setStatus('geordi-status', data.status);
-                document.getElementById('geordi-modified').textContent = data.totalModified || 0;
-                document.getElementById('geordi-commits').textContent = data.totalCommitsToday || 0;
-                
-                // Git info
-                const gitInfo = document.getElementById('geordi-git');
-                if (data.git && data.git.workspace) {
-                    const ws = data.git.workspace;
-                    gitInfo.innerHTML = `
-                        <span class="git-branch">⎇ ${ws.branch}</span>
-                        ${ws.modified > 0 ? `<span class="git-modified">${ws.modified} modified</span>` : ''}
-                    `;
-                }
-                
-                // Tasks
-                const taskList = document.getElementById('geordi-tasks');
-                taskList.innerHTML = '';
-                if (data.tasks && data.tasks.length > 0) {
-                    data.tasks.slice(0, 3).forEach(task => {
-                        taskList.innerHTML += `
-                            <div class="task-item">
-                                <div class="task-dot"></div>
-                                <div class="task-label">${this.escapeHtml(task.label)}</div>
-                            </div>
-                        `;
-                    });
-                }
-            }
-
-            renderUhura(data) {
-                this.setStatus('uhura-status', data.status);
-                document.getElementById('uhura-total').textContent = data.inbox?.total || 0;
-                document.getElementById('uhura-tasks').textContent = data.activeTasks || 0;
-                document.getElementById('uhura-vv').textContent = data.inbox?.vanderveer?.inbox || 0;
-                document.getElementById('uhura-sm').textContent = data.inbox?.settlemint?.inbox || 0;
-            }
-
-            renderQuark(data) {
-                this.setStatus('quark-status', data.status);
-                
-                // Balance
-                document.getElementById('quark-balance').textContent = `$${(data.balance || 0).toFixed(2)}`;
-                
-                // P&L with color
-                const pnlEl = document.getElementById('quark-pnl');
-                const pnl = data.pnl || 0;
-                pnlEl.textContent = `${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)} (${data.pnlPercent || 0}%)`;
-                pnlEl.className = `metric-value ${pnl >= 0 ? 'positive' : 'negative'}`;
-                
-                // Win rate
-                const winRate = data.winRate || 0;
-                document.getElementById('quark-winrate').textContent = `${winRate}%`;
-                document.getElementById('quark-winrate-bar').style.width = `${winRate}%`;
-                
-                // Trades
-                document.getElementById('quark-trades').textContent = 
-                    `${data.trades || 0} (${data.wins || 0}/${data.losses || 0})`;
-                
-                // Pending trade
-                const pendingEl = document.getElementById('quark-pending');
-                if (data.pendingTrade) {
-                    pendingEl.style.display = 'block';
-                    document.getElementById('pending-direction').textContent = data.pendingTrade.direction;
-                    document.getElementById('pending-entry').textContent = 
-                        `$${(data.pendingTrade.entry_price || 0).toLocaleString()}`;
-                    document.getElementById('pending-stake').textContent = 
-                        `$${(data.pendingTrade.stake || 0).toFixed(2)}`;
-                } else {
-                    pendingEl.style.display = 'none';
-                }
-                
-                // Sparkline
-                if (data.sparkline && data.sparkline.length > 1) {
-                    this.drawSparkline(data.sparkline, data.startingBalance);
-                }
-                
-                // Recent trades
-                const tradesList = document.getElementById('quark-trades-list');
-                tradesList.innerHTML = '';
-                if (data.recentTrades && data.recentTrades.length > 0) {
-                    data.recentTrades.slice(0, 5).forEach(trade => {
-                        const dirClass = trade.direction === 'UP' ? 'up' : 'down';
-                        const resultClass = trade.result === 'WIN' ? 'win' : 'loss';
-                        tradesList.innerHTML += `
-                            <div class="trade-item">
-                                <span class="trade-direction ${dirClass}">${trade.direction}</span>
-                                <span class="trade-result ${resultClass}">${trade.result}</span>
-                                <span class="trade-profit ${resultClass}">
-                                    ${trade.profit >= 0 ? '+' : ''}$${(trade.profit || 0).toFixed(2)}
-                                </span>
-                            </div>
-                        `;
-                    });
-                }
-            }
-
-            renderSystem(data) {
-                // CPU
-                const cpuUsage = data.cpuUsage || 0;
-                document.getElementById('sys-cpu').textContent = `${cpuUsage.toFixed(1)}%`;
-                document.getElementById('sys-cpu-bar').style.width = `${Math.min(100, cpuUsage)}%`;
-                
-                // Color code CPU bar based on usage
-                const cpuBar = document.getElementById('sys-cpu-bar');
-                if (cpuUsage > 80) {
-                    cpuBar.className = 'metric-fill fill-red';
-                } else if (cpuUsage > 60) {
-                    cpuBar.className = 'metric-fill fill-orange';
-                } else {
-                    cpuBar.className = 'metric-fill fill-blue';
-                }
-                
-                // Memory
-                const memPercent = data.memPercent || 0;
-                document.getElementById('sys-mem').textContent = 
-                    `${memPercent.toFixed(1)}% (${data.memUsed || 0}/${data.memTotal || 0}MB)`;
-                document.getElementById('sys-mem-bar').style.width = `${memPercent}%`;
-                
-                // Color code memory bar
-                const memBar = document.getElementById('sys-mem-bar');
-                if (memPercent > 85) {
-                    memBar.className = 'metric-fill fill-red';
-                } else if (memPercent > 70) {
-                    memBar.className = 'metric-fill fill-orange';
-                } else {
-                    memBar.className = 'metric-fill fill-purple';
-                }
-                
-                // Disk
-                const diskPercent = data.diskPercent || 0;
-                document.getElementById('sys-disk').textContent = 
-                    `${diskPercent}% (${data.diskUsed || '0'}/${data.diskTotal || '0'})`;
-                document.getElementById('sys-disk-bar').style.width = `${diskPercent}%`;
-                
-                // Docker
-                document.getElementById('sys-docker').textContent = 
-                    `${data.docker?.running || 0}/${data.docker?.total || 0}`;
-                
-                // Load
-                document.getElementById('sys-load').textContent = 
-                    (data.load?.[0] || 0).toFixed(2);
-                
-                // Network
-                document.getElementById('sys-netin').textContent = `${data.netIn || 0} KB/s`;
-                document.getElementById('sys-netout').textContent = `${data.netOut || 0} KB/s`;
-                
-                // Temperature
-                document.getElementById('sys-temp').textContent = 
-                    data.cpuTemp ? `${data.cpuTemp}°C` : '--';
-                
-                // Uptime in header
-                document.getElementById('uptime').textContent = data.uptime || '--';
             }
 
             renderSessions() {
-                const sessions = this.rawSessions || [];
-                const running = sessions.filter(s => s.status === 'running').length;
-                const total = sessions.length;
+                if (!this.sessionsData) return;
                 
-                document.getElementById('sessions-total').textContent = total;
-                document.getElementById('sessions-running').textContent = running;
+                // Update sessions tile
+                const el = document.getElementById('stat-sessions');
+                const sub = document.getElementById('stat-sessions-sub');
+                if (el) el.textContent = this.sessionsData.total || 0;
+                if (sub) sub.textContent = `${this.sessionsData.activeSubagents || 0} agents, ${this.sessionsData.runningCrons || 0} crons`;
+            }
+
+            renderStatsBar() {
+                if (!this.bridgeData) return;
+                const { system, crew } = this.bridgeData;
                 
-                const statusEl = document.getElementById('sessions-status');
-                statusEl.textContent = `${running} RUNNING`;
-                statusEl.className = `panel-status ${running > 0 ? 'status-active' : 'status-standby'}`;
+                // CPU
+                const cpu = system?.cpuUsage || 0;
+                document.getElementById('stat-cpu').textContent = `${cpu.toFixed(1)}%`;
+                const cpuBar = document.getElementById('stat-cpu-bar');
+                cpuBar.style.width = `${Math.min(100, cpu)}%`;
+                cpuBar.className = `h-full rounded-sm transition-all duration-500 ${cpu > 80 ? 'bg-status-alert' : cpu > 60 ? 'bg-lcars-orange' : 'bg-lcars-blue'}`;
                 
-                const listEl = document.getElementById('sessions-list');
+                // Memory
+                const mem = system?.memPercent || 0;
+                document.getElementById('stat-mem').textContent = `${mem.toFixed(1)}%`;
+                const memBar = document.getElementById('stat-mem-bar');
+                memBar.style.width = `${mem}%`;
+                memBar.className = `h-full rounded-sm transition-all duration-500 ${mem > 85 ? 'bg-status-alert' : mem > 70 ? 'bg-lcars-orange' : 'bg-lcars-purple'}`;
                 
-                if (sessions.length === 0) {
-                    listEl.innerHTML = '<div class="session-empty">No active sessions</div>';
-                    return;
+                // Sessions (from API)
+                if (this.sessionsData) {
+                    document.getElementById('stat-sessions').textContent = this.sessionsData.total || 0;
+                    document.getElementById('stat-sessions-sub').textContent = `${this.sessionsData.activeSubagents || 0} agents, ${this.sessionsData.runningCrons || 0} crons`;
                 }
                 
-                // Sort: running first, then by startedAt
-                const sorted = [...sessions].sort((a, b) => {
-                    if (a.status === 'running' && b.status !== 'running') return -1;
-                    if (b.status === 'running' && a.status !== 'running') return 1;
-                    return new Date(b.startedAt) - new Date(a.startedAt);
+                // Tasks
+                const tasks = this.tasksData?.tasks || [];
+                const active = tasks.filter(t => t.status === 'in_progress').length;
+                document.getElementById('stat-tasks').textContent = tasks.length;
+                document.getElementById('stat-tasks-sub').textContent = `${active} active`;
+                
+                // Trading P&L
+                const quark = crew?.quark || {};
+                const pnl = quark.pnl || 0;
+                const pnlEl = document.getElementById('stat-pnl');
+                pnlEl.textContent = `${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}`;
+                pnlEl.className = `text-xl font-bold ${pnl >= 0 ? 'text-status-active' : 'text-status-alert'}`;
+                document.getElementById('stat-pnl-sub').textContent = `${quark.trades || 0} trades`;
+                
+                // Uptime
+                document.getElementById('uptime').textContent = system?.uptime || '--';
+            }
+
+            // Platform mappings for each agent
+            agentPlatforms = {
+                seven: ['telegram', 'cli'],
+                geordi: ['github', 'cli'],
+                uhura: ['telegram', 'gmail', 'moltbook'],
+                quark: ['polymarket', 'telegram'],
+                spock: ['moltbook', 'research'],
+                data: ['qc', 'review']
+            };
+
+            getAgentStatus(key) {
+                // Check for active sessions (sub-agents)
+                const hasActiveSubagent = this.sessionsData?.subagents?.some(s => 
+                    s.label?.toLowerCase().includes(key) || s.session?.includes(key)
+                );
+                
+                // Check if agent has active tasks
+                const activeTasks = (this.tasksData?.tasks || []).filter(t => t.assignee === key && t.status === 'in_progress');
+                const hasActiveTasks = activeTasks.length > 0;
+                
+                // Check for recent activity logs to determine state
+                const recentLogs = [];
+                (this.tasksData?.tasks || []).forEach(t => {
+                    if (t.assignee === key && t.logs?.length > 0) {
+                        const recent = t.logs.filter(l => {
+                            const logTime = new Date(l.timestamp).getTime();
+                            return Date.now() - logTime < 300000; // Last 5 minutes
+                        });
+                        recentLogs.push(...recent);
+                    }
                 });
                 
-                listEl.innerHTML = sorted.slice(0, 10).map(session => {
-                    const duration = this.formatDuration(session.startedAt);
-                    const indicatorClass = session.status === 'running' ? 'running' : 
-                                          session.status === 'idle' ? 'idle' : 'stopped';
+                // Check for activity feed entries
+                const recentActivity = (this.tasksData?.activity || []).filter(a => {
+                    if (a.agent !== key) return false;
+                    const actTime = new Date(a.timestamp).getTime();
+                    return Date.now() - actTime < 300000;
+                });
+                
+                // Check bridge data for crew status
+                const crew = this.bridgeData?.crew?.[key];
+                const crewStatus = crew?.status?.toUpperCase();
+                
+                // Determine nuanced state
+                if (crewStatus === 'OFFLINE') return 'offline';
+                
+                // If has sub-agents running, it's BUILDING
+                if (hasActiveSubagent) return 'building';
+                
+                // Check recent logs for state hints
+                const logTypes = recentLogs.map(l => l.type?.toLowerCase() || l.message?.toLowerCase() || '');
+                const activityTypes = recentActivity.map(a => a.action?.toLowerCase() || '');
+                const allActivity = [...logTypes, ...activityTypes].join(' ');
+                
+                if (allActivity.includes('search') || allActivity.includes('research') || allActivity.includes('web') || allActivity.includes('fetch')) {
+                    return 'researching';
+                }
+                if (allActivity.includes('think') || allActivity.includes('plan') || allActivity.includes('evaluat')) {
+                    return 'thinking';
+                }
+                if (allActivity.includes('wait') || allActivity.includes('blocked') || allActivity.includes('pending')) {
+                    return 'waiting';
+                }
+                if (allActivity.includes('build') || allActivity.includes('creat') || allActivity.includes('writ') || allActivity.includes('edit')) {
+                    return 'building';
+                }
+                
+                // Fallback to crew status
+                if (['ACTIVE', 'BUILDING', 'PROCESSING'].includes(crewStatus)) return 'building';
+                if (['RESEARCHING', 'SEARCHING'].includes(crewStatus)) return 'researching';
+                if (['TRADING', 'MONITORING'].includes(crewStatus)) return 'building';
+                if (crewStatus === 'WAITING') return 'waiting';
+                
+                // If has active tasks but no recent activity, assume working
+                if (hasActiveTasks) return 'building';
+                
+                return 'idle';
+            }
+
+            getAgentTaskCount(key) {
+                return (this.tasksData?.tasks || []).filter(t => t.assignee === key && t.status !== 'done').length;
+            }
+
+            renderAgents() {
+                const container = document.getElementById('agents-list');
+                if (!this.tasksData?.agents) {
+                    container.innerHTML = '<div class="text-lcars-violet text-center py-5">Loading...</div>';
+                    return;
+                }
+
+                const agents = this.tasksData.agents;
+                let html = Object.entries(agents).map(([key, agent]) => {
+                    const status = this.getAgentStatus(key);
+                    const taskCount = this.getAgentTaskCount(key);
+                    const crewData = this.bridgeData?.crew?.[key] || {};
+                    const platforms = this.agentPlatforms[key] || [];
+                    
+                    // More nuanced status labels and classes
+                    const statusConfig = {
+                        thinking: { label: 'THINKING', class: 'agent-state thinking' },
+                        building: { label: 'BUILDING', class: 'agent-state building' },
+                        researching: { label: 'RESEARCHING', class: 'agent-state researching' },
+                        waiting: { label: 'WAITING', class: 'agent-state waiting' },
+                        idle: { label: 'IDLE', class: 'agent-state idle' },
+                        offline: { label: 'OFFLINE', class: 'agent-state offline' }
+                    };
+                    const statusInfo = statusConfig[status] || statusConfig.idle;
+                    
+                    // Generate platform badges
+                    const platformBadges = platforms.map(p => 
+                        `<span class="platform-badge ${p}">${p}</span>`
+                    ).join('');
                     
                     return `
-                        <div class="session-item">
-                            <div class="session-indicator ${indicatorClass}"></div>
-                            <div class="session-info">
-                                <div class="session-label">${this.escapeHtml(session.label || 'unnamed')}</div>
-                                <div class="session-meta">
-                                    <span>${session.status}</span>
-                                    ${session.model ? `<span>• ${session.model.split('/').pop()}</span>` : ''}
+                        <div class="bg-black/40 rounded-lcars-xs p-2.5 mb-2 border-l-4 cursor-pointer transition-all hover:bg-black/60 hover:translate-x-1" style="border-left-color: ${agent.color}" data-agent="${key}">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <div class="w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold text-black" style="background: ${agent.color}">${agent.department}</div>
+                                <div class="flex-1 ml-2">
+                                    <div class="text-xs font-bold text-lcars-gold">${agent.name}</div>
+                                    <div class="text-[9px] text-lcars-violet uppercase tracking-wider">${agent.role}</div>
+                                </div>
+                                <div class="px-1.5 py-0.5 rounded-md text-[8px] font-bold uppercase ${statusInfo.class}">${statusInfo.label}</div>
+                            </div>
+                            <div class="flex flex-wrap gap-0.5 mb-1.5">
+                                ${platformBadges}
+                            </div>
+                            <div class="flex justify-between text-[10px] text-lcars-sky mt-1.5 pt-1.5 border-t border-white/10">
+                                <span>Tasks: <span class="font-bold text-lcars-gold">${taskCount}</span></span>
+                                ${crewData.efficiency !== undefined ? `<span>Eff: <span class="font-bold text-lcars-gold">${crewData.efficiency}%</span></span>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                // Add sessions mini section
+                if (this.sessionsData && (this.sessionsData.subagents?.length > 0 || this.sessionsData.crons?.length > 0)) {
+                    html += `
+                        <div class="bg-lcars-orange/10 border border-lcars-orange rounded-lcars-xs p-2.5 mt-2">
+                            <div class="flex justify-between items-center mb-2 text-[11px] font-bold text-lcars-orange">
+                                <span>◈ ACTIVE SESSIONS</span>
+                                <span>${this.sessionsData.activeSubagents} agents, ${this.sessionsData.runningCrons} crons</span>
+                            </div>
+                            ${this.sessionsData.subagents.slice(0, 5).map(s => `
+                                <div class="flex items-center gap-2 py-1.5 text-[10px] border-b border-white/5 last:border-0">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-status-active animate-pulse"></div>
+                                    <span class="flex-1 text-lcars-gold truncate font-mono">${s.label || 'agent'}</span>
+                                    <span class="text-lcars-violet text-[9px]">${s.age || '--'}</span>
+                                    <span class="text-lcars-sky text-[8px] px-1 py-0.5 bg-lcars-sky/20 rounded">AGENT</span>
+                                </div>
+                            `).join('')}
+                            ${this.sessionsData.crons.slice(0, 5).map(s => `
+                                <div class="flex items-center gap-2 py-1.5 text-[10px] border-b border-white/5 last:border-0">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-status-warning animate-pulse"></div>
+                                    <span class="flex-1 text-lcars-gold truncate font-mono">${s.label || 'cron'}</span>
+                                    <span class="text-lcars-violet text-[9px]">${s.age || '--'}</span>
+                                    <span class="text-lcars-peach text-[8px] px-1 py-0.5 bg-lcars-peach/20 rounded">CRON</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+                
+                container.innerHTML = html;
+            }
+
+            renderKanban() {
+                const container = document.getElementById('kanban-container');
+                if (!this.tasksData?.tasks) {
+                    container.innerHTML = '<div class="text-lcars-violet text-center py-8">Loading tasks...</div>';
+                    return;
+                }
+
+                const columns = this.tasksData.columns || ['inbox', 'assigned', 'in_progress', 'review', 'done'];
+                const tasks = this.tasksData.tasks;
+                const agents = this.tasksData.agents || {};
+
+                const columnColors = {
+                    'inbox': 'text-lcars-violet',
+                    'assigned': 'text-lcars-sky',
+                    'in_progress': 'text-lcars-blue',
+                    'review': 'text-lcars-orange',
+                    'done': 'text-lcars-green'
+                };
+
+                container.innerHTML = columns.map(status => {
+                    const columnTasks = tasks.filter(t => t.status === status);
+                    return `
+                        <div class="kanban-column min-w-[160px] flex-1 bg-black/30 rounded-lcars-xs flex flex-col overflow-hidden" data-status="${status}" 
+                             ondragover="event.preventDefault()" 
+                             ondrop="cc.dropTask(event, '${status}')">
+                            <div class="px-2.5 py-2 flex items-center justify-between border-b-2 border-lcars-tan">
+                                <span class="text-[10px] font-bold uppercase tracking-wider ${columnColors[status]}">${this.columnLabels[status] || status}</span>
+                                <span class="bg-lcars-tan text-black px-1.5 py-0.5 rounded-lg text-[10px] font-bold">${columnTasks.length}</span>
+                            </div>
+                            <div class="flex-1 overflow-y-auto p-1.5">
+                                ${columnTasks.map(t => this.renderTaskCard(t, agents)).join('')}
+                                ${status === 'inbox' ? '<button class="w-full p-1.5 bg-lcars-orange/10 border border-dashed border-lcars-tan rounded-md text-lcars-tan font-lcars text-[10px] cursor-pointer transition-all hover:bg-lcars-orange/20 hover:border-lcars-orange hover:text-lcars-orange" onclick="showAddTask()">+ Add</button>' : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                document.getElementById('task-count').textContent = `${tasks.length} TASKS`;
+            }
+
+            renderTaskCard(task, agents) {
+                const agent = task.assignee ? agents[task.assignee] : null;
+                const priorityColors = {
+                    high: 'bg-status-alert',
+                    medium: 'bg-status-warning',
+                    low: 'bg-lcars-violet'
+                };
+                
+                return `
+                    <div class="task-card bg-lcars-panel border border-lcars-tan rounded-lg p-2 mb-1.5 cursor-pointer transition-all relative hover:-translate-y-0.5 hover:shadow-[0_4px_15px_rgba(255,153,0,0.2)]" data-task-id="${task.id}"
+                         draggable="true"
+                         ondragstart="cc.dragTask(event, '${task.id}')"
+                         onclick="cc.openTask('${task.id}')">
+                        <div class="absolute top-0 left-0 w-[3px] h-full rounded-l-lg ${priorityColors[task.priority] || priorityColors.medium}"></div>
+                        <div class="text-[11px] font-semibold text-lcars-gold mb-1 pl-1.5">${this.escapeHtml(task.title)}</div>
+                        <div class="text-[9px] text-lcars-violet mb-1.5 pl-1.5 line-clamp-2">${this.escapeHtml(task.description || '')}</div>
+                        <div class="flex items-center justify-between pl-1.5">
+                            ${agent ? `
+                                <div class="flex items-center gap-1">
+                                    <div class="w-4 h-4 rounded-sm flex items-center justify-center text-[8px] font-bold text-black" style="background: ${agent.color}">${agent.department}</div>
+                                    <span class="text-[9px] text-lcars-sky">${agent.name.split(' ')[0]}</span>
+                                </div>
+                            ` : '<span></span>'}
+                            <span class="px-1.5 py-0.5 rounded-sm text-[7px] font-bold uppercase bg-lcars-blue/20 text-lcars-blue">${task.category || 'general'}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderSystemTasks() {
+                const container = document.getElementById('system-tasks-list');
+                const countEl = document.getElementById('system-count');
+                
+                // Define system tasks with their responsible agents
+                const systemTasks = [
+                    { name: 'Email Triage', agent: 'uhura', type: 'monitoring' },
+                    { name: 'Crew Heartbeat', agent: 'seven', type: 'coordination' },
+                    { name: 'System Health', agent: 'geordi', type: 'monitoring' },
+                    { name: 'Market Tracker', agent: 'quark', type: 'trading' }
+                ];
+
+                // Get nuanced status for each system task based on agent state
+                const enrichedTasks = systemTasks.map(t => {
+                    const agentStatus = this.getAgentStatus(t.agent);
+                    let taskStatus = 'idle';
+                    let statusColor = 'bg-lcars-violet';
+                    
+                    // Map agent state to task status
+                    if (agentStatus === 'building' || agentStatus === 'researching') {
+                        taskStatus = 'active';
+                        statusColor = 'bg-status-active animate-pulse';
+                    } else if (agentStatus === 'thinking') {
+                        taskStatus = 'thinking';
+                        statusColor = 'bg-lcars-violet animate-pulse';
+                    } else if (agentStatus === 'waiting') {
+                        taskStatus = 'waiting';
+                        statusColor = 'bg-status-warning';
+                    } else if (agentStatus === 'offline') {
+                        taskStatus = 'offline';
+                        statusColor = 'bg-status-offline';
+                    } else {
+                        // Check if there's recent activity for this agent
+                        const hasRecentActivity = (this.tasksData?.activity || []).some(a => {
+                            if (a.agent !== t.agent) return false;
+                            const actTime = new Date(a.timestamp).getTime();
+                            return Date.now() - actTime < 600000; // Last 10 minutes
+                        });
+                        if (hasRecentActivity) {
+                            taskStatus = 'active';
+                            statusColor = 'bg-status-active animate-pulse';
+                        }
+                    }
+                    
+                    return { ...t, taskStatus, statusColor };
+                });
+
+                const active = enrichedTasks.filter(t => t.taskStatus === 'active').length;
+                if (countEl) countEl.textContent = `${active} ACTIVE`;
+
+                container.innerHTML = enrichedTasks.map(t => `
+                    <div class="flex items-center gap-2 py-1.5 border-b border-white/5 last:border-0 text-[10px]">
+                        <div class="w-1.5 h-1.5 rounded-full ${t.statusColor}"></div>
+                        <span class="flex-1 text-lcars-white">${t.name}</span>
+                        <span class="text-[8px] uppercase px-1 py-0.5 rounded ${
+                            t.taskStatus === 'active' ? 'bg-status-active/20 text-status-active' :
+                            t.taskStatus === 'thinking' ? 'bg-lcars-violet/20 text-lcars-violet' :
+                            t.taskStatus === 'waiting' ? 'bg-status-warning/20 text-status-warning' :
+                            t.taskStatus === 'offline' ? 'bg-status-offline/20 text-status-offline' :
+                            'bg-lcars-tan/20 text-lcars-tan'
+                        }">${t.taskStatus}</span>
+                        <span class="text-lcars-teal text-[9px] uppercase">${t.agent}</span>
+                    </div>
+                `).join('');
+            }
+
+            renderFeed() {
+                const container = document.getElementById('feed-list');
+                if (!this.tasksData?.activity) {
+                    container.innerHTML = '<div class="text-lcars-violet text-center py-5">No activity</div>';
+                    return;
+                }
+
+                const agents = this.tasksData.agents || {};
+                let activity = [...this.tasksData.activity].reverse();
+                
+                if (this.activeFilter !== 'all') {
+                    activity = activity.filter(a => a.type === this.activeFilter);
+                }
+
+                const typeBorders = {
+                    task: 'border-l-lcars-blue',
+                    comment: 'border-l-lcars-green',
+                    decision: 'border-l-lcars-purple',
+                    status: 'border-l-lcars-orange',
+                    tool: 'border-l-lcars-teal',
+                    thinking: 'border-l-lcars-violet',
+                    building: 'border-l-lcars-green',
+                    research: 'border-l-lcars-peach'
+                };
+
+                container.innerHTML = activity.slice(0, 20).map((item, idx) => {
+                    const agent = agents[item.agent] || { name: item.agent, color: '#666', department: '?' };
+                    const feedId = `feed-${idx}`;
+                    const hasDetails = item.toolName || item.toolArgs || item.payload || item.result || item.details;
+                    
+                    let actionText = '';
+                    switch (item.action) {
+                        case 'created': actionText = `created <strong class="text-lcars-gold">${this.escapeHtml(item.taskTitle || '')}</strong>`; break;
+                        case 'assigned': actionText = `assigned to <strong class="text-lcars-gold">${agents[item.target]?.name || item.target}</strong>`; break;
+                        case 'added': actionText = 'added a comment'; break;
+                        case 'moved': actionText = `moved to <strong class="text-lcars-gold">${item.to || ''}</strong>`; break;
+                        case 'completed': actionText = `completed <strong class="text-lcars-gold">${this.escapeHtml(item.taskTitle || '')}</strong>`; break;
+                        case 'tool_call': actionText = `called <strong class="text-lcars-teal">${this.escapeHtml(item.toolName || 'tool')}</strong>`; break;
+                        case 'thinking': actionText = `thinking: <em class="text-lcars-violet">${this.escapeHtml(item.thought || '')}</em>`; break;
+                        case 'researching': actionText = `researching: <strong class="text-lcars-peach">${this.escapeHtml(item.query || item.topic || '')}</strong>`; break;
+                        default: actionText = item.action || item.message || 'activity';
+                    }
+                    
+                    // Build details section for expandable view
+                    let detailsHtml = '';
+                    if (hasDetails) {
+                        const detailsContent = [];
+                        if (item.toolName) {
+                            detailsContent.push(`<div class="mb-2"><span class="text-lcars-teal text-[9px] font-bold">TOOL:</span> <span class="text-lcars-gold font-mono">${this.escapeHtml(item.toolName)}</span></div>`);
+                        }
+                        if (item.toolArgs) {
+                            const argsStr = typeof item.toolArgs === 'object' ? JSON.stringify(item.toolArgs, null, 2) : item.toolArgs;
+                            detailsContent.push(`<div class="mb-2"><span class="text-lcars-teal text-[9px] font-bold">ARGS:</span><pre class="text-lcars-sky text-[9px] font-mono mt-1 whitespace-pre-wrap break-all bg-black/30 p-2 rounded max-h-[100px] overflow-y-auto">${this.escapeHtml(argsStr)}</pre></div>`);
+                        }
+                        if (item.result) {
+                            const resultStr = typeof item.result === 'object' ? JSON.stringify(item.result, null, 2) : String(item.result);
+                            const truncated = resultStr.length > 300 ? resultStr.substring(0, 300) + '...' : resultStr;
+                            detailsContent.push(`<div><span class="text-lcars-teal text-[9px] font-bold">RESULT:</span><pre class="text-lcars-green text-[9px] font-mono mt-1 whitespace-pre-wrap break-all bg-black/30 p-2 rounded max-h-[80px] overflow-y-auto">${this.escapeHtml(truncated)}</pre></div>`);
+                        }
+                        detailsHtml = `<div class="activity-details">${detailsContent.join('')}</div>`;
+                    }
+                    
+                    return `
+                        <div class="activity-entry flex flex-col gap-0 p-2 bg-black/30 rounded-lg mb-1.5 transition-all hover:bg-black/50 border-l-[3px] ${typeBorders[item.type] || 'border-l-lcars-tan'}" 
+                             data-type="${item.type}" 
+                             data-feed-id="${feedId}"
+                             onclick="${hasDetails ? `cc.toggleFeedDetails('${feedId}')` : ''}">
+                            <div class="flex gap-2">
+                                <div class="w-7 h-7 rounded-md flex items-center justify-center text-[10px] font-bold text-black flex-shrink-0" style="background: ${agent.color}">${agent.department}</div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between mb-0.5">
+                                        <span class="text-[10px] font-bold text-lcars-gold">${agent.name}</span>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-[8px] text-lcars-violet">${this.formatTimeAgo(item.timestamp)}</span>
+                                            ${hasDetails ? '<span class="activity-expand-icon text-lcars-orange">▶</span>' : ''}
+                                        </div>
+                                    </div>
+                                    <div class="text-[10px] text-lcars-sky">
+                                        ${actionText}
+                                        ${hasDetails ? '<span class="text-[8px] text-lcars-tan ml-1">[details]</span>' : ''}
+                                    </div>
                                 </div>
                             </div>
-                            <div class="session-channel">${session.channel || 'cli'}</div>
-                            <div class="session-duration">${duration}</div>
+                            ${detailsHtml}
                         </div>
                     `;
                 }).join('');
             }
 
-            formatDuration(startedAt) {
-                if (!startedAt) return '--';
-                
-                const start = new Date(startedAt);
-                const now = new Date();
-                const diff = Math.floor((now - start) / 1000);
-                
-                if (diff < 60) return `${diff}s`;
-                if (diff < 3600) return `${Math.floor(diff / 60)}m`;
-                if (diff < 86400) return `${Math.floor(diff / 3600)}h ${Math.floor((diff % 3600) / 60)}m`;
-                return `${Math.floor(diff / 86400)}d`;
+            toggleFeedDetails(feedId) {
+                const entry = document.querySelector(`[data-feed-id="${feedId}"]`);
+                if (entry) {
+                    entry.classList.toggle('expanded');
+                }
             }
 
-            drawSparkline(data, baseline) {
-                const canvas = document.getElementById('sparkline-canvas');
-                if (!canvas) return;
+            updateFooter() {
+                const tasks = this.tasksData?.tasks || [];
+                const active = tasks.filter(t => t.status === 'in_progress').length;
+                const pending = tasks.filter(t => ['inbox', 'assigned'].includes(t.status)).length;
                 
-                const ctx = canvas.getContext('2d');
-                const rect = canvas.parentElement.getBoundingClientRect();
-                
-                // Set canvas size
-                canvas.width = rect.width - 16;
-                canvas.height = rect.height - 20;
-                
-                const width = canvas.width;
-                const height = canvas.height;
-                const padding = 4;
-                
-                // Find min/max
-                const min = Math.min(...data, baseline) * 0.95;
-                const max = Math.max(...data, baseline) * 1.05;
-                const range = max - min || 1;
-                
-                // Clear
-                ctx.clearRect(0, 0, width, height);
-                
-                // Draw baseline
-                const baselineY = height - padding - ((baseline - min) / range) * (height - padding * 2);
-                ctx.strokeStyle = 'rgba(255, 153, 0, 0.3)';
-                ctx.lineWidth = 1;
-                ctx.setLineDash([4, 4]);
-                ctx.beginPath();
-                ctx.moveTo(0, baselineY);
-                ctx.lineTo(width, baselineY);
-                ctx.stroke();
-                ctx.setLineDash([]);
-                
-                // Draw sparkline
-                ctx.strokeStyle = '#ffcc99';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                
-                const stepX = (width - padding * 2) / (data.length - 1);
-                
-                data.forEach((value, i) => {
-                    const x = padding + i * stepX;
-                    const y = height - padding - ((value - min) / range) * (height - padding * 2);
-                    
-                    if (i === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
-                });
-                
-                ctx.stroke();
-                
-                // Draw gradient fill
-                const gradient = ctx.createLinearGradient(0, 0, 0, height);
-                gradient.addColorStop(0, 'rgba(255, 204, 153, 0.3)');
-                gradient.addColorStop(1, 'rgba(255, 204, 153, 0)');
-                
-                ctx.lineTo(padding + (data.length - 1) * stepX, height);
-                ctx.lineTo(padding, height);
-                ctx.closePath();
-                ctx.fillStyle = gradient;
-                ctx.fill();
-                
-                // Draw current value dot
-                const lastValue = data[data.length - 1];
-                const lastX = padding + (data.length - 1) * stepX;
-                const lastY = height - padding - ((lastValue - min) / range) * (height - padding * 2);
-                
-                ctx.beginPath();
-                ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
-                ctx.fillStyle = lastValue >= baseline ? '#99ff99' : '#ff6666';
-                ctx.fill();
-                
-                // Add glow to the dot
-                ctx.shadowColor = lastValue >= baseline ? '#99ff99' : '#ff6666';
-                ctx.shadowBlur = 8;
-                ctx.beginPath();
-                ctx.arc(lastX, lastY, 3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
+                document.getElementById('footer-active').textContent = `${active} ACTIVE`;
+                document.getElementById('footer-pending').textContent = `${pending} PENDING`;
+                document.getElementById('footer-update').textContent = `Update: ${new Date().toLocaleTimeString()}`;
             }
 
-            setStatus(elementId, status) {
-                const el = document.getElementById(elementId);
-                if (!el) return;
+            // Drag & Drop
+            dragTask(event, taskId) {
+                event.dataTransfer.setData('text/plain', taskId);
+                event.target.classList.add('dragging');
+            }
+
+            dropTask(event, newStatus) {
+                event.preventDefault();
+                const taskId = event.dataTransfer.getData('text/plain');
+                document.querySelector('.task-card.dragging')?.classList.remove('dragging');
                 
-                const statusMap = {
-                    'ACTIVE': 'status-active',
-                    'STANDBY': 'status-standby',
-                    'MONITORING': 'status-monitoring',
-                    'BUILDING': 'status-building',
-                    'RESEARCHING': 'status-researching',
-                    'PROCESSING': 'status-processing',
-                    'TRADING': 'status-trading',
-                    'OFFLINE': 'status-offline'
+                if (this.ws?.readyState === WebSocket.OPEN) {
+                    this.ws.send(JSON.stringify({ type: 'update_task', taskId, updates: { status: newStatus } }));
+                }
+            }
+
+            // Task Modal
+            openTask(taskId) {
+                const task = this.tasksData?.tasks?.find(t => t.id === taskId);
+                if (!task) return;
+                
+                this.selectedTaskId = taskId;
+                const agents = this.tasksData.agents || {};
+                const assignee = task.assignee ? agents[task.assignee] : null;
+                
+                document.getElementById('modal-task-title').textContent = task.title;
+                document.getElementById('modal-task-desc').textContent = task.description || 'No description';
+                
+                const priorityColors = {
+                    high: 'text-status-alert',
+                    medium: 'text-status-warning',
+                    low: 'text-lcars-violet'
                 };
                 
-                el.className = `panel-status ${statusMap[status] || 'status-standby'}`;
-                el.textContent = status;
+                document.getElementById('modal-task-meta').innerHTML = `
+                    <div class="text-center">
+                        <div class="text-[9px] font-bold uppercase tracking-wider text-lcars-tan mb-1">Status</div>
+                        <div class="text-sm text-lcars-gold">${this.columnLabels[task.status] || task.status}</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-[9px] font-bold uppercase tracking-wider text-lcars-tan mb-1">Assignee</div>
+                        <div class="text-sm text-lcars-gold">${assignee?.name || 'Unassigned'}</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-[9px] font-bold uppercase tracking-wider text-lcars-tan mb-1">Priority</div>
+                        <div class="text-sm font-bold ${priorityColors[task.priority] || priorityColors.medium}">${(task.priority || 'medium').toUpperCase()}</div>
+                    </div>
+                `;
+                
+                // Comments
+                const comments = (task.comments || []).map(c => {
+                    const author = agents[c.author] || { name: c.author, color: '#666', department: '?' };
+                    return `
+                        <div class="flex gap-2 p-2 bg-black/30 rounded-lg mb-2">
+                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold text-black flex-shrink-0" style="background: ${author.color}">${author.department}</div>
+                            <div class="flex-1">
+                                <div class="flex justify-between mb-0.5">
+                                    <span class="text-[10px] font-bold text-lcars-gold">${author.name}</span>
+                                    <span class="text-[8px] text-lcars-violet">${this.formatTimeAgo(c.timestamp)}</span>
+                                </div>
+                                <div class="text-[11px] text-lcars-sky">${this.escapeHtml(c.text)}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                document.getElementById('modal-task-comments').innerHTML = comments || '<div class="text-lcars-violet text-[11px] py-2.5">No comments yet</div>';
+                document.getElementById('comments-count').textContent = (task.comments || []).length;
+                
+                // Activity log
+                this.renderActivityLog(task);
+                
+                // Show activity count in header if there are logs
+                const logCount = (task.logs || []).length;
+                if (logCount > 0) {
+                    document.getElementById('modal-task-title').innerHTML = `${this.escapeHtml(task.title)} <span class="text-[10px] text-lcars-gold ml-2">(${logCount} activity entries)</span>`;
+                }
+                
+                switchTaskTab('activity'); // Show activity by default
+                const overlay = document.getElementById('task-modal-overlay');
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+            }
+
+            renderActivityLog(task) {
+                const logs = task.logs || [];
+                const agents = this.tasksData?.agents || {};
+                const container = document.getElementById('activity-log-list');
+                
+                document.getElementById('activity-count').textContent = logs.length;
+                
+                if (logs.length === 0) {
+                    container.innerHTML = '<div class="text-center text-lcars-violet text-[11px] py-5">No activity logged yet</div>';
+                    return;
+                }
+                
+                const sorted = [...logs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                
+                container.innerHTML = sorted.map((log, idx) => {
+                    const agent = agents[log.agent] || { name: log.agent, color: '#666', department: '?' };
+                    const hasDetails = log.toolName || log.toolArgs || log.payload || log.result || log.details;
+                    const logId = `log-${task.id}-${idx}`;
+                    
+                    // Format details section if present
+                    let detailsHtml = '';
+                    if (hasDetails) {
+                        const detailsContent = [];
+                        if (log.toolName) {
+                            detailsContent.push(`<div class="mb-2"><span class="text-lcars-teal text-[9px] font-bold">TOOL:</span> <span class="text-lcars-gold font-mono">${this.escapeHtml(log.toolName)}</span></div>`);
+                        }
+                        if (log.toolArgs) {
+                            const argsStr = typeof log.toolArgs === 'object' ? JSON.stringify(log.toolArgs, null, 2) : log.toolArgs;
+                            detailsContent.push(`<div class="mb-2"><span class="text-lcars-teal text-[9px] font-bold">ARGS:</span><pre class="text-lcars-sky text-[9px] font-mono mt-1 whitespace-pre-wrap break-all bg-black/30 p-2 rounded max-h-[150px] overflow-y-auto">${this.escapeHtml(argsStr)}</pre></div>`);
+                        }
+                        if (log.payload) {
+                            const payloadStr = typeof log.payload === 'object' ? JSON.stringify(log.payload, null, 2) : log.payload;
+                            detailsContent.push(`<div class="mb-2"><span class="text-lcars-teal text-[9px] font-bold">PAYLOAD:</span><pre class="text-lcars-sky text-[9px] font-mono mt-1 whitespace-pre-wrap break-all bg-black/30 p-2 rounded max-h-[150px] overflow-y-auto">${this.escapeHtml(payloadStr)}</pre></div>`);
+                        }
+                        if (log.result) {
+                            const resultStr = typeof log.result === 'object' ? JSON.stringify(log.result, null, 2) : String(log.result);
+                            const truncated = resultStr.length > 500 ? resultStr.substring(0, 500) + '...' : resultStr;
+                            detailsContent.push(`<div class="mb-2"><span class="text-lcars-teal text-[9px] font-bold">RESULT:</span><pre class="text-lcars-green text-[9px] font-mono mt-1 whitespace-pre-wrap break-all bg-black/30 p-2 rounded max-h-[100px] overflow-y-auto">${this.escapeHtml(truncated)}</pre></div>`);
+                        }
+                        if (log.details && typeof log.details === 'object') {
+                            detailsContent.push(`<div><span class="text-lcars-teal text-[9px] font-bold">DETAILS:</span><pre class="text-lcars-gold text-[9px] font-mono mt-1 whitespace-pre-wrap break-all bg-black/30 p-2 rounded max-h-[150px] overflow-y-auto">${this.escapeHtml(JSON.stringify(log.details, null, 2))}</pre></div>`);
+                        }
+                        detailsHtml = `<div class="activity-details">${detailsContent.join('')}</div>`;
+                    }
+                    
+                    return `
+                        <div class="activity-entry flex flex-col gap-0 p-2 bg-black/30 rounded-md mb-1.5 border-l-[3px] border-l-lcars-violet ${hasDetails ? '' : ''}" 
+                             data-log-id="${logId}" 
+                             onclick="${hasDetails ? `cc.toggleActivityDetails('${logId}')` : ''}">
+                            <div class="flex gap-2">
+                                <div class="w-6 h-6 rounded-md flex items-center justify-center text-[9px] font-bold text-black flex-shrink-0" style="background: ${agent.color}">${agent.department}</div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex justify-between items-center mb-0.5">
+                                        <span class="text-[10px] font-bold text-lcars-gold">${agent.name}</span>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-[8px] text-lcars-violet">${this.formatTimeAgo(log.timestamp)}</span>
+                                            ${hasDetails ? '<span class="activity-expand-icon text-lcars-orange">▶</span>' : ''}
+                                        </div>
+                                    </div>
+                                    <div class="text-[11px] text-lcars-sky">
+                                        <span class="activity-log-type inline-block px-1.5 py-0.5 rounded-sm text-[8px] font-bold uppercase mr-1.5 ${log.type || 'update'}">${log.type || 'update'}</span>
+                                        ${this.escapeHtml(log.message)}
+                                        ${hasDetails ? '<span class="text-[8px] text-lcars-tan ml-1">[details]</span>' : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            ${detailsHtml}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            toggleActivityDetails(logId) {
+                const entry = document.querySelector(`[data-log-id="${logId}"]`);
+                if (entry) {
+                    entry.classList.toggle('expanded');
+                }
+            }
+
+            addComment() {
+                const input = document.getElementById('comment-input');
+                const text = input.value.trim();
+                if (!text || !this.selectedTaskId) return;
+                
+                if (this.ws?.readyState === WebSocket.OPEN) {
+                    this.ws.send(JSON.stringify({ type: 'add_comment', taskId: this.selectedTaskId, author: 'seven', text }));
+                    input.value = '';
+                }
+            }
+
+            formatTimeAgo(ts) {
+                if (!ts) return '--';
+                const diff = Date.now() - new Date(ts).getTime();
+                const mins = Math.floor(diff / 60000);
+                if (mins < 1) return 'now';
+                if (mins < 60) return `${mins}m`;
+                const hours = Math.floor(mins / 60);
+                if (hours < 24) return `${hours}h`;
+                return `${Math.floor(hours / 24)}d`;
+            }
+
+            formatDuration(startedAt) {
+                if (!startedAt) return '--';
+                const diff = Math.floor((Date.now() - new Date(startedAt).getTime()) / 1000);
+                if (diff < 60) return `${diff}s`;
+                if (diff < 3600) return `${Math.floor(diff / 60)}m`;
+                if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
+                return `${Math.floor(diff / 86400)}d`;
             }
 
             escapeHtml(text) {
@@ -2133,39 +1390,268 @@
             }
 
             startClock() {
-                const updateClock = () => {
-                    const now = new Date();
-                    document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', { 
-                        hour12: false,
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit'
+                const update = () => {
+                    document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-US', { 
+                        hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit'
                     });
+                    
+                    const now = new Date();
+                    const startOfYear = new Date(now.getFullYear(), 0, 1);
+                    const dayOfYear = Math.floor((now - startOfYear) / (1000 * 60 * 60 * 24));
+                    const stardate = 47000 + ((now.getFullYear() - 2024) * 1000) + (dayOfYear / 365) * 1000;
+                    document.getElementById('stardate').textContent = stardate.toFixed(1);
                 };
-                
-                updateClock();
-                setInterval(updateClock, 1000);
+                update();
+                setInterval(update, 1000);
             }
         }
 
-        // Panel navigation
-        function scrollToPanel(panelId) {
-            const panel = document.getElementById(`panel-${panelId}`);
-            if (panel) {
-                panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                
-                // Highlight effect
-                panel.style.boxShadow = '0 0 30px rgba(255, 153, 0, 0.5)';
-                setTimeout(() => {
-                    panel.style.boxShadow = '';
-                }, 1000);
+        // ═══════════════════════════════════════════════════════════════
+        // GLOBAL FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════
+
+        function closeTaskModal() {
+            const overlay = document.getElementById('task-modal-overlay');
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+            if (window.cc) window.cc.selectedTaskId = null;
+        }
+
+        async function deleteCurrentTask() {
+            if (!window.cc?.selectedTaskId) return;
+            if (!confirm('Delete this task? This cannot be undone.')) return;
+            
+            try {
+                const res = await fetch(`/api/tasks/${window.cc.selectedTaskId}`, { method: 'DELETE' });
+                if (res.ok) {
+                    closeTaskModal();
+                    // Refresh tasks
+                    const tasksRes = await fetch('/api/tasks');
+                    if (tasksRes.ok) {
+                        window.cc.tasksData = await tasksRes.json();
+                        window.cc.render();
+                    }
+                }
+            } catch (e) {
+                console.error('Delete failed:', e);
             }
         }
 
-        // Initialize
+        function switchTaskTab(tabName) {
+            document.querySelectorAll('.task-modal-tab').forEach(tab => {
+                const isActive = tab.dataset.tab === tabName;
+                tab.classList.toggle('text-lcars-orange', isActive);
+                tab.classList.toggle('text-lcars-tan', !isActive);
+                const badge = tab.querySelector('span');
+                if (badge) {
+                    badge.classList.toggle('bg-lcars-orange', isActive);
+                    badge.classList.toggle('bg-lcars-violet', !isActive);
+                }
+            });
+            document.querySelectorAll('.task-tab-content').forEach(content => {
+                content.classList.toggle('hidden', content.id !== `tab-${tabName}`);
+            });
+        }
+
+        function addComment() {
+            if (window.cc) window.cc.addComment();
+        }
+
+        function showAddTask() {
+            const overlay = document.getElementById('add-task-modal-overlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+            document.getElementById('new-task-title').focus();
+        }
+
+        function closeAddTaskModal() {
+            const overlay = document.getElementById('add-task-modal-overlay');
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+            document.getElementById('add-task-form').reset();
+        }
+
+        async function submitNewTask(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('new-task-title').value.trim();
+            const description = document.getElementById('new-task-desc').value.trim();
+            const assignee = document.getElementById('new-task-assignee').value || null;
+            const priority = document.getElementById('new-task-priority').value;
+            const category = document.getElementById('new-task-category').value;
+            
+            if (!title) return alert('Title required!');
+            
+            if (window.cc?.ws?.readyState === WebSocket.OPEN) {
+                window.cc.ws.send(JSON.stringify({ type: 'create_task', title, description, assignee, priority, category }));
+                closeAddTaskModal();
+            }
+        }
+
+        function toggleView(view) {
+            console.log('Toggle view:', view);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // MESSAGES SYSTEM
+        // ═══════════════════════════════════════════════════════════════
+
+        window.crewMessages = [];
+        window.messageCounts = {};
+        window.currentMessage = null;
+        window.messageFilter = 'all';
+
+        const CREW_NAMES = {
+            seven: 'Seven of Nine',
+            spock: 'Spock',
+            geordi: 'Geordi La Forge',
+            uhura: 'Uhura',
+            quark: 'Quark'
+        };
+
+        function updateMessageBadge() {
+            const badge = document.getElementById('msg-badge');
+            const unread = window.messageCounts?.unread || 0;
+            if (unread > 0) {
+                badge.textContent = unread;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function openMessagesModal() {
+            const modal = document.getElementById('messages-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            if (window.cc?.ws?.readyState === WebSocket.OPEN) {
+                window.cc.ws.send(JSON.stringify({ type: 'get_messages' }));
+            }
+            renderMessageList();
+        }
+
+        function closeMessagesModal() {
+            const modal = document.getElementById('messages-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function filterMessages(filter) {
+            window.messageFilter = filter;
+            document.querySelectorAll('.messages-filter').forEach(el => {
+                el.classList.toggle('shadow-[0_0_10px_#FFCC99]', el.dataset.filter === filter);
+            });
+            renderMessageList();
+        }
+
+        function renderMessageList() {
+            const container = document.getElementById('messages-list');
+            let messages = [...(window.crewMessages || [])];
+            
+            const filter = window.messageFilter;
+            if (filter === 'unread') messages = messages.filter(m => !m.read);
+            else if (CREW_NAMES[filter]) messages = messages.filter(m => m.to === filter || m.from === filter);
+            
+            messages.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            if (messages.length === 0) {
+                container.innerHTML = '<div class="text-lcars-tan text-center py-8">No messages</div>';
+                return;
+            }
+            
+            container.innerHTML = messages.map(m => `
+                <div class="message-item bg-lcars-violet/10 border-l-4 ${m.read ? 'border-l-lcars-violet' : 'border-l-status-alert'} px-3 py-2.5 mb-2 rounded-r-lcars cursor-pointer transition-all hover:bg-lcars-violet/20" onclick="selectMessage('${m.id}')">
+                    <div class="text-[10px] text-lcars-sky mb-0.5 uppercase tracking-wider">${CREW_NAMES[m.from] || m.from} → ${CREW_NAMES[m.to] || m.to}</div>
+                    <div class="text-xs font-semibold text-lcars-gold mb-1">${escapeHtml(m.subject)}</div>
+                    <div class="text-[9px] text-lcars-tan flex justify-between">
+                        <span class="bg-lcars-violet text-black px-1.5 py-0.5 rounded-md text-[8px] font-bold">${m.type?.toUpperCase() || 'MSG'}</span>
+                        <span>${formatMessageTime(m.timestamp)}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectMessage(msgId) {
+            const msg = window.crewMessages.find(m => m.id === msgId);
+            if (!msg) return;
+            
+            window.currentMessage = msg;
+            
+            if (!msg.read) {
+                fetch(`/api/messages/${msgId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ read: true })
+                }).catch(() => {});
+            }
+            
+            const detail = document.getElementById('message-detail');
+            detail.classList.remove('hidden');
+            detail.classList.add('flex');
+            
+            document.getElementById('detail-subject').textContent = msg.subject;
+            document.getElementById('detail-meta').innerHTML = `From: <strong class="text-lcars-gold">${CREW_NAMES[msg.from] || msg.from}</strong> → To: <strong class="text-lcars-gold">${CREW_NAMES[msg.to] || msg.to}</strong>`;
+            document.getElementById('detail-content').textContent = msg.content || '(No content)';
+            document.getElementById('detail-actions').classList.remove('hidden');
+            document.getElementById('detail-actions').classList.add('flex');
+        }
+
+        function formatMessageTime(ts) {
+            const diff = Date.now() - new Date(ts).getTime();
+            if (diff < 60000) return 'now';
+            if (diff < 3600000) return Math.floor(diff / 60000) + 'm';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + 'h';
+            return new Date(ts).toLocaleDateString();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function ackMessage() {
+            if (window.currentMessage) {
+                fetch(`/api/messages/${window.currentMessage.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'acknowledged' })
+                }).then(() => renderMessageList());
+            }
+        }
+
+        function createTaskFromMsg() {
+            if (window.currentMessage) {
+                document.getElementById('new-task-title').value = window.currentMessage.subject;
+                document.getElementById('new-task-desc').value = window.currentMessage.content || '';
+                closeMessagesModal();
+                showAddTask();
+            }
+        }
+
+        function deleteCurrentMsg() {
+            if (window.currentMessage && confirm('Delete this message?')) {
+                fetch(`/api/messages/${window.currentMessage.id}`, { method: 'DELETE' })
+                    .then(() => {
+                        window.currentMessage = null;
+                        document.getElementById('message-detail').classList.add('hidden');
+                        document.getElementById('message-detail').classList.remove('flex');
+                        renderMessageList();
+                    });
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════════════════════
+
+        let cc;
         document.addEventListener('DOMContentLoaded', () => {
-            window.lcars = new LCARSDashboard();
-            console.log('[LCARS] Dashboard v6 initialized');
+            cc = new CommandCenter();
+            window.cc = cc;
+            cc.fetchSessions();
+            cc.fetchTasks();
+            console.log('[LCARS] Command Center v7.0 Tailwind Edition initialized');
         });
     </script>
 </body>
