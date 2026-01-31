@@ -1,90 +1,220 @@
 {
   "version": "1.0",
-  "lastUpdated": "2025-01-31T12:00:00Z",
-  "columns": ["inbox", "assigned", "in_progress", "review", "done"],
+  "lastUpdated": "2026-01-31T10:34:34.882Z",
+  "columns": [
+    "inbox",
+    "assigned",
+    "in_progress",
+    "review",
+    "done"
+  ],
   "tasks": [
     {
-      "id": "task-001",
-      "title": "LCARS Dashboard Enhancement",
+      "id": "task-1738322400000-polymarket",
+      "title": "Polymarket Tracker System",
+      "description": "Build automated Polymarket tracking and trading system with Quark",
+      "status": "in_progress",
+      "assignee": "quark",
+      "category": "trading",
+      "priority": "high",
+      "createdAt": "2026-01-31T08:00:00Z",
+      "updatedAt": "2026-01-31T11:30:00Z",
+      "comments": [
+        {
+          "id": "c-001",
+          "author": "seven",
+          "text": "Captain wants automated crypto prediction market tracking",
+          "timestamp": "2026-01-31T08:05:00Z"
+        }
+      ]
+    },
+    {
+      "id": "task-1738322400001-dashboard",
+      "title": "LCARS Dashboard v7 Enhancement",
       "description": "Add sophisticated Task and Agent Management System with three-panel layout",
       "status": "in_progress",
       "assignee": "geordi",
       "category": "engineering",
       "priority": "high",
-      "createdAt": "2025-01-31T10:00:00Z",
-      "updatedAt": "2025-01-31T12:00:00Z",
+      "createdAt": "2026-01-31T09:00:00Z",
+      "updatedAt": "2026-01-31T11:30:00Z",
       "comments": [
         {
-          "id": "c1",
+          "id": "c-002",
           "author": "seven",
-          "text": "Captain has requested this enhancement. High priority.",
-          "timestamp": "2025-01-31T10:05:00Z"
+          "text": "Task system needs to work properly - add task button, real timestamps, persistence",
+          "timestamp": "2026-01-31T11:00:00Z"
         }
       ]
     },
     {
-      "id": "task-002",
-      "title": "Email Triage System",
-      "description": "Implement intelligent email sorting with priority detection",
+      "id": "task-1738322400002-moltbook",
+      "title": "Moltbook Integration",
+      "description": "Integrate Moltbook note-taking system with OpenClaw workflow",
       "status": "assigned",
-      "assignee": "uhura",
-      "category": "communications",
-      "priority": "medium",
-      "createdAt": "2025-01-31T09:00:00Z",
-      "updatedAt": "2025-01-31T09:00:00Z",
-      "comments": []
-    },
-    {
-      "id": "task-003",
-      "title": "Research: Agentic Workflows",
-      "description": "Investigate best practices for multi-agent coordination patterns",
-      "status": "review",
       "assignee": "spock",
       "category": "research",
       "priority": "medium",
-      "createdAt": "2025-01-30T14:00:00Z",
-      "updatedAt": "2025-01-31T08:00:00Z",
+      "createdAt": "2026-01-31T09:30:00Z",
+      "updatedAt": "2026-01-31T09:30:00Z",
       "comments": []
     },
     {
-      "id": "task-004",
+      "id": "task-1738322400003-email",
+      "title": "Email Triage System",
+      "description": "Implement intelligent email sorting with Uhura protocol - priority detection and labeling",
+      "status": "review",
+      "assignee": "uhura",
+      "category": "communications",
+      "priority": "medium",
+      "createdAt": "2026-01-31T07:00:00Z",
+      "updatedAt": "2026-01-31T10:45:00Z",
+      "comments": [
+        {
+          "id": "c-003",
+          "author": "uhura",
+          "text": "Completed triage for roderik@settlemint.com - 27 emails processed",
+          "timestamp": "2026-01-31T10:45:00Z"
+        }
+      ]
+    },
+    {
+      "id": "task-1738322400004-skills",
+      "title": "Skill Library Expansion",
+      "description": "Review and integrate new skills from awesome-openclaw-skills",
+      "status": "inbox",
+      "assignee": null,
+      "category": "engineering",
+      "priority": "low",
+      "createdAt": "2026-01-31T10:00:00Z",
+      "updatedAt": "2026-01-31T10:00:00Z",
+      "comments": []
+    },
+    {
+      "id": "task-1738322400005-trading",
       "title": "Trading Strategy Optimization",
-      "description": "Analyze recent trades and optimize entry/exit conditions",
+      "description": "Analyze recent Quark trades and optimize entry/exit conditions for better win rate",
       "status": "inbox",
       "assignee": null,
       "category": "trading",
-      "priority": "low",
-      "createdAt": "2025-01-31T11:00:00Z",
-      "updatedAt": "2025-01-31T11:00:00Z",
+      "priority": "medium",
+      "createdAt": "2026-01-31T11:00:00Z",
+      "updatedAt": "2026-01-31T11:00:00Z",
       "comments": []
     }
   ],
   "activity": [
     {
-      "id": "act-001",
+      "id": "act-1738310400000",
       "type": "task",
       "action": "created",
       "agent": "seven",
-      "taskId": "task-001",
-      "taskTitle": "LCARS Dashboard Enhancement",
-      "timestamp": "2025-01-31T10:00:00Z"
+      "taskId": "task-1738322400003-email",
+      "taskTitle": "Email Triage System",
+      "timestamp": "2026-01-31T07:00:00Z"
     },
     {
-      "id": "act-002",
+      "id": "act-1738310400001",
       "type": "status",
       "action": "assigned",
       "agent": "seven",
-      "taskId": "task-001",
-      "target": "geordi",
-      "timestamp": "2025-01-31T10:02:00Z"
+      "taskId": "task-1738322400003-email",
+      "target": "uhura",
+      "timestamp": "2026-01-31T07:02:00Z"
     },
     {
-      "id": "act-003",
+      "id": "act-1738314000000",
+      "type": "task",
+      "action": "created",
+      "agent": "seven",
+      "taskId": "task-1738322400000-polymarket",
+      "taskTitle": "Polymarket Tracker System",
+      "timestamp": "2026-01-31T08:00:00Z"
+    },
+    {
+      "id": "act-1738314000001",
+      "type": "status",
+      "action": "assigned",
+      "agent": "seven",
+      "taskId": "task-1738322400000-polymarket",
+      "target": "quark",
+      "timestamp": "2026-01-31T08:02:00Z"
+    },
+    {
+      "id": "act-1738317600000",
+      "type": "task",
+      "action": "created",
+      "agent": "seven",
+      "taskId": "task-1738322400001-dashboard",
+      "taskTitle": "LCARS Dashboard v7 Enhancement",
+      "timestamp": "2026-01-31T09:00:00Z"
+    },
+    {
+      "id": "act-1738317600001",
+      "type": "status",
+      "action": "assigned",
+      "agent": "seven",
+      "taskId": "task-1738322400001-dashboard",
+      "target": "geordi",
+      "timestamp": "2026-01-31T09:02:00Z"
+    },
+    {
+      "id": "act-1738319400000",
+      "type": "task",
+      "action": "created",
+      "agent": "seven",
+      "taskId": "task-1738322400002-moltbook",
+      "taskTitle": "Moltbook Integration",
+      "timestamp": "2026-01-31T09:30:00Z"
+    },
+    {
+      "id": "act-1738319400001",
+      "type": "status",
+      "action": "assigned",
+      "agent": "seven",
+      "taskId": "task-1738322400002-moltbook",
+      "target": "spock",
+      "timestamp": "2026-01-31T09:32:00Z"
+    },
+    {
+      "id": "act-1738321200000",
+      "type": "status",
+      "action": "moved",
+      "agent": "uhura",
+      "taskId": "task-1738322400003-email",
+      "taskTitle": "Email Triage System",
+      "from": "in_progress",
+      "to": "review",
+      "timestamp": "2026-01-31T10:45:00Z"
+    },
+    {
+      "id": "act-1738321200001",
+      "type": "comment",
+      "action": "added",
+      "agent": "uhura",
+      "taskId": "task-1738322400003-email",
+      "taskTitle": "Email Triage System",
+      "timestamp": "2026-01-31T10:45:00Z"
+    },
+    {
+      "id": "act-1738323000000",
       "type": "comment",
       "action": "added",
       "agent": "seven",
-      "taskId": "task-001",
-      "timestamp": "2025-01-31T10:05:00Z"
+      "taskId": "task-1738322400001-dashboard",
+      "taskTitle": "LCARS Dashboard v7 Enhancement",
+      "timestamp": "2026-01-31T11:00:00Z"
+    },
+    {
+      "id": "act-1738324800000",
+      "type": "status",
+      "action": "moved",
+      "agent": "geordi",
+      "taskId": "task-1738322400001-dashboard",
+      "taskTitle": "LCARS Dashboard v7 Enhancement",
+      "from": "assigned",
+      "to": "in_progress",
+      "timestamp": "2026-01-31T11:30:00Z"
     }
   ],
   "agents": {
@@ -92,14 +222,18 @@
       "name": "Seven of Nine",
       "role": "Number One",
       "department": "CMD",
-      "badges": ["LEAD"],
+      "badges": [
+        "LEAD"
+      ],
       "color": "#cc99cc"
     },
     "geordi": {
       "name": "Geordi La Forge",
       "role": "Chief Engineer",
       "department": "ENG",
-      "badges": ["SPC"],
+      "badges": [
+        "SPC"
+      ],
       "color": "#9999ff"
     },
     "uhura": {
@@ -113,7 +247,9 @@
       "name": "Spock",
       "role": "Science Officer",
       "department": "SCI",
-      "badges": ["SPC"],
+      "badges": [
+        "SPC"
+      ],
       "color": "#99cc99"
     },
     "quark": {

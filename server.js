@@ -682,10 +682,53 @@ function broadcast(data) {
   }
 }
 
+// Helper to parse JSON body
+function parseBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      try {
+        resolve(body ? JSON.parse(body) : {});
+      } catch (e) {
+        reject(new Error('Invalid JSON'));
+      }
+    });
+    req.on('error', reject);
+  });
+}
+
+// Delete a task
+function deleteTask(taskId) {
+  const tasksData = loadTasks();
+  const taskIndex = tasksData.tasks.findIndex(t => t.id === taskId);
+  
+  if (taskIndex === -1) {
+    return null;
+  }
+  
+  const deletedTask = tasksData.tasks[taskIndex];
+  tasksData.tasks.splice(taskIndex, 1);
+  
+  // Add activity
+  tasksData.activity.push({
+    id: generateId('act'),
+    type: 'task',
+    action: 'deleted',
+    agent: 'system',
+    taskId: taskId,
+    taskTitle: deletedTask.title,
+    timestamp: new Date().toISOString()
+  });
+  
+  saveTasks(tasksData);
+  return deletedTask;
+}
+
 // Create HTTP server
-const httpServer = createServer((req, res) => {
+const httpServer = createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   
   if (req.method === 'OPTIONS') {
@@ -717,11 +760,123 @@ const httpServer = createServer((req, res) => {
     return;
   }
   
-  // API endpoint for tasks
-  if (req.url === '/api/tasks') {
+  // ═══════════════════════════════════════════════════════════════
+  // TASKS API - Full CRUD
+  // ═══════════════════════════════════════════════════════════════
+  
+  // GET /api/tasks - List all tasks
+  if (req.url === '/api/tasks' && req.method === 'GET') {
     const tasksData = loadTasks();
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(tasksData));
+    return;
+  }
+  
+  // POST /api/tasks - Create new task
+  if (req.url === '/api/tasks' && req.method === 'POST') {
+    try {
+      const body = await parseBody(req);
+      if (!body.title) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Title is required' }));
+        return;
+      }
+      
+      const task = createTask(
+        body.title,
+        body.description || '',
+        body.assignee || null,
+        body.category || 'general',
+        body.priority || 'medium'
+      );
+      
+      broadcastTasks();
+      log('INFO', 'Task created via API:', { taskId: task.id, title: task.title });
+      
+      res.writeHead(201, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(task));
+    } catch (e) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+  
+  // PATCH /api/tasks/:id - Update task
+  const patchMatch = req.url.match(/^\/api\/tasks\/([^/]+)$/);
+  if (patchMatch && req.method === 'PATCH') {
+    try {
+      const taskId = patchMatch[1];
+      const body = await parseBody(req);
+      
+      const updatedTask = updateTask(taskId, body);
+      if (!updatedTask) {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Task not found' }));
+        return;
+      }
+      
+      broadcastTasks();
+      log('INFO', 'Task updated via API:', { taskId, updates: body });
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(updatedTask));
+    } catch (e) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+  
+  // DELETE /api/tasks/:id - Delete task
+  const deleteMatch = req.url.match(/^\/api\/tasks\/([^/]+)$/);
+  if (deleteMatch && req.method === 'DELETE') {
+    const taskId = deleteMatch[1];
+    const deletedTask = deleteTask(taskId);
+    
+    if (!deletedTask) {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Task not found' }));
+      return;
+    }
+    
+    broadcastTasks();
+    log('INFO', 'Task deleted via API:', { taskId });
+    
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ success: true, deleted: deletedTask }));
+    return;
+  }
+  
+  // POST /api/tasks/:id/comments - Add comment
+  const commentMatch = req.url.match(/^\/api\/tasks\/([^/]+)\/comments$/);
+  if (commentMatch && req.method === 'POST') {
+    try {
+      const taskId = commentMatch[1];
+      const body = await parseBody(req);
+      
+      if (!body.text) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Comment text is required' }));
+        return;
+      }
+      
+      const comment = addTaskComment(taskId, body.author || 'system', body.text);
+      if (!comment) {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Task not found' }));
+        return;
+      }
+      
+      broadcastTasks();
+      log('INFO', 'Comment added via API:', { taskId });
+      
+      res.writeHead(201, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(comment));
+    } catch (e) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
     return;
   }
   

@@ -1219,6 +1219,66 @@
         </div>
     </div>
 
+    <!-- Add Task Modal -->
+    <div class="modal-overlay" id="add-task-modal-overlay">
+        <div class="task-modal">
+            <div class="task-modal-header">
+                <div class="task-modal-color-bar" style="background: var(--lcars-green)">NEW</div>
+                <div class="task-modal-title-area">
+                    <div class="task-modal-title" style="color: var(--lcars-green)">Create New Task</div>
+                    <button class="task-modal-close" onclick="closeAddTaskModal()">×</button>
+                </div>
+            </div>
+            <div class="task-modal-body">
+                <form id="add-task-form" onsubmit="submitNewTask(event)">
+                    <div class="task-detail-section">
+                        <div class="task-detail-label">Title *</div>
+                        <input type="text" class="comment-input" id="new-task-title" placeholder="Task title..." required style="width: 100%; margin-top: 4px;">
+                    </div>
+                    <div class="task-detail-section">
+                        <div class="task-detail-label">Description</div>
+                        <textarea class="comment-input" id="new-task-desc" placeholder="Task description..." rows="3" style="width: 100%; margin-top: 4px;"></textarea>
+                    </div>
+                    <div class="task-detail-meta" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="task-detail-meta-item">
+                            <div class="task-detail-label">Assignee</div>
+                            <select class="comment-input" id="new-task-assignee" style="width: 100%; padding: 8px; margin-top: 4px;">
+                                <option value="">Unassigned</option>
+                                <option value="seven">Seven of Nine</option>
+                                <option value="geordi">Geordi La Forge</option>
+                                <option value="uhura">Nyota Uhura</option>
+                                <option value="spock">Spock</option>
+                                <option value="quark">Quark</option>
+                            </select>
+                        </div>
+                        <div class="task-detail-meta-item">
+                            <div class="task-detail-label">Priority</div>
+                            <select class="comment-input" id="new-task-priority" style="width: 100%; padding: 8px; margin-top: 4px;">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                        <div class="task-detail-meta-item">
+                            <div class="task-detail-label">Category</div>
+                            <select class="comment-input" id="new-task-category" style="width: 100%; padding: 8px; margin-top: 4px;">
+                                <option value="general">General</option>
+                                <option value="engineering">Engineering</option>
+                                <option value="research">Research</option>
+                                <option value="communications">Communications</option>
+                                <option value="trading">Trading</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                        <button type="button" class="comment-submit" style="background: var(--lcars-tan);" onclick="closeAddTaskModal()">Cancel</button>
+                        <button type="submit" class="comment-submit" style="background: var(--lcars-green);">Create Task</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ═══════════════════════════════════════════════════════════════
         // LCARS Mission Control v1.0
@@ -1282,6 +1342,11 @@
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'Escape') {
                         closeTaskModal();
+                        closeAddTaskModal();
+                    }
+                    // Quick add task with 'n' key when not in input
+                    if (e.key === 'n' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
+                        showAddTask();
                     }
                 });
             }
@@ -1696,8 +1761,72 @@
         }
 
         function showAddTask() {
-            // For now, just alert - could expand to a form modal
-            alert('Task creation coming soon! Tasks can be created via the API or by editing tasks.json');
+            document.getElementById('add-task-modal-overlay').classList.add('active');
+            document.getElementById('new-task-title').focus();
+        }
+
+        function closeAddTaskModal() {
+            document.getElementById('add-task-modal-overlay').classList.remove('active');
+            document.getElementById('add-task-form').reset();
+        }
+
+        async function submitNewTask(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('new-task-title').value.trim();
+            const description = document.getElementById('new-task-desc').value.trim();
+            const assignee = document.getElementById('new-task-assignee').value || null;
+            const priority = document.getElementById('new-task-priority').value;
+            const category = document.getElementById('new-task-category').value;
+            
+            if (!title) {
+                alert('Title is required!');
+                return;
+            }
+            
+            // Send via WebSocket for instant update
+            if (window.mission && window.mission.ws && window.mission.ws.readyState === WebSocket.OPEN) {
+                window.mission.ws.send(JSON.stringify({
+                    type: 'create_task',
+                    title: title,
+                    description: description,
+                    assignee: assignee,
+                    priority: priority,
+                    category: category
+                }));
+                
+                closeAddTaskModal();
+                console.log('[Mission] Task created:', title);
+            } else {
+                // Fallback to HTTP API
+                try {
+                    const response = await fetch('/api/tasks', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            title: title,
+                            description: description,
+                            assignee: assignee,
+                            priority: priority,
+                            category: category
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        closeAddTaskModal();
+                        console.log('[Mission] Task created via API:', title);
+                        // Refresh tasks
+                        if (window.mission && window.mission.ws) {
+                            window.mission.ws.send(JSON.stringify({ type: 'get_tasks' }));
+                        }
+                    } else {
+                        const err = await response.json();
+                        alert('Error creating task: ' + (err.error || 'Unknown error'));
+                    }
+                } catch (e) {
+                    alert('Error creating task: ' + e.message);
+                }
+            }
         }
 
         // Initialize
@@ -1706,6 +1835,13 @@
             mission = new MissionControl();
             window.mission = mission;
             console.log('[Mission] Control v1.0 initialized');
+            
+            // Close add task modal on overlay click
+            document.getElementById('add-task-modal-overlay').addEventListener('click', (e) => {
+                if (e.target.id === 'add-task-modal-overlay') {
+                    closeAddTaskModal();
+                }
+            });
         });
     </script>
 </body>
