@@ -521,7 +521,7 @@ function getDefaultTasks() {
   return {
     version: "1.0",
     lastUpdated: new Date().toISOString(),
-    columns: ["inbox", "assigned", "in_progress", "review", "peer_review", "done"],
+    columns: ["inbox", "assigned", "in_progress", "peer_review", "review", "done"],
     tasks: [],
     activity: [],
     agents: {
@@ -2794,6 +2794,74 @@ ${cleanMessage}
     } catch (e) {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ success: false, error: e.message }));
+    }
+    return;
+  }
+  
+  // GET /api/collaboration - Get collaboration metrics
+  if (req.url === '/api/collaboration' && req.method === 'GET') {
+    try {
+      const result = execSync(
+        'node ~/.openclaw/crew/collaboration-metrics.js json 2>/dev/null',
+        { encoding: 'utf8', timeout: 5000 }
+      );
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(result);
+    } catch (e) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ totals: {}, topPairs: [], activeAgents: [], today: { messages: 0, requests: 0 } }));
+    }
+    return;
+  }
+  
+  // GET /api/collaboration/inboxes - Get inbox summary for all agents
+  if (req.url === '/api/collaboration/inboxes' && req.method === 'GET') {
+    try {
+      const inboxDir = join(process.env.HOME, '.openclaw/crew/inboxes');
+      const inboxSummary = {};
+      
+      if (existsSync(inboxDir)) {
+        const files = readdirSync(inboxDir).filter(f => f.endsWith('.json'));
+        for (const file of files) {
+          const agent = file.replace('.json', '');
+          try {
+            const data = JSON.parse(readFileSync(join(inboxDir, file), 'utf8'));
+            const messages = data.messages || [];
+            inboxSummary[agent] = {
+              total: messages.length,
+              unread: messages.filter(m => m.status === 'unread').length,
+              requests: messages.filter(m => m.type === 'request' && m.status === 'unread').length,
+              lastMessage: messages.length > 0 ? messages[0].timestamp : null
+            };
+          } catch (e) {}
+        }
+      }
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ inboxes: inboxSummary }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+  
+  // GET /api/collaboration/suggest - Suggest specialists for a task
+  if (req.url.startsWith('/api/collaboration/suggest') && req.method === 'GET') {
+    try {
+      const urlObj = new URL(req.url, `http://${req.headers.host}`);
+      const task = urlObj.searchParams.get('task') || '';
+      
+      const result = execSync(
+        `CREW_AGENT=dashboard node ~/.openclaw/scripts/crew_msg.js suggest "${task.replace(/"/g, '\\"')}" 2>&1`,
+        { encoding: 'utf8', timeout: 5000 }
+      );
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ task, suggestions: result }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
     }
     return;
   }
