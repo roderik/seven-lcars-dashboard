@@ -1777,6 +1777,90 @@ const httpServer = createServer(async (req, res) => {
     return;
   }
   
+  // ═══════════════════════════════════════════════════════════════
+  // GIT LOCKS API (Conflict Detection)
+  // ═══════════════════════════════════════════════════════════════
+  
+  // GET /api/git-locks - Get all lock status
+  if (req.url === '/api/git-locks' && req.method === 'GET') {
+    try {
+      const result = execSync(
+        'node ~/.openclaw/crew/git-locks.js status 2>/dev/null',
+        { encoding: 'utf8', timeout: 5000 }
+      );
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(result);
+    } catch (e) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        totalLocks: 0,
+        locks: {},
+        activeConflicts: 0,
+        stats: { locksCreated: 0, conflictsDetected: 0, conflictsResolved: 0, commitsCompleted: 0 }
+      }));
+    }
+    return;
+  }
+  
+  // GET /api/git-locks/conflicts - Get active conflicts
+  if (req.url === '/api/git-locks/conflicts' && req.method === 'GET') {
+    try {
+      const stateFile = join(process.env.HOME, '.openclaw/crew/.locks/git-locks-state.json');
+      if (existsSync(stateFile)) {
+        const state = JSON.parse(readFileSync(stateFile, 'utf8'));
+        const active = (state.conflicts || []).filter(c => !c.resolved);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ conflicts: active, count: active.length }));
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ conflicts: [], count: 0 }));
+      }
+    } catch (e) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ conflicts: [], count: 0, error: e.message }));
+    }
+    return;
+  }
+  
+  // GET /api/git-locks/files/:taskId - Get files for a task
+  const taskFilesMatch = req.url.match(/^\/api\/git-locks\/files\/([^/]+)$/);
+  if (taskFilesMatch && req.method === 'GET') {
+    try {
+      const taskId = taskFilesMatch[1];
+      const result = execSync(
+        `node ~/.openclaw/crew/git-locks.js files "${taskId}" 2>/dev/null`,
+        { encoding: 'utf8', timeout: 5000 }
+      );
+      // Parse output into JSON
+      const files = result.split('\n')
+        .filter(line => line.trim().startsWith('-'))
+        .map(line => line.replace(/^\s*-\s*/, '').trim());
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ taskId, files, count: files.length }));
+    } catch (e) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ taskId: taskFilesMatch[1], files: [], count: 0 }));
+    }
+    return;
+  }
+  
+  // POST /api/git-locks/refresh - Refresh git state
+  if (req.url === '/api/git-locks/refresh' && req.method === 'POST') {
+    try {
+      const result = execSync(
+        'node ~/.openclaw/crew/git-locks.js refresh 2>&1',
+        { encoding: 'utf8', timeout: 30000 }
+      );
+      log('INFO', 'Git locks refreshed via API');
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, message: result.trim() }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: e.message }));
+    }
+    return;
+  }
+  
   // Mission control route
   if (req.url === '/mission' || req.url === '/mission/') {
     try {
