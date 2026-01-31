@@ -305,16 +305,42 @@
         </header>
 
         <!-- Sidebar: Crew by Department -->
-        <aside class="lcars-sidebar row-span-2 flex flex-col pt-1 overflow-hidden">
-            <div id="sidebar-crew" class="flex-1 flex flex-col gap-0.5 overflow-y-auto pr-1">
+        <aside class="lcars-sidebar row-span-2 flex flex-col overflow-hidden">
+            <!-- LCARS Header Cap -->
+            <div class="h-3 bg-lcars-purple rounded-br-[15px]"></div>
+            
+            <!-- CREW Title Bar -->
+            <div class="h-7 mt-1 mr-1 rounded-r-[20px] flex items-center justify-center" 
+                 style="background: linear-gradient(90deg, #CC99CC 0%, #9999FF 100%); box-shadow: 0 0 15px rgba(153,153,255,0.4);">
+                <span class="text-black font-bold text-xs uppercase tracking-[3px]">◈ CREW ◈</span>
+            </div>
+            
+            <!-- Agent List -->
+            <div id="sidebar-crew" class="flex-1 flex flex-col gap-0 overflow-y-auto pr-1 mt-1">
                 <!-- Rendered by JS -->
             </div>
-            <div class="flex gap-1 mt-1">
-                <button onclick="openMessagesModal()" id="messages-btn" class="flex-1 bg-lcars-violet h-8 rounded-r-lg flex items-center justify-center text-xs font-bold text-lcars-bg uppercase cursor-pointer hover:brightness-125 transition-all">
-                    MSG <span id="msg-badge" class="hidden bg-status-alert text-black text-xs font-bold px-1 rounded-xl ml-1 animate-pulse">0</span>
+            
+            <!-- Messages Button - LCARS style -->
+            <div class="mt-2 mr-1">
+                <button onclick="openMessagesModal()" id="messages-btn" 
+                        class="w-full h-9 rounded-r-[20px] flex items-center justify-center gap-2 text-xs font-bold text-black uppercase cursor-pointer transition-all hover:brightness-110"
+                        style="background: #9999CC; box-shadow: 0 0 12px rgba(153,153,204,0.5), inset 0 2px 0 rgba(255,255,255,0.25);">
+                    <span class="tracking-wider">MESSAGES</span>
+                    <span id="msg-badge" class="hidden min-w-[20px] h-5 bg-status-alert text-black text-[10px] font-bold px-1.5 rounded-full flex items-center justify-center animate-pulse">0</span>
                 </button>
             </div>
-            <div class="sidebar-elbow-bottom bg-lcars-tan h-[30px] mt-1"></div>
+            
+            <!-- New Task Button -->
+            <div class="mt-1 mr-1">
+                <button onclick="showAddTask()" 
+                        class="w-full h-8 rounded-r-[20px] flex items-center justify-center text-xs font-bold text-black uppercase cursor-pointer transition-all hover:brightness-110"
+                        style="background: #99CC99; box-shadow: 0 0 10px rgba(153,204,153,0.4), inset 0 2px 0 rgba(255,255,255,0.25);">
+                    <span class="tracking-wider">+ NEW TASK</span>
+                </button>
+            </div>
+            
+            <!-- Bottom Elbow -->
+            <div class="sidebar-elbow-bottom bg-lcars-tan h-[30px] mt-2 rounded-tl-[15px]"></div>
         </aside>
 
         <!-- Stats Bar -->
@@ -407,11 +433,12 @@
             <span id="total-tasks-badge" class="hidden"></span>
 
             <!-- Left Panel: Mission Queue (Kanban) -->
-            <div class="mission-panel bg-lcars-panel border-2 border-lcars-blue rounded-lcars flex flex-col overflow-hidden">
-                <div class="flex items-stretch h-[38px] flex-shrink-0">
-                    <div class="w-[60px] bg-lcars-blue flex items-center justify-center text-xs font-bold text-lcars-bg uppercase tracking-wider">QUEUE</div>
-                    <div class="flex-1 flex items-center justify-between px-3 bg-black/50">
-                        <span class="text-sm font-bold tracking-widest uppercase text-lcars-blue">Mission Queue</span>
+            <div class="mission-panel bg-lcars-panel border-2 border-lcars-blue rounded-lcars flex flex-col overflow-hidden" style="box-shadow: 0 0 25px rgba(153,153,255,0.2), inset 0 0 50px rgba(0,0,0,0.3);">
+                <div class="flex items-stretch h-[42px] flex-shrink-0">
+                    <div class="w-[70px] rounded-br-[20px] flex items-center justify-center text-xs font-bold text-black uppercase tracking-wider" style="background: #9999FF; box-shadow: 0 0 15px rgba(153,153,255,0.5);">QUEUE</div>
+                    <div class="flex-1 flex items-center justify-between px-4 bg-black/60 border-b border-lcars-blue/30">
+                        <span class="text-sm font-bold tracking-[3px] uppercase text-lcars-blue">◈ MISSION QUEUE</span>
+                        <span id="queue-live-indicator" class="w-2 h-2 rounded-full bg-lcars-blue animate-pulse"></span>
                     </div>
                 </div>
                 <div class="flex-1 overflow-y-auto p-2">
@@ -422,11 +449,12 @@
             </div>
 
             <!-- Right Panel: System Tasks + Live Feed -->
-            <div class="feed-panel bg-lcars-panel border-2 border-lcars-orange rounded-lcars flex flex-col overflow-hidden">
-                <div class="flex items-stretch h-[38px] flex-shrink-0">
-                    <div class="w-[60px] bg-lcars-orange flex items-center justify-center text-xs font-bold text-lcars-bg uppercase tracking-wider">FEED</div>
-                    <div class="flex-1 flex items-center justify-between px-3 bg-black/50">
-                        <span class="text-sm font-bold tracking-widest uppercase text-lcars-orange">Activity</span>
+            <div class="feed-panel bg-lcars-panel border-2 border-lcars-orange rounded-lcars flex flex-col overflow-hidden" style="box-shadow: 0 0 25px rgba(255,153,0,0.15), inset 0 0 50px rgba(0,0,0,0.3);">
+                <div class="flex items-stretch h-[42px] flex-shrink-0">
+                    <div class="w-[70px] rounded-br-[20px] flex items-center justify-center text-xs font-bold text-black uppercase tracking-wider" style="background: #FF9900; box-shadow: 0 0 15px rgba(255,153,0,0.5);">FEED</div>
+                    <div class="flex-1 flex items-center justify-between px-4 bg-black/60 border-b border-lcars-orange/30">
+                        <span class="text-sm font-bold tracking-[3px] uppercase text-lcars-orange">◈ ACTIVITY</span>
+                        <span class="w-2 h-2 rounded-full bg-lcars-orange animate-pulse"></span>
                     </div>
                 </div>
                 <div class="flex-1 overflow-y-auto" style="padding: 0;">
@@ -1219,14 +1247,14 @@
 
                 const agents = this.tasksData.agents;
                 
-                // Department config with LCARS colors
+                // Department config with vibrant LCARS colors
                 const depts = [
-                    { id: 'CMD', name: 'CMD', color: '#cc99cc' },
-                    { id: 'ENG', name: 'ENG', color: '#9999ff' },
-                    { id: 'COM', name: 'COM', color: '#cc6699' },
-                    { id: 'SCI', name: 'SCI', color: '#99cc99' },
-                    { id: 'TRD', name: 'TRD', color: '#ffcc99' },
-                    { id: 'QC', name: 'QC', color: '#ffd700' }
+                    { id: 'CMD', name: 'COMMAND', color: '#CC99CC', glow: 'rgba(204,153,204,0.5)' },
+                    { id: 'ENG', name: 'ENGINEERING', color: '#9999FF', glow: 'rgba(153,153,255,0.5)' },
+                    { id: 'COM', name: 'COMMS', color: '#CC6699', glow: 'rgba(204,102,153,0.5)' },
+                    { id: 'SCI', name: 'SCIENCE', color: '#99CC99', glow: 'rgba(153,204,153,0.5)' },
+                    { id: 'TRD', name: 'TRADING', color: '#FFCC66', glow: 'rgba(255,204,102,0.5)' },
+                    { id: 'QC', name: 'DATA QC', color: '#66CCCC', glow: 'rgba(102,204,204,0.5)' }
                 ];
                 
                 // Group agents by department
@@ -1237,39 +1265,52 @@
                     grouped[dept].push({ key, ...agent });
                 });
                 
-                // Status indicators
-                const getStatus = (key) => {
+                // Status indicators with glow effects
+                const getStatusInfo = (key) => {
                     const status = this.getAgentStatus(key);
-                    const active = ['thinking', 'building', 'researching', 'reviewing'].includes(status);
-                    return active ? '●' : '○';
-                };
-                const getStatusColor = (key) => {
-                    const status = this.getAgentStatus(key);
-                    const colors = { thinking: '#99ccff', building: '#99ff99', researching: '#ffcc66', reviewing: '#cc99cc' };
-                    return colors[status] || '#666';
+                    const configs = {
+                        thinking: { dot: '◉', color: '#99CCFF', pulse: true, label: 'THINK' },
+                        building: { dot: '◉', color: '#99FF99', pulse: true, label: 'BUILD' },
+                        researching: { dot: '◉', color: '#FFCC66', pulse: true, label: 'RSRCH' },
+                        reviewing: { dot: '◉', color: '#CC99CC', pulse: true, label: 'REVW' },
+                        waiting: { dot: '○', color: '#FFCC00', pulse: false, label: 'WAIT' },
+                        idle: { dot: '○', color: '#9999CC', pulse: false, label: '' },
+                        offline: { dot: '○', color: '#666666', pulse: false, label: 'OFF' }
+                    };
+                    return configs[status] || configs.idle;
                 };
                 
                 let html = depts.filter(d => grouped[d.id]).map(dept => {
                     const deptAgents = grouped[dept.id];
                     
-                    // Department header as LCARS button
-                    const header = `<div class="bg-[${dept.color}] h-7 rounded-r-lg flex items-center px-2 text-xs font-bold text-lcars-bg uppercase tracking-wider mb-0.5">${dept.name}</div>`;
+                    // LCARS-style department header button
+                    const header = `
+                        <div class="h-8 mb-1 mt-3 first:mt-0 rounded-r-[20px] flex items-center justify-between px-3 cursor-pointer transition-all hover:brightness-110" 
+                             style="background: ${dept.color}; box-shadow: 0 0 12px ${dept.glow}, inset 0 2px 0 rgba(255,255,255,0.25), inset 0 -2px 0 rgba(0,0,0,0.15);">
+                            <span class="text-black font-bold text-[11px] uppercase tracking-[2px]">${dept.name}</span>
+                            <span class="text-black/60 text-[10px] font-bold">${deptAgents.length}</span>
+                        </div>`;
                     
-                    // Agent rows
+                    // Agent rows with enhanced styling
                     const rows = deptAgents.map(agent => {
                         const taskCount = this.getAgentTaskCount(agent.key);
-                        const statusDot = getStatus(agent.key);
-                        const statusColor = getStatusColor(agent.key);
+                        const statusInfo = getStatusInfo(agent.key);
                         const firstName = agent.name.split(' ')[0];
                         const modelLetter = agent.model ? agent.model[0].toUpperCase() : '';
                         const modelColors = { O: '#9b59b6', C: '#27ae60', M: '#3498db' };
+                        const pulseStyle = statusInfo.pulse ? 'animation: pulse-badge 1.5s infinite;' : '';
                         
                         return `
-                            <div class="flex items-center gap-1 py-0.5 px-2 cursor-pointer hover:bg-white/10 rounded-r transition-all" data-agent="${agent.key}">
-                                <span style="color: ${statusColor}">${statusDot}</span>
-                                <span class="text-xs text-lcars-gold flex-1 truncate font-medium">${firstName}</span>
-                                ${modelLetter ? `<span class="w-4 h-4 rounded text-[9px] font-bold flex items-center justify-center text-white" style="background: ${modelColors[modelLetter]}">${modelLetter}</span>` : ''}
-                                ${taskCount > 0 ? `<span class="text-[10px] text-lcars-sky font-bold">${taskCount}</span>` : ''}
+                            <div class="flex items-center gap-2 py-1.5 px-2 cursor-pointer rounded-r-lg transition-all hover:bg-white/10" 
+                                 data-agent="${agent.key}"
+                                 style="border-left: 3px solid transparent;"
+                                 onmouseover="this.style.borderLeftColor='${dept.color}'"
+                                 onmouseout="this.style.borderLeftColor='transparent'">
+                                <span class="text-base" style="color: ${statusInfo.color}; text-shadow: 0 0 8px ${statusInfo.color}; ${pulseStyle}">${statusInfo.dot}</span>
+                                <span class="text-sm text-lcars-gold flex-1 truncate font-semibold tracking-wide">${firstName}</span>
+                                ${statusInfo.label ? `<span class="text-[8px] font-bold px-1.5 py-0.5 rounded-sm" style="background: ${statusInfo.color}; color: #000;">${statusInfo.label}</span>` : ''}
+                                ${modelLetter ? `<span class="w-4 h-4 rounded text-[9px] font-bold flex items-center justify-center text-white" style="background: ${modelColors[modelLetter]}; box-shadow: 0 0 6px ${modelColors[modelLetter]};">${modelLetter}</span>` : ''}
+                                ${taskCount > 0 ? `<span class="min-w-[20px] h-5 flex items-center justify-center text-[10px] font-bold rounded-full bg-lcars-sky text-black">${taskCount}</span>` : ''}
                             </div>
                         `;
                     }).join('');
@@ -1277,12 +1318,13 @@
                     return header + rows;
                 }).join('');
                 
-                // Active sessions indicator
+                // Active sessions indicator with bold LCARS glow
                 if (this.sessionsData && (this.sessionsData.activeSubagents > 0 || this.sessionsData.runningCrons > 0)) {
                     html += `
-                        <div class="bg-lcars-orange h-6 rounded-r-lg flex items-center justify-between px-2 text-[10px] font-bold text-lcars-bg uppercase mt-1">
-                            <span>ACTIVE</span>
-                            <span>${this.sessionsData.activeSubagents}A ${this.sessionsData.runningCrons}C</span>
+                        <div class="h-7 mt-4 rounded-r-[20px] flex items-center justify-between px-3 animate-pulse" 
+                             style="background: #FF9900; box-shadow: 0 0 20px rgba(255,153,0,0.6), inset 0 2px 0 rgba(255,255,255,0.3);">
+                            <span class="text-black font-bold text-[10px] uppercase tracking-wider">◈ ACTIVE</span>
+                            <span class="text-black/80 text-[9px] font-bold">${this.sessionsData.activeSubagents}A ${this.sessionsData.runningCrons}C</span>
                         </div>`;
                 }
                 
@@ -1309,19 +1351,31 @@
                     'done': 'text-lcars-green'
                 };
 
+                // Column header colors matching LCARS palette
+                const columnHeaderColors = {
+                    'inbox': '#CC99CC',
+                    'assigned': '#99CCFF',
+                    'in_progress': '#9999FF',
+                    'review': '#FF9900',
+                    'peer_review': '#FFCC66',
+                    'done': '#99CC99'
+                };
+
                 container.innerHTML = columns.map(status => {
                     const columnTasks = tasks.filter(t => t.status === status);
+                    const headerColor = columnHeaderColors[status] || '#CC9966';
                     return `
-                        <div class="kanban-column min-w-[160px] flex-1 bg-black/30 rounded-lcars-xs flex flex-col overflow-hidden" data-status="${status}" 
-                             ondragover="event.preventDefault()" 
-                             ondrop="cc.dropTask(event, '${status}')">
-                            <div class="px-2.5 py-2 flex items-center justify-between border-b-2 border-lcars-tan">
-                                <span class="text-xs font-bold uppercase tracking-wider ${columnColors[status]}">${this.columnLabels[status] || status}</span>
-                                <span class="bg-lcars-tan text-black px-1.5 py-0.5 rounded-lg text-xs font-bold">${columnTasks.length}</span>
+                        <div class="kanban-column min-w-[155px] flex-1 bg-black/40 rounded-lcars-sm flex flex-col overflow-hidden border border-white/5" data-status="${status}" 
+                             ondragover="event.preventDefault(); this.style.borderColor='${headerColor}'"
+                             ondragleave="this.style.borderColor='rgba(255,255,255,0.05)'"
+                             ondrop="cc.dropTask(event, '${status}'); this.style.borderColor='rgba(255,255,255,0.05)'">
+                            <div class="h-7 flex items-center justify-between px-2 rounded-t-lcars-sm" style="background: ${headerColor}; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.15);">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-black">${this.columnLabels[status] || status}</span>
+                                <span class="min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold rounded-full bg-black/20 text-black">${columnTasks.length}</span>
                             </div>
-                            <div class="flex-1 overflow-y-auto p-1.5">
+                            <div class="flex-1 overflow-y-auto p-1.5 space-y-1.5">
                                 ${columnTasks.map(t => this.renderTaskCard(t, agents)).join('')}
-                                ${status === 'inbox' ? '<button class="w-full p-1.5 bg-lcars-orange/10 border border-dashed border-lcars-tan rounded-md text-lcars-tan font-lcars text-xs cursor-pointer transition-all hover:bg-lcars-orange/20 hover:border-lcars-orange hover:text-lcars-orange" onclick="showAddTask()">+ Add</button>' : ''}
+                                ${status === 'inbox' ? '<button class="w-full p-2 bg-lcars-orange/10 border border-dashed border-lcars-tan/50 rounded-lg text-lcars-tan font-lcars text-xs cursor-pointer transition-all hover:bg-lcars-orange/20 hover:border-lcars-orange hover:text-lcars-orange" onclick="showAddTask()">+ Add Task</button>' : ''}
                             </div>
                         </div>
                     `;
