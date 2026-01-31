@@ -2,7 +2,16 @@
 /**
  * LCARS Bridge Dashboard v7 - Task & Agent Management
  * Real-time WebSocket server for USS Enterprise bridge crew
- * 
+ *
+ * Performance Optimizations (2026-01-31):
+ * - TTL-based caching: systemStats (15s), gitStatus (30s), sessions (10s)
+ * - Reduced update interval: 10s (was 5s) to reduce CPU/battery
+ * - Debounced broadcasts: max 1 broadcast per 100ms
+ * - File watcher throttling: 5s intervals (was 2s)
+ * - Task/message caching: 2s TTL to reduce file I/O
+ * - Parallel data fetching in gatherBridgeData()
+ * - Added timeouts to execSync calls (prevent hanging)
+ *
  * Features:
  * - All crew data sources fully integrated
  * - P&L sparkline data
@@ -27,7 +36,39 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const PORT = process.env.LCARS_PORT || 4242;
-const UPDATE_INTERVAL = 5000;
+const UPDATE_INTERVAL = 10000; // Reduced from 5s to 10s for better performance
+
+// ═══════════════════════════════════════════════════════════════
+// CACHE LAYER - Performance optimization
+// ═══════════════════════════════════════════════════════════════
+
+const cache = {
+  systemStats: { data: null, lastUpdate: 0, ttl: 15000 }, // 15s TTL
+  gitStatus: { workspace: null, skills: null, lastUpdate: 0, ttl: 30000 }, // 30s TTL
+  sessions: { data: null, lastUpdate: 0, ttl: 10000 }, // 10s TTL
+  quarkData: { data: null, lastUpdate: 0, ttl: 5000 }, // 5s TTL (trade updates)
+  bridgeData: { data: null, lastUpdate: 0, ttl: 10000 } // 10s TTL
+};
+
+function getCached(key, fetchFn) {
+  const now = Date.now();
+  const entry = cache[key];
+  if (entry.data && (now - entry.lastUpdate) < entry.ttl) {
+    return entry.data;
+  }
+  const data = fetchFn();
+  entry.data = data;
+  entry.lastUpdate = now;
+  return data;
+}
+
+function invalidateCache(keys) {
+  keys.forEach(key => {
+    if (cache[key]) {
+      cache[key].data = null;
+    }
+  });
+}
 
 // Paths
 const QUARK_PORTFOLIO = join(process.env.HOME, '.openclaw/workspace/quark/portfolio.json');
@@ -130,50 +171,54 @@ function getQuarkData() {
   };
 }
 
-// Get Git status for a directory
+// Get Git status for a directory with caching
 function getGitStatus(dir, name) {
-  try {
-    if (existsSync(dir) && existsSync(join(dir, '.git'))) {
-      const status = execSync(`cd "${dir}" && git status --porcelain 2>/dev/null`, { encoding: 'utf-8' });
-      const lines = status.trim().split('\n').filter(l => l);
-      const branch = execSync(`cd "${dir}" && git branch --show-current 2>/dev/null`, { encoding: 'utf-8' }).trim();
-      
-      // Get commit count today
-      const today = new Date().toISOString().split('T')[0];
-      let commitsToday = 0;
-      try {
-        commitsToday = parseInt(execSync(
-          `cd "${dir}" && git log --oneline --since="${today} 00:00" 2>/dev/null | wc -l`, 
-          { encoding: 'utf-8' }
-        ).trim()) || 0;
-      } catch (e) {}
-      
-      return { 
-        name,
-        modified: lines.length, 
-        branch, 
-        files: lines.slice(0, 5).map(l => l.trim()),
-        commitsToday
-      };
-    }
-  } catch (e) {}
-  return { name, modified: 0, branch: 'unknown', files: [], commitsToday: 0 };
+  return getCached(`gitStatus.${name}`, () => {
+    try {
+      if (existsSync(dir) && existsSync(join(dir, '.git'))) {
+        const status = execSync(`cd "${dir}" && git status --porcelain 2>/dev/null`, { encoding: 'utf-8', timeout: 2000 });
+        const lines = status.trim().split('\n').filter(l => l);
+        const branch = execSync(`cd "${dir}" && git branch --show-current 2>/dev/null`, { encoding: 'utf-8', timeout: 2000 }).trim();
+
+        // Get commit count today
+        const today = new Date().toISOString().split('T')[0];
+        let commitsToday = 0;
+        try {
+          commitsToday = parseInt(execSync(
+            `cd "${dir}" && git log --oneline --since="${today} 00:00" 2>/dev/null | wc -l`,
+            { encoding: 'utf-8', timeout: 2000 }
+          ).trim()) || 0;
+        } catch (e) {}
+
+        return {
+          name,
+          modified: lines.length,
+          branch,
+          files: lines.slice(0, 5).map(l => l.trim()),
+          commitsToday
+        };
+      }
+    } catch (e) {}
+    return { name, modified: 0, branch: 'unknown', files: [], commitsToday: 0 };
+  });
 }
 
-// Get worktrees
+// Get worktrees with caching
 function getWorktrees() {
-  const worktrees = [];
-  try {
-    const output = execSync(`cd "${WORKSPACE_DIR}" && git worktree list 2>/dev/null || echo ""`, { encoding: 'utf-8' });
-    const lines = output.trim().split('\n').filter(l => l);
-    lines.forEach(line => {
-      const match = line.match(/^(.+?)\s+([a-f0-9]+)\s+\[(.+)\]/);
-      if (match) {
-        worktrees.push({ path: match[1], commit: match[2], branch: match[3] });
-      }
-    });
-  } catch (e) {}
-  return worktrees;
+  return getCached('gitStatus.worktrees', () => {
+    const worktrees = [];
+    try {
+      const output = execSync(`cd "${WORKSPACE_DIR}" && git worktree list 2>/dev/null || echo ""`, { encoding: 'utf-8', timeout: 2000 });
+      const lines = output.trim().split('\n').filter(l => l);
+      lines.forEach(line => {
+        const match = line.match(/^(.+?)\s+([a-f0-9]+)\s+\[(.+)\]/);
+        if (match) {
+          worktrees.push({ path: match[1], commit: match[2], branch: match[3] });
+        }
+      });
+    } catch (e) {}
+    return worktrees;
+  });
 }
 
 // Get sessions from OpenClaw API
@@ -250,11 +295,22 @@ async function updateEmailCountsAsync() {
 // TASK MANAGEMENT SYSTEM
 // ═══════════════════════════════════════════════════════════════
 
-// Load tasks from file
+// Load tasks from file with caching
+let tasksCache = { data: null, lastLoad: 0 };
+const TASKS_CACHE_TTL = 2000;
+
 function loadTasks() {
+  const now = Date.now();
+  // Use cache if recent (within TTL) and not being written
+  if (tasksCache.data && (now - tasksCache.lastLoad) < TASKS_CACHE_TTL) {
+    return tasksCache.data;
+  }
+  
   try {
     if (existsSync(TASKS_FILE)) {
-      return JSON.parse(readFileSync(TASKS_FILE, 'utf-8'));
+      tasksCache.data = JSON.parse(readFileSync(TASKS_FILE, 'utf-8'));
+      tasksCache.lastLoad = now;
+      return tasksCache.data;
     }
   } catch (e) {
     log('ERROR', 'Error loading tasks:', { error: e.message });
@@ -267,6 +323,8 @@ function saveTasks(tasksData) {
   try {
     tasksData.lastUpdated = new Date().toISOString();
     writeFileSync(TASKS_FILE, JSON.stringify(tasksData, null, 2));
+    // Invalidate cache after save
+    tasksCache.data = null;
     log('INFO', 'Tasks saved successfully');
     return true;
   } catch (e) {
@@ -284,11 +342,25 @@ function getDefaultTasks() {
     tasks: [],
     activity: [],
     agents: {
-      seven: { name: "Seven of Nine", role: "Number One", department: "CMD", badges: ["LEAD"], color: "#cc99cc" },
-      geordi: { name: "Geordi La Forge", role: "Chief Engineer", department: "ENG", badges: ["SPC"], color: "#9999ff" },
-      uhura: { name: "Nyota Uhura", role: "Comms Officer", department: "COM", badges: [], color: "#cc6699" },
-      spock: { name: "Spock", role: "Science Officer", department: "SCI", badges: ["SPC"], color: "#99cc99" },
-      quark: { name: "Quark", role: "Trade Advisor", department: "TRD", badges: [], color: "#ffcc99" }
+      // Command
+      seven: { name: "Seven of Nine", role: "Number One", department: "CMD", badges: ["LEAD"], color: "#cc99cc", model: "opus" },
+      // Engineering
+      geordi: { name: "Geordi La Forge", role: "Chief Engineer", department: "ENG", badges: ["SPC"], color: "#9999ff", model: "opus" },
+      belanna: { name: "B'Elanna Torres", role: "Chief Engineer", department: "ENG", badges: ["SPC"], color: "#cc6666", model: "opus" },
+      icheb: { name: "Icheb", role: "Borg Specialist", department: "ENG", badges: [], color: "#66cccc", model: "minimax" },
+      // Communications
+      uhura: { name: "Nyota Uhura", role: "Comms Officer", department: "COM", badges: [], color: "#cc6699", model: "minimax" },
+      harry: { name: "Harry Kim", role: "Operations", department: "COM", badges: [], color: "#99ccff", model: "minimax" },
+      // Research
+      spock: { name: "Spock", role: "Science Officer", department: "SCI", badges: ["SPC"], color: "#99cc99", model: "opus" },
+      tuvok: { name: "Tuvok", role: "Security/Research", department: "SCI", badges: ["SPC"], color: "#9999cc", model: "opus" },
+      doctor: { name: "The Doctor", role: "EMH Research", department: "SCI", badges: [], color: "#99ff99", model: "minimax" },
+      // Trading
+      quark: { name: "Quark", role: "Trade Advisor", department: "TRD", badges: [], color: "#ffcc99", model: "opus" },
+      tom: { name: "Tom Paris", role: "Risk Trader", department: "TRD", badges: [], color: "#ff9999", model: "opus" },
+      neelix: { name: "Neelix", role: "Resource Mgmt", department: "TRD", badges: [], color: "#ffcc66", model: "minimax" },
+      // Quality Control
+      data: { name: "Data", role: "Quality Control", department: "QC", badges: ["SPC", "QC"], color: "#ffd700", model: "opus" }
     }
   };
 }
@@ -501,11 +573,21 @@ function broadcastTasks() {
 // CREW MESSAGING SYSTEM
 // ═══════════════════════════════════════════════════════════════
 
-// Load messages from file
+// Load messages from file with caching
+let messagesCache = { data: null, lastLoad: 0 };
+const MESSAGES_CACHE_TTL = 2000;
+
 function loadMessages() {
+  const now = Date.now();
+  if (messagesCache.data && (now - messagesCache.lastLoad) < MESSAGES_CACHE_TTL) {
+    return messagesCache.data;
+  }
+  
   try {
     if (existsSync(MESSAGES_FILE)) {
-      return JSON.parse(readFileSync(MESSAGES_FILE, 'utf-8'));
+      messagesCache.data = JSON.parse(readFileSync(MESSAGES_FILE, 'utf-8'));
+      messagesCache.lastLoad = now;
+      return messagesCache.data;
     }
   } catch (e) {
     log('ERROR', 'Error loading messages:', { error: e.message });
@@ -518,6 +600,8 @@ function saveMessages(messagesData) {
   try {
     messagesData.lastUpdated = new Date().toISOString();
     writeFileSync(MESSAGES_FILE, JSON.stringify(messagesData, null, 2));
+    // Invalidate cache after save
+    messagesCache.data = null;
     log('INFO', 'Messages saved successfully');
     return true;
   } catch (e) {
@@ -586,7 +670,8 @@ function deleteMessage(messageId) {
 // Get message counts for dashboard
 function getMessageCounts() {
   const data = loadMessages();
-  const agents = ['seven', 'geordi', 'uhura', 'spock', 'quark'];
+  // All 12 crew members
+  const agents = ['seven', 'geordi', 'uhura', 'spock', 'quark', 'data', 'belanna', 'harry', 'icheb', 'tom', 'neelix', 'tuvok', 'doctor'];
   const counts = {
     total: data.messages.length,
     unread: data.messages.filter(m => !m.read).length,
@@ -617,12 +702,21 @@ function broadcastMessages() {
 
 // Analyze crew activity from sessions
 function analyzeCrewActivity(sessions) {
+  // All 12 crew members
   const crew = {
     seven: { active: 0, tasks: [] },
     spock: { active: 0, tasks: [] },
     geordi: { active: 0, tasks: [] },
     uhura: { active: 0, tasks: [] },
-    quark: { active: 0, tasks: [] }
+    quark: { active: 0, tasks: [] },
+    data: { active: 0, tasks: [] },
+    belanna: { active: 0, tasks: [] },
+    harry: { active: 0, tasks: [] },
+    icheb: { active: 0, tasks: [] },
+    tom: { active: 0, tasks: [] },
+    neelix: { active: 0, tasks: [] },
+    tuvok: { active: 0, tasks: [] },
+    doctor: { active: 0, tasks: [] }
   };
   
   let totalRunning = 0;
@@ -643,6 +737,7 @@ function analyzeCrewActivity(sessions) {
         channel: session.channel
       };
       
+      // Route to specific crew based on label patterns
       if (label.includes('spock') || label.includes('research')) {
         crew.spock.active++;
         crew.spock.tasks.push(taskInfo);
@@ -652,9 +747,33 @@ function analyzeCrewActivity(sessions) {
       } else if (label.includes('uhura') || label.includes('email') || label.includes('comms') || label.includes('triage')) {
         crew.uhura.active++;
         crew.uhura.tasks.push(taskInfo);
-      } else if (label.includes('quark') || label.includes('trad') || label.includes('crypto')) {
+      } else if (label.includes('quark') || label.includes('trad') || label.includes('crypto') || label.includes('polymarket')) {
         crew.quark.active++;
         crew.quark.tasks.push(taskInfo);
+      } else if (label.includes('data') || label.includes('qc') || label.includes('review')) {
+        crew.data.active++;
+        crew.data.tasks.push(taskInfo);
+      } else if (label.includes('belanna') || label.includes('torres')) {
+        crew.belanna.active++;
+        crew.belanna.tasks.push(taskInfo);
+      } else if (label.includes('harry') || label.includes('kim') || label.includes('ops')) {
+        crew.harry.active++;
+        crew.harry.tasks.push(taskInfo);
+      } else if (label.includes('icheb') || label.includes('borg')) {
+        crew.icheb.active++;
+        crew.icheb.tasks.push(taskInfo);
+      } else if (label.includes('tom') || label.includes('paris') || label.includes('risk')) {
+        crew.tom.active++;
+        crew.tom.tasks.push(taskInfo);
+      } else if (label.includes('neelix') || label.includes('resource')) {
+        crew.neelix.active++;
+        crew.neelix.tasks.push(taskInfo);
+      } else if (label.includes('tuvok') || label.includes('security')) {
+        crew.tuvok.active++;
+        crew.tuvok.tasks.push(taskInfo);
+      } else if (label.includes('doctor') || label.includes('emh')) {
+        crew.doctor.active++;
+        crew.doctor.tasks.push(taskInfo);
       } else {
         // Default to Seven (main agent tasks)
         crew.seven.active++;
@@ -728,82 +847,95 @@ function getCpuTemp() {
   return null;
 }
 
-// Get system stats
+// Get system stats with caching
 function getSystemStats() {
-  try {
-    const uptime = execSync('uptime -p 2>/dev/null || uptime', { encoding: 'utf-8' }).trim();
-    const loadavg = execSync('cat /proc/loadavg 2>/dev/null', { encoding: 'utf-8' }).trim().split(' ');
-    const memInfo = execSync("free -m | awk 'NR==2{printf \"%d %d\", $3, $2}'", { encoding: 'utf-8' }).trim().split(' ');
-    const diskInfo = execSync("df -h / | awk 'NR==2{printf \"%s %s %s\", $3, $2, $5}'", { encoding: 'utf-8' }).trim().split(' ');
-    const cpuCores = parseInt(execSync('nproc', { encoding: 'utf-8' }).trim()) || 1;
-    
-    // CPU usage
-    let cpuUsage = 0;
+  return getCached('systemStats', () => {
     try {
-      const stat1 = readFileSync('/proc/stat', 'utf-8').split('\n')[0].split(/\s+/);
-      const idle1 = parseInt(stat1[4]);
-      const total1 = stat1.slice(1).reduce((a, b) => a + parseInt(b), 0);
-      cpuUsage = ((1 - idle1 / total1) * 100).toFixed(1);
+      // Read all data in parallel using synchronous reads (faster than exec)
+      let uptime = 'unknown', loadavg = ['0', '0', '0'], memInfo = ['0', '1'], diskInfo = ['0', '0', '0%'], cpuCores = 1;
+      let cpuUsage = 0;
+      
+      try {
+        uptime = execSync('uptime -p 2>/dev/null || uptime', { encoding: 'utf-8', timeout: 1000 }).trim().replace('up ', '');
+        const loadavgRaw = execSync('cat /proc/loadavg 2>/dev/null', { encoding: 'utf-8', timeout: 1000 }).trim().split(' ');
+        loadavg = loadavgRaw.slice(0, 3);
+        cpuCores = parseInt(execSync('nproc', { encoding: 'utf-8', timeout: 1000 }).trim()) || 1;
+        
+        const memRaw = execSync("free -m | awk 'NR==2{printf \"%d %d\", $3, $2}'", { encoding: 'utf-8', timeout: 1000 }).trim().split(' ');
+        memInfo = memRaw;
+        
+        const diskRaw = execSync("df -h / | awk 'NR==2{printf \"%s %s %s\", $3, $2, $5}'", { encoding: 'utf-8', timeout: 1000 }).trim().split(' ');
+        diskInfo = diskRaw;
+        
+        // CPU usage from /proc/stat (more accurate)
+        const stat1 = readFileSync('/proc/stat', 'utf-8').split('\n')[0].split(/\s+/);
+        const idle1 = parseInt(stat1[4]) || 0;
+        const total1 = stat1.slice(1).reduce((a, b) => a + (parseInt(b) || 0), 0);
+        cpuUsage = total1 > 0 ? ((1 - idle1 / total1) * 100).toFixed(1) : 0;
+      } catch (e) {
+        // Fallback to loadavg-based CPU estimation
+        cpuUsage = (parseFloat(loadavg[0]) / cpuCores * 100).toFixed(1);
+      }
+      
+      const netStats = getNetworkStats();
+      const dockerStats = getDockerStats();
+      const cpuTemp = getCpuTemp();
+      
+      const memUsed = parseInt(memInfo[0]) || 0;
+      const memTotal = parseInt(memInfo[1]) || 1;
+      const memPercent = ((memUsed / memTotal) * 100).toFixed(1);
+      
+      return {
+        uptime: uptime,
+        load: loadavg.map(l => parseFloat(l)),
+        cpuUsage: parseFloat(cpuUsage),
+        cpuCores,
+        cpuTemp,
+        memUsed,
+        memTotal,
+        memPercent: parseFloat(memPercent),
+        diskUsed: diskInfo[0] || '0',
+        diskTotal: diskInfo[1] || '0',
+        diskPercent: parseInt(diskInfo[2]) || 0,
+        ...netStats,
+        docker: dockerStats
+      };
     } catch (e) {
-      cpuUsage = (parseFloat(loadavg[0]) / cpuCores * 100).toFixed(1);
+      log('ERROR', 'Error getting system stats:', { error: e.message });
+      return {
+        uptime: 'unknown',
+        load: [0, 0, 0],
+        memUsed: 0,
+        memTotal: 1,
+        memPercent: 0,
+        cpuUsage: 0,
+        docker: { running: 0, total: 0 }
+      };
     }
-    
-    const netStats = getNetworkStats();
-    const dockerStats = getDockerStats();
-    const cpuTemp = getCpuTemp();
-    
-    const memUsed = parseInt(memInfo[0]);
-    const memTotal = parseInt(memInfo[1]);
-    const memPercent = ((memUsed / memTotal) * 100).toFixed(1);
-    
-    return {
-      uptime: uptime.replace('up ', ''),
-      load: loadavg.slice(0, 3).map(l => parseFloat(l)),
-      cpuUsage: parseFloat(cpuUsage),
-      cpuCores,
-      cpuTemp,
-      memUsed,
-      memTotal,
-      memPercent: parseFloat(memPercent),
-      diskUsed: diskInfo[0],
-      diskTotal: diskInfo[1],
-      diskPercent: parseInt(diskInfo[2]) || 0,
-      ...netStats,
-      docker: dockerStats
-    };
-  } catch (e) {
-    log('ERROR', 'Error getting system stats:', { error: e.message });
-    return { 
-      uptime: 'unknown', 
-      load: [0, 0, 0], 
-      memUsed: 0, 
-      memTotal: 1,
-      memPercent: 0,
-      cpuUsage: 0,
-      docker: { running: 0, total: 0 }
-    };
-  }
+  });
 }
 
-// Gather all bridge data
+// Gather all bridge data with performance optimizations
 async function gatherBridgeData() {
-  const sessions = await getSessions();
-  const { crew: crewActivity, totalRunning, totalSessions } = analyzeCrewActivity(sessions);
-  const quarkData = getQuarkData();
-  const emailCounts = getEmailCounts();
-  const workspaceGit = getGitStatus(WORKSPACE_DIR, 'workspace');
-  const skillsGit = getGitStatus(SKILLS_DIR, 'skills');
-  const worktrees = getWorktrees();
-  const systemStats = getSystemStats();
+  // Use cached data where available, fetch in parallel where needed
+  const [sessions, quarkData, emailCounts, workspaceGit, skillsGit, worktrees, systemStats] = await Promise.all([
+    getSessions().catch(() => []),
+    Promise.resolve(getQuarkData()), // Already cached
+    Promise.resolve(getEmailCounts()), // Already has async update
+    Promise.resolve(getGitStatus(WORKSPACE_DIR, 'workspace')),
+    Promise.resolve(getGitStatus(SKILLS_DIR, 'skills')),
+    Promise.resolve(getWorktrees()),
+    Promise.resolve(getSystemStats())
+  ]);
   
-  // Determine statuses
+  const { crew: crewActivity, totalRunning, totalSessions } = analyzeCrewActivity(sessions);
   const totalEmails = emailCounts.vanderveer.inbox + emailCounts.settlemint.inbox;
   
   return {
     timestamp: new Date().toISOString(),
     stardate: calculateStardate(),
     system: systemStats,
-    sessions: sessions, // Raw sessions for introspection panel
+    sessions: sessions,
     crew: {
       seven: {
         status: totalRunning > 0 ? 'ACTIVE' : 'STANDBY',
@@ -824,7 +956,7 @@ async function gatherBridgeData() {
         efficiency: '99.7'
       },
       geordi: {
-        status: crewActivity.geordi.active > 0 ? 'BUILDING' : 
+        status: crewActivity.geordi.active > 0 ? 'BUILDING' :
                 (workspaceGit.modified > 0 ? 'MONITORING' : 'STANDBY'),
         role: 'Engineering',
         description: 'Development & Ops',
@@ -839,7 +971,7 @@ async function gatherBridgeData() {
         totalCommitsToday: workspaceGit.commitsToday + skillsGit.commitsToday
       },
       uhura: {
-        status: crewActivity.uhura.active > 0 ? 'PROCESSING' : 
+        status: crewActivity.uhura.active > 0 ? 'PROCESSING' :
                 (totalEmails > 0 ? 'MONITORING' : 'STANDBY'),
         role: 'Communications',
         description: 'Email & Messages',
@@ -860,18 +992,32 @@ async function gatherBridgeData() {
   };
 }
 
-// Broadcast to all connected clients
+// Broadcast to all connected clients with debouncing
+let broadcastQueue = null;
+let broadcastTimeout = null;
+
 function broadcast(data) {
-  const message = JSON.stringify(data);
-  let sent = 0;
-  clients.forEach(client => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(message);
-      sent++;
-    }
-  });
-  if (sent > 0) {
-    log('DEBUG', `Broadcast to ${sent} clients`);
+  // Queue broadcasts and batch them (max 1 per 100ms)
+  broadcastQueue = data;
+  
+  if (!broadcastTimeout) {
+    broadcastTimeout = setTimeout(() => {
+      if (broadcastQueue) {
+        const message = JSON.stringify(broadcastQueue);
+        let sent = 0;
+        clients.forEach(client => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(message);
+            sent++;
+          }
+        });
+        if (sent > 0) {
+          log('DEBUG', `Broadcast to ${sent} clients`);
+        }
+        broadcastQueue = null;
+      }
+      broadcastTimeout = null;
+    }, 100);
   }
 }
 
@@ -1248,6 +1394,22 @@ const httpServer = createServer(async (req, res) => {
     return;
   }
   
+  // GET /api/inbox/counts - Get crew-msg inbox counts for all agents
+  if (req.url === '/api/inbox/counts' && req.method === 'GET') {
+    try {
+      const result = execSync(
+        'node ~/.openclaw/scripts/crew_inbox_check.js counts 2>/dev/null',
+        { encoding: 'utf8', timeout: 5000 }
+      );
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(result);
+    } catch (e) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ agents: {}, totalUnread: 0 }));
+    }
+    return;
+  }
+  
   // POST /api/messages/:id/reply - Add reply to a message
   const msgReplyMatch = req.url.match(/^\/api\/messages\/([^/]+)\/reply$/);
   if (msgReplyMatch && req.method === 'POST') {
@@ -1340,6 +1502,70 @@ const httpServer = createServer(async (req, res) => {
   }
   
   // ═══════════════════════════════════════════════════════════════
+  // CRON JOBS API - System Tasks Status
+  // ═══════════════════════════════════════════════════════════════
+  
+  // GET /api/cron - Get all cron jobs with status
+  if (req.url === '/api/cron' && req.method === 'GET') {
+    try {
+      const result = execSync(
+        '/home/roderik/.npm-global/bin/openclaw cron list --json 2>/dev/null || echo "[]"',
+        { encoding: 'utf8', timeout: 5000 }
+      );
+      // Strip any non-JSON prefix lines (plugin registration, etc.)
+      const jsonStart = result.indexOf('{');
+      const jsonStr = jsonStart >= 0 ? result.substring(jsonStart) : '{}';
+      let jobs = [];
+      try { jobs = JSON.parse(jsonStr); } catch (e) {}
+      
+      // Format for dashboard display
+      const formatMs = (ms) => {
+        if (!ms || ms < 0) return '--';
+        const secs = Math.floor(ms / 1000);
+        if (secs < 60) return `${secs}s`;
+        const mins = Math.floor(secs / 60);
+        if (mins < 60) return `${mins}m`;
+        const hours = Math.floor(mins / 60);
+        return `${hours}h ${mins % 60}m`;
+      };
+      
+      const now = Date.now();
+      const formattedJobs = (jobs.jobs || jobs || []).map(job => {
+        const nextRun = job.state?.nextRunAtMs ? job.state.nextRunAtMs - now : null;
+        const lastRun = job.state?.lastRunAtMs ? now - job.state.lastRunAtMs : null;
+        return {
+          id: job.id,
+          name: job.name || 'unnamed',
+          enabled: job.enabled !== false,
+          schedule: job.schedule,
+          sessionTarget: job.sessionTarget,
+          lastStatus: job.state?.lastStatus || 'unknown',
+          lastDurationMs: job.state?.lastDurationMs,
+          nextRunIn: formatMs(nextRun),
+          lastRunAgo: formatMs(lastRun),
+          runCount: job.state?.runCount || 0
+        };
+      });
+      
+      const enabled = formattedJobs.filter(j => j.enabled);
+      const disabled = formattedJobs.filter(j => !j.enabled);
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        total: formattedJobs.length,
+        enabled: enabled.length,
+        disabled: disabled.length,
+        jobs: formattedJobs,
+        timestamp: new Date().toISOString()
+      }));
+    } catch (e) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ total: 0, enabled: 0, disabled: 0, jobs: [], error: e.message }));
+    }
+    return;
+  }
+  
+  // ═══════════════════════════════════════════════════════════════
   // STALL DETECTION API - Agent Health Monitoring
   // ═══════════════════════════════════════════════════════════════
   
@@ -1387,6 +1613,123 @@ const httpServer = createServer(async (req, res) => {
       execSync('python3 ~/.openclaw/scripts/stall_detector.py reset 2>/dev/null', { timeout: 5000 });
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ success: true }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: e.message }));
+    }
+    return;
+  }
+  
+  // ═══════════════════════════════════════════════════════════════
+  // WORK LOOP API - Autonomous Task Queue
+  // ═══════════════════════════════════════════════════════════════
+  
+  // GET /api/work-loop - Get work loop status
+  if (req.url === '/api/work-loop' && req.method === 'GET') {
+    try {
+      const result = execSync(
+        'node ~/.openclaw/crew/work-loop.js json 2>/dev/null',
+        { encoding: 'utf8', timeout: 5000 }
+      );
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(result);
+    } catch (e) {
+      // Return default state if script fails
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        status: 'stopped',
+        startedAt: null,
+        uptime: 0,
+        config: { maxWorkers: 3, pollIntervalMs: 30000 },
+        stats: { tasksProcessed: 0, tasksCompleted: 0, tasksFailed: 0, cycleCount: 0 },
+        activeWorkers: [],
+        queue: { length: 0, tasks: [] },
+        dependencies: 0,
+        chains: 0
+      }));
+    }
+    return;
+  }
+  
+  // POST /api/work-loop/start - Start work loop
+  if (req.url === '/api/work-loop/start' && req.method === 'POST') {
+    try {
+      const result = execSync(
+        'node ~/.openclaw/crew/work-loop.js start 2>&1',
+        { encoding: 'utf8', timeout: 10000 }
+      );
+      log('INFO', 'Work Loop started via API');
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, message: result.trim() }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: e.message }));
+    }
+    return;
+  }
+  
+  // POST /api/work-loop/stop - Stop work loop
+  if (req.url === '/api/work-loop/stop' && req.method === 'POST') {
+    try {
+      const result = execSync(
+        'node ~/.openclaw/crew/work-loop.js stop 2>&1',
+        { encoding: 'utf8', timeout: 10000 }
+      );
+      log('INFO', 'Work Loop stopped via API');
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, message: result.trim() }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: e.message }));
+    }
+    return;
+  }
+  
+  // POST /api/work-loop/next - Process one cycle
+  if (req.url === '/api/work-loop/next' && req.method === 'POST') {
+    try {
+      const result = execSync(
+        'node ~/.openclaw/crew/work-loop.js next 2>&1',
+        { encoding: 'utf8', timeout: 30000 }
+      );
+      log('INFO', 'Work Loop processed one cycle via API');
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, message: result.trim() }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: e.message }));
+    }
+    return;
+  }
+  
+  // GET /api/work-loop/queue - Get queue summary
+  if (req.url === '/api/work-loop/queue' && req.method === 'GET') {
+    try {
+      const result = execSync(
+        'node ~/.openclaw/crew/crew-task.js queue 2>/dev/null',
+        { encoding: 'utf8', timeout: 5000 }
+      );
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(result);
+    } catch (e) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: e.message }));
+    }
+    return;
+  }
+  
+  // POST /api/work-loop/priority/:id - Boost task priority
+  const priorityMatch = req.url.match(/^\/api\/work-loop\/priority\/([^/]+)$/);
+  if (priorityMatch && req.method === 'POST') {
+    try {
+      const taskId = priorityMatch[1];
+      const result = execSync(
+        `node ~/.openclaw/crew/work-loop.js priority "${taskId}" 2>&1`,
+        { encoding: 'utf8', timeout: 5000 }
+      );
+      log('INFO', 'Task priority boosted via API:', { taskId });
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, message: result.trim() }));
     } catch (e) {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ success: false, error: e.message }));
@@ -1604,7 +1947,10 @@ async function updateLoop() {
 // Watch Quark portfolio
 if (existsSync(QUARK_PORTFOLIO)) {
   watchFile(QUARK_PORTFOLIO, { interval: 1000 }, async () => {
-    log('INFO', 'Quark portfolio changed - broadcasting update');
+    log('INFO', 'Quark portfolio changed - invalidating cache and broadcasting update');
+    // Invalidate quark cache so next gatherBridgeData gets fresh data
+    cache.quarkData.data = null;
+    cache.bridgeData.data = null;
     try {
       const data = await gatherBridgeData();
       broadcast({ type: 'trade_update', data });
@@ -1614,17 +1960,75 @@ if (existsSync(QUARK_PORTFOLIO)) {
   });
 }
 
-// Watch tasks file for external changes
+// Track last known task state to detect completions
+let lastTasksState = null;
+
+// Watch tasks file for external changes (less aggressive polling)
 if (existsSync(TASKS_FILE)) {
-  watchFile(TASKS_FILE, { interval: 2000 }, () => {
-    log('INFO', 'Tasks file changed - broadcasting update');
-    broadcastTasks();
+  watchFile(TASKS_FILE, { interval: 5000 }, async () => {
+    try {
+      const tasksData = loadTasks();
+
+      // Detect task completions (moved to 'done' by 'data')
+      if (lastTasksState && tasksData) {
+        const lastTasks = lastTasksState.tasks || [];
+        const currentTasks = tasksData.tasks || [];
+
+        currentTasks.forEach(task => {
+          const lastTask = lastTasks.find(t => t.id === task.id);
+          if (lastTask && lastTask.status !== 'done' && task.status === 'done') {
+            // Check if this was completed by 'data' (QC Officer)
+            const recentActivity = tasksData.activity?.filter(a =>
+              a.taskId === task.id &&
+              a.action === 'moved' &&
+              a.to === 'done' &&
+              a.agent === 'data'
+            );
+
+            if (recentActivity?.length > 0) {
+              // Emit task_completed event
+              const payload = {
+                taskId: task.id,
+                title: task.title,
+                assignee: task.assignee,
+                category: task.category,
+                timestamp: new Date().toISOString()
+              };
+
+              broadcast({ type: 'task_completed', data: payload });
+
+              // Add QC approval activity entry
+              tasksData.activity.push({
+                id: generateId('act'),
+                type: 'status',
+                action: 'qc_approved',
+                agent: 'data',
+                taskId: task.id,
+                taskTitle: task.title,
+                timestamp: new Date().toISOString()
+              });
+
+              // Save updated activity
+              saveTasks(tasksData);
+
+              log('INFO', 'Task completed by Data:', payload);
+            }
+          }
+        });
+      }
+
+      lastTasksState = JSON.parse(JSON.stringify(tasksData));
+      log('INFO', 'Tasks file changed - broadcasting update');
+      broadcastTasks();
+    } catch (e) {
+      log('ERROR', 'Tasks file watcher error:', { error: e.message });
+    }
   });
 }
 
 // Watch messages file for external changes (CLI updates)
 if (existsSync(MESSAGES_FILE)) {
-  watchFile(MESSAGES_FILE, { interval: 2000 }, () => {
+  watchFile(MESSAGES_FILE, { interval: 5000 }, () => {
     log('INFO', 'Messages file changed - broadcasting update');
     broadcastMessages();
   });

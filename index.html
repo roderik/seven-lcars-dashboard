@@ -125,6 +125,64 @@
         .activity-log-type.building { background: #99FF99; color: #000; }
         .activity-log-type.research { background: #FFCC66; color: #000; }
 
+        /* Toast notifications */
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            background: rgba(20, 20, 30, 0.98);
+            border: 2px solid;
+            border-radius: 12px;
+            color: #FFCC99;
+            font-family: 'Antonio', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            min-width: 280px;
+            max-width: 400px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 153, 0, 0.15);
+            backdrop-filter: blur(10px);
+            animation: toastSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left-width: 4px;
+        }
+
+        .toast.completed { border-color: #99CC99; border-left-color: #99CC99; }
+        .toast.engineering { border-color: #9999FF; border-left-color: #9999FF; }
+        .toast.communications { border-color: #99CCFF; border-left-color: #99CCFF; }
+        .toast.research { border-color: #FFCC66; border-left-color: #FFCC66; }
+        .toast.trading { border-color: #99FF99; border-left-color: #99FF99; }
+        .toast.priority { border-color: #FF6666; border-left-color: #FF6666; }
+        .toast.default { border-color: #CC9966; border-left-color: #CC9966; }
+
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        @keyframes toastSlideOut {
+            to {
+                opacity: 0;
+                transform: translateX(50px) scale(0.95);
+            }
+        }
+
+        .toast-exit {
+            animation: toastSlideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+        }
+
+        .toast-icon { font-size: 24px; flex-shrink:0; }
+        .toast-content { flex: 1; }
+        .toast-title { font-size: 12px; font-weight: 700; margin-bottom: 2px; }
+        .toast-message { font-size: 11px; color: #999; }
+        .toast-close { background: none; border: none; color: #666; font-size: 18px; cursor: pointer; padding: 0 4px; transition: color 0.2s; }
+        .toast-close:hover { color: #FF6666; }
+
         /* Platform badges */
         .platform-badge {
             display: inline-flex;
@@ -384,6 +442,9 @@
         <div class="flex items-center gap-1"><kbd class="bg-lcars-tan text-black px-1 rounded-sm font-bold">Esc</kbd> Close</div>
     </div>
 
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[1002] flex flex-col gap-2"></div>
+
     <!-- Task Detail Modal -->
     <div id="task-modal-overlay" class="fixed inset-0 bg-black/80 z-[1001] hidden items-center justify-center backdrop-blur-sm">
         <div class="task-modal w-[90%] max-w-[600px] max-h-[80vh] bg-lcars-panel border-2 border-lcars-orange rounded-lcars flex flex-col overflow-hidden">
@@ -551,6 +612,16 @@
                     'done': 'Done'
                 };
                 
+                // Category to emoji mapping for task completions
+                this.categoryEmojis = {
+                    'engineering': '🚀',
+                    'communications': '📡',
+                    'research': '📚',
+                    'trading': '💰',
+                    'priority': '⭐',
+                    'default': '✅'
+                };
+                
                 this.initStarfield();
                 this.connect();
                 this.startClock();
@@ -694,6 +765,66 @@
                     if (document.getElementById('messages-modal').classList.contains('flex')) {
                         renderMessageList();
                     }
+                }
+                // Handle task completion notifications (QC approval by Data)
+                if (msg.type === 'task_completed' && msg.data) {
+                    this.showTaskCompletedToast(msg.data);
+                }
+            }
+
+            showTaskCompletedToast(data) {
+                const category = data.category || 'default';
+                const emoji = this.categoryEmojis[category] || this.categoryEmojis.default;
+                const message = `QC Approved by Data`;
+                const title = data.title || 'Task Completed';
+                const container = document.getElementById('toast-container');
+                
+                const toast = document.createElement('div');
+                toast.className = `toast ${category}`;
+                toast.innerHTML = `
+                    <span class="toast-icon">${emoji}</span>
+                    <div class="toast-content">
+                        <div class="toast-title">${this.escapeHtml(title)}</div>
+                        <div class="toast-message">${message}</div>
+                    </div>
+                    <button class="toast-close" onclick="this.parentElement.classList.add('toast-exit'); setTimeout(() => this.parentElement.remove(), 300);">×</button>
+                `;
+                
+                container.appendChild(toast);
+                
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    if (toast.parentElement) {
+                        toast.classList.add('toast-exit');
+                        setTimeout(() => toast.remove(), 300);
+                    }
+                }, 5000);
+                
+                // Play a subtle notification sound (optional)
+                this.playNotificationSound();
+            }
+
+            playNotificationSound() {
+                // Create a subtle notification chime using Web Audio API
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(880, audioContext.currentTime); // A5
+                    oscillator.frequency.exponentialRampToValueAtTime(440, audioContext.currentTime + 0.15);
+                    
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.15);
+                } catch (e) {
+                    // Audio not available, silently fail
                 }
             }
 
@@ -1017,67 +1148,89 @@
                 `;
             }
 
-            renderSystemTasks() {
+            async renderSystemTasks() {
                 const container = document.getElementById('system-tasks-list');
                 const countEl = document.getElementById('system-count');
                 
-                // Define system tasks with their responsible agents
-                const systemTasks = [
-                    { name: 'Email Triage', agent: 'uhura', type: 'monitoring' },
-                    { name: 'Crew Heartbeat', agent: 'seven', type: 'coordination' },
-                    { name: 'System Health', agent: 'geordi', type: 'monitoring' },
-                    { name: 'Market Tracker', agent: 'quark', type: 'trading' }
-                ];
+                // Fetch cron jobs from API
+                let cronJobs = [];
+                try {
+                    const res = await fetch('/api/cron');
+                    const data = await res.json();
+                    cronJobs = data.jobs || [];
+                } catch (e) {
+                    console.error('Failed to fetch cron jobs:', e);
+                }
 
-                // Get nuanced status for each system task based on agent state
-                const enrichedTasks = systemTasks.map(t => {
-                    const agentStatus = this.getAgentStatus(t.agent);
+                // Map cron jobs to display format
+                const systemTasks = cronJobs.filter(j => j.enabled).map(job => {
+                    let agent = 'seven';
+                    let type = 'monitoring';
+                    
+                    // Determine agent based on job name
+                    if (job.name.includes('email') || job.name.includes('gmail')) {
+                        agent = 'uhura';
+                        type = 'communications';
+                    } else if (job.name.includes('quark') || job.name.includes('trading')) {
+                        agent = 'quark';
+                        type = 'trading';
+                    } else if (job.name.includes('git') || job.name.includes('qmd')) {
+                        agent = 'geordi';
+                        type = 'engineering';
+                    }
+                    
+                    // Determine status
                     let taskStatus = 'idle';
                     let statusColor = 'bg-lcars-violet';
                     
-                    // Map agent state to task status
-                    if (agentStatus === 'building' || agentStatus === 'researching') {
+                    if (job.lastStatus === 'ok') {
                         taskStatus = 'active';
+                        statusColor = 'bg-status-active';
+                    } else if (job.lastStatus === 'running') {
+                        taskStatus = 'running';
                         statusColor = 'bg-status-active animate-pulse';
-                    } else if (agentStatus === 'thinking') {
-                        taskStatus = 'thinking';
-                        statusColor = 'bg-lcars-violet animate-pulse';
-                    } else if (agentStatus === 'waiting') {
-                        taskStatus = 'waiting';
-                        statusColor = 'bg-status-warning';
-                    } else if (agentStatus === 'offline') {
-                        taskStatus = 'offline';
-                        statusColor = 'bg-status-offline';
-                    } else {
-                        // Check if there's recent activity for this agent
-                        const hasRecentActivity = (this.tasksData?.activity || []).some(a => {
-                            if (a.agent !== t.agent) return false;
-                            const actTime = new Date(a.timestamp).getTime();
-                            return Date.now() - actTime < 600000; // Last 10 minutes
-                        });
-                        if (hasRecentActivity) {
-                            taskStatus = 'active';
-                            statusColor = 'bg-status-active animate-pulse';
-                        }
+                    } else if (job.lastStatus === 'error') {
+                        taskStatus = 'error';
+                        statusColor = 'bg-status-alert';
                     }
                     
-                    return { ...t, taskStatus, statusColor };
+                    // Format name
+                    const displayName = job.name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    
+                    return {
+                        name: displayName,
+                        agent,
+                        type,
+                        taskStatus,
+                        statusColor,
+                        nextRun: job.nextRunIn || '--',
+                        lastRun: job.lastRunAgo || '--'
+                    };
                 });
 
-                const active = enrichedTasks.filter(t => t.taskStatus === 'active').length;
-                if (countEl) countEl.textContent = `${active} ACTIVE`;
+                // Also add work-loop status
+                try {
+                    const wlRes = await fetch('/api/work-loop');
+                    const wlData = await wlRes.json();
+                    systemTasks.unshift({
+                        name: 'Work Loop',
+                        agent: 'seven',
+                        type: 'coordination',
+                        taskStatus: wlData.status === 'running' ? 'active' : 'idle',
+                        statusColor: wlData.status === 'running' ? 'bg-status-active animate-pulse' : 'bg-lcars-violet',
+                        nextRun: `${wlData.queue?.length || 0} queued`,
+                        lastRun: `${wlData.stats?.cycleCount || 0} cycles`
+                    });
+                } catch (e) {}
 
-                container.innerHTML = enrichedTasks.map(t => `
+                const active = systemTasks.filter(t => t.taskStatus === 'active' || t.taskStatus === 'running').length;
+                if (countEl) countEl.textContent = `${active}/${systemTasks.length} ACTIVE`;
+
+                container.innerHTML = systemTasks.map(t => `
                     <div class="flex items-center gap-2 py-1.5 border-b border-white/5 last:border-0 text-[10px]">
                         <div class="w-1.5 h-1.5 rounded-full ${t.statusColor}"></div>
-                        <span class="flex-1 text-lcars-white">${t.name}</span>
-                        <span class="text-[8px] uppercase px-1 py-0.5 rounded ${
-                            t.taskStatus === 'active' ? 'bg-status-active/20 text-status-active' :
-                            t.taskStatus === 'thinking' ? 'bg-lcars-violet/20 text-lcars-violet' :
-                            t.taskStatus === 'waiting' ? 'bg-status-warning/20 text-status-warning' :
-                            t.taskStatus === 'offline' ? 'bg-status-offline/20 text-status-offline' :
-                            'bg-lcars-tan/20 text-lcars-tan'
-                        }">${t.taskStatus}</span>
+                        <span class="flex-1 text-lcars-white truncate" title="${t.name}">${t.name}</span>
+                        <span class="text-[8px] text-lcars-sky">${t.nextRun}</span>
                         <span class="text-lcars-teal text-[9px] uppercase">${t.agent}</span>
                     </div>
                 `).join('');
