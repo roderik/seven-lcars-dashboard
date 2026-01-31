@@ -179,7 +179,7 @@
         .toast-icon { font-size: 24px; flex-shrink:0; }
         .toast-content { flex: 1; }
         .toast-title { font-size: 12px; font-weight: 700; margin-bottom: 2px; }
-        .toast-message { font-size: 13px; color: #999; }
+        .toast-message { font-size: 11px; color: #999; }
         .toast-close { background: none; border: none; color: #666; font-size: 18px; cursor: pointer; padding: 0 4px; transition: color 0.2s; }
         .toast-close:hover { color: #FF6666; }
 
@@ -190,7 +190,7 @@
             justify-content: center;
             padding: 2px 5px;
             border-radius: 4px;
-            font-size: 13px;
+            font-size: 8px;
             font-weight: 600;
             text-transform: uppercase;
             margin-right: 3px;
@@ -220,7 +220,7 @@
         .activity-entry.expanded .activity-details { display: block; }
         .activity-expand-icon {
             transition: transform 0.2s ease;
-            font-size: 12px;
+            font-size: 10px;
             opacity: 0.7;
         }
         .activity-entry.expanded .activity-expand-icon { transform: rotate(90deg); }
@@ -291,20 +291,20 @@
 
         <!-- Sidebar -->
         <aside class="lcars-sidebar row-span-2 flex flex-col gap-1 pt-1">
-            <button class="bg-lcars-purple h-10 rounded-r-lcars flex items-center px-3 text-sm font-bold text-lcars-bg uppercase tracking-wider cursor-pointer hover:brightness-125 hover:translate-x-1 transition-all shadow-[0_0_15px_rgba(255,153,0,0.5)]">
+            <button class="bg-lcars-purple h-10 rounded-r-lcars flex items-center px-3 text-[11px] font-bold text-lcars-bg uppercase tracking-wider cursor-pointer hover:brightness-125 hover:translate-x-1 transition-all shadow-[0_0_15px_rgba(255,153,0,0.5)]">
                 COMMAND
             </button>
-            <button onclick="showAddTask()" class="bg-lcars-blue h-10 rounded-r-lcars flex items-center px-3 text-sm font-bold text-lcars-bg uppercase tracking-wider cursor-pointer hover:brightness-125 hover:translate-x-1 transition-all">
+            <button onclick="showAddTask()" class="bg-lcars-blue h-10 rounded-r-lcars flex items-center px-3 text-[11px] font-bold text-lcars-bg uppercase tracking-wider cursor-pointer hover:brightness-125 hover:translate-x-1 transition-all">
                 NEW TASK
             </button>
-            <button onclick="toggleView('agents')" class="bg-lcars-green h-10 rounded-r-lcars flex items-center px-3 text-sm font-bold text-lcars-bg uppercase tracking-wider cursor-pointer hover:brightness-125 hover:translate-x-1 transition-all">
+            <button onclick="toggleView('agents')" class="bg-lcars-green h-10 rounded-r-lcars flex items-center px-3 text-[11px] font-bold text-lcars-bg uppercase tracking-wider cursor-pointer hover:brightness-125 hover:translate-x-1 transition-all">
                 CREW
             </button>
-            <button onclick="toggleView('system')" class="bg-lcars-sky h-10 rounded-r-lcars flex items-center px-3 text-sm font-bold text-lcars-bg uppercase tracking-wider cursor-pointer hover:brightness-125 hover:translate-x-1 transition-all">
+            <button onclick="toggleView('system')" class="bg-lcars-sky h-10 rounded-r-lcars flex items-center px-3 text-[11px] font-bold text-lcars-bg uppercase tracking-wider cursor-pointer hover:brightness-125 hover:translate-x-1 transition-all">
                 SYSTEM
             </button>
-            <button onclick="openMessagesModal()" id="messages-btn" class="bg-lcars-violet h-10 rounded-r-lcars flex items-center px-3 text-sm font-bold text-lcars-bg uppercase tracking-wider cursor-pointer hover:brightness-125 hover:translate-x-1 transition-all">
-                MESSAGES <span id="msg-badge" class="hidden bg-status-alert text-black text-xs font-bold px-1.5 py-0.5 rounded-xl ml-1.5 animate-pulse">0</span>
+            <button onclick="openMessagesModal()" id="messages-btn" class="bg-lcars-violet h-10 rounded-r-lcars flex items-center px-3 text-[11px] font-bold text-lcars-bg uppercase tracking-wider cursor-pointer hover:brightness-125 hover:translate-x-1 transition-all">
+                MESSAGES <span id="msg-badge" class="hidden bg-status-alert text-black text-[10px] font-bold px-1.5 py-0.5 rounded-xl ml-1.5 animate-pulse">0</span>
             </button>
             <div class="flex-1 bg-lcars-tan rounded-r-lcars min-h-[20px]"></div>
             <div class="sidebar-elbow-bottom bg-lcars-tan h-[30px]"></div>
@@ -314,7 +314,7 @@
         <div id="stats-bar" class="col-start-2 flex gap-3 p-3 pb-0 overflow-x-auto">
             <!-- CPU -->
             <div class="stat-card flex-shrink-0 min-w-[140px] bg-lcars-panel border-2 border-lcars-sky rounded-lcars-sm p-3 flex flex-col gap-1">
-                <div class="text-xs uppercase tracking-wider text-lcars-violet">CPU</div>
+                <div class="text-[9px] uppercase tracking-wider text-lcars-violet">CPU</div>
                 <div id="stat-cpu" class="text-xl font-bold text-lcars-gold">0%</div>
                 <div class="h-1 bg-white/10 rounded-sm mt-1 overflow-hidden">
                     <div id="stat-cpu-bar" class="h-full bg-lcars-blue rounded-sm transition-all duration-500" style="width: 0%"></div>
@@ -322,7 +322,7 @@
             </div>
             <!-- Memory -->
             <div class="stat-card flex-shrink-0 min-w-[140px] bg-lcars-panel border-2 border-lcars-sky rounded-lcars-sm p-3 flex flex-col gap-1">
-                <div class="text-xs uppercase tracking-wider text-lcars-violet">Memory</div>
+                <div class="text-[9px] uppercase tracking-wider text-lcars-violet">Memory</div>
                 <div id="stat-mem" class="text-xl font-bold text-lcars-gold">0%</div>
                 <div class="h-1 bg-white/10 rounded-sm mt-1 overflow-hidden">
                     <div id="stat-mem-bar" class="h-full bg-lcars-purple rounded-sm transition-all duration-500" style="width: 0%"></div>
@@ -330,21 +330,21 @@
             </div>
             <!-- Sessions -->
             <div class="stat-card flex-shrink-0 min-w-[140px] bg-lcars-panel border-2 border-lcars-orange rounded-lcars-sm p-3 flex flex-col gap-1">
-                <div class="text-xs uppercase tracking-wider text-lcars-violet">Sessions</div>
+                <div class="text-[9px] uppercase tracking-wider text-lcars-violet">Sessions</div>
                 <div id="stat-sessions" class="text-xl font-bold text-lcars-gold">0</div>
-                <div id="stat-sessions-sub" class="text-xs text-lcars-tan">0 running</div>
+                <div id="stat-sessions-sub" class="text-[10px] text-lcars-tan">0 running</div>
             </div>
             <!-- Tasks -->
             <div class="stat-card flex-shrink-0 min-w-[140px] bg-lcars-panel border-2 border-lcars-blue rounded-lcars-sm p-3 flex flex-col gap-1">
-                <div class="text-xs uppercase tracking-wider text-lcars-violet">Tasks</div>
+                <div class="text-[9px] uppercase tracking-wider text-lcars-violet">Tasks</div>
                 <div id="stat-tasks" class="text-xl font-bold text-lcars-gold">0</div>
-                <div id="stat-tasks-sub" class="text-xs text-lcars-tan">0 active</div>
+                <div id="stat-tasks-sub" class="text-[10px] text-lcars-tan">0 active</div>
             </div>
             <!-- P&L -->
             <div class="stat-card flex-shrink-0 min-w-[140px] bg-lcars-panel border-2 border-lcars-gold rounded-lcars-sm p-3 flex flex-col gap-1">
-                <div class="text-xs uppercase tracking-wider text-lcars-violet">P&L</div>
+                <div class="text-[9px] uppercase tracking-wider text-lcars-violet">P&L</div>
                 <div id="stat-pnl" class="text-xl font-bold text-lcars-gold">$0</div>
-                <div id="stat-pnl-sub" class="text-xs text-lcars-tan">0 trades</div>
+                <div id="stat-pnl-sub" class="text-[10px] text-lcars-tan">0 trades</div>
             </div>
         </div>
 
@@ -354,7 +354,7 @@
             <!-- Left Panel: Agents -->
             <div class="agents-panel bg-lcars-panel border-2 border-lcars-purple rounded-lcars flex flex-col overflow-hidden">
                 <div class="flex items-stretch h-[38px] flex-shrink-0">
-                    <div class="w-[60px] bg-lcars-purple flex items-center justify-center text-xs font-bold text-lcars-bg uppercase tracking-wider">CREW</div>
+                    <div class="w-[60px] bg-lcars-purple flex items-center justify-center text-[10px] font-bold text-lcars-bg uppercase tracking-wider">CREW</div>
                     <div class="flex-1 flex items-center justify-between px-3 bg-black/50">
                         <span class="text-sm font-bold tracking-widest uppercase text-lcars-purple">Agents</span>
                     </div>
@@ -362,27 +362,12 @@
                 <div id="agents-list" class="flex-1 overflow-y-auto p-2">
                     <!-- Agent cards rendered here -->
                 </div>
-                <!-- Lessons Learned Section -->
-                <div id="lessons-section" class="border-t-2 border-lcars-purple/30 mt-2">
-                    <div class="flex items-center justify-between px-3 py-2 bg-black/30 cursor-pointer" onclick="toggleLessons()">
-                        <span class="text-xs font-bold tracking-wider uppercase text-lcars-violet">📚 Lessons Learned</span>
-                        <span id="lessons-toggle" class="text-lcars-violet text-xs">▼</span>
-                    </div>
-                    <div id="lessons-content" class="hidden p-2 max-h-[200px] overflow-y-auto">
-                        <div id="lessons-list" class="space-y-2">
-                            <!-- Lessons rendered here -->
-                        </div>
-                        <button onclick="triggerAnalysis()" class="mt-2 w-full py-1 bg-lcars-violet/20 text-lcars-violet border border-lcars-violet/50 rounded text-xs hover:bg-lcars-violet/40 transition-all">
-                            🔄 Run Analysis
-                        </button>
-                    </div>
-                </div>
             </div>
 
             <!-- Center Panel: Mission Queue (Kanban) -->
             <div class="mission-panel bg-lcars-panel border-2 border-lcars-blue rounded-lcars flex flex-col overflow-hidden">
                 <div class="flex items-stretch h-[38px] flex-shrink-0">
-                    <div class="w-[60px] bg-lcars-blue flex items-center justify-center text-xs font-bold text-lcars-bg uppercase tracking-wider">QUEUE</div>
+                    <div class="w-[60px] bg-lcars-blue flex items-center justify-center text-[10px] font-bold text-lcars-bg uppercase tracking-wider">QUEUE</div>
                     <div class="flex-1 flex items-center justify-between px-3 bg-black/50">
                         <span class="text-sm font-bold tracking-widest uppercase text-lcars-blue">Mission Queue</span>
                     </div>
@@ -397,7 +382,7 @@
             <!-- Right Panel: System Tasks + Live Feed -->
             <div class="feed-panel bg-lcars-panel border-2 border-lcars-orange rounded-lcars flex flex-col overflow-hidden">
                 <div class="flex items-stretch h-[38px] flex-shrink-0">
-                    <div class="w-[60px] bg-lcars-orange flex items-center justify-center text-xs font-bold text-lcars-bg uppercase tracking-wider">FEED</div>
+                    <div class="w-[60px] bg-lcars-orange flex items-center justify-center text-[10px] font-bold text-lcars-bg uppercase tracking-wider">FEED</div>
                     <div class="flex-1 flex items-center justify-between px-3 bg-black/50">
                         <span class="text-sm font-bold tracking-widest uppercase text-lcars-orange">Activity</span>
                     </div>
@@ -405,9 +390,9 @@
                 <div class="flex-1 overflow-y-auto" style="padding: 0;">
                     <!-- System Tasks Section -->
                     <div id="system-tasks-section" class="bg-lcars-teal/10 border border-lcars-teal rounded-lcars-xs p-2 m-2 mb-0">
-                        <div class="flex justify-between items-center mb-2 text-xs">
+                        <div class="flex justify-between items-center mb-2 text-[10px]">
                             <span class="text-lcars-teal font-bold tracking-wider">◈ SYSTEM TASKS</span>
-                            <span id="system-count" class="text-status-active text-xs">0 ACTIVE</span>
+                            <span id="system-count" class="text-status-active text-[9px]">0 ACTIVE</span>
                         </div>
                         <div id="system-tasks-list">
                             <!-- System tasks rendered here -->
@@ -416,11 +401,11 @@
                     
                     <!-- Feed Filters -->
                     <div id="feed-filters" class="flex flex-wrap gap-1 p-2 border-b border-white/10">
-                        <button class="feed-filter active px-2 py-1 bg-lcars-orange text-black border border-lcars-orange rounded-xl text-xs font-semibold cursor-pointer transition-all" data-filter="all">All</button>
-                        <button class="feed-filter px-2 py-1 bg-black/40 text-lcars-tan border border-lcars-tan rounded-xl text-xs font-semibold cursor-pointer transition-all hover:bg-lcars-orange/20" data-filter="task">Tasks</button>
-                        <button class="feed-filter px-2 py-1 bg-black/40 text-lcars-teal border border-lcars-teal rounded-xl text-xs font-semibold cursor-pointer transition-all hover:bg-lcars-teal/30" data-filter="tool">Tools</button>
-                        <button class="feed-filter px-2 py-1 bg-black/40 text-lcars-violet border border-lcars-violet rounded-xl text-xs font-semibold cursor-pointer transition-all hover:bg-lcars-violet/20" data-filter="thinking">Thinking</button>
-                        <button class="feed-filter px-2 py-1 bg-black/40 text-lcars-tan border border-lcars-tan rounded-xl text-xs font-semibold cursor-pointer transition-all hover:bg-lcars-orange/20" data-filter="status">Status</button>
+                        <button class="feed-filter active px-2 py-1 bg-lcars-orange text-black border border-lcars-orange rounded-xl text-[9px] font-semibold cursor-pointer transition-all" data-filter="all">All</button>
+                        <button class="feed-filter px-2 py-1 bg-black/40 text-lcars-tan border border-lcars-tan rounded-xl text-[9px] font-semibold cursor-pointer transition-all hover:bg-lcars-orange/20" data-filter="task">Tasks</button>
+                        <button class="feed-filter px-2 py-1 bg-black/40 text-lcars-teal border border-lcars-teal rounded-xl text-[9px] font-semibold cursor-pointer transition-all hover:bg-lcars-teal/30" data-filter="tool">Tools</button>
+                        <button class="feed-filter px-2 py-1 bg-black/40 text-lcars-violet border border-lcars-violet rounded-xl text-[9px] font-semibold cursor-pointer transition-all hover:bg-lcars-violet/20" data-filter="thinking">Thinking</button>
+                        <button class="feed-filter px-2 py-1 bg-black/40 text-lcars-tan border border-lcars-tan rounded-xl text-[9px] font-semibold cursor-pointer transition-all hover:bg-lcars-orange/20" data-filter="status">Status</button>
                     </div>
                     
                     <div id="feed-list" class="flex-1 overflow-y-auto p-2">
@@ -432,25 +417,25 @@
 
         <!-- Footer -->
         <footer class="col-span-2 flex items-stretch gap-1">
-            <div id="footer-clients" class="footer-elbow w-40 bg-lcars-tan flex items-center justify-center text-xs font-bold text-lcars-bg">0 CLIENTS</div>
+            <div id="footer-clients" class="footer-elbow w-40 bg-lcars-tan flex items-center justify-center text-[10px] font-bold text-lcars-bg">0 CLIENTS</div>
             <div class="flex-1 flex gap-1 pl-1">
-                <div id="footer-status" class="flex-1 bg-lcars-purple flex items-center px-3 text-sm font-medium text-lcars-bg rounded-tl-lcars">ONLINE</div>
-                <div id="footer-active" class="flex-1 bg-lcars-blue flex items-center px-3 text-sm font-medium text-lcars-bg">0 ACTIVE</div>
-                <div id="footer-pending" class="flex-1 bg-lcars-sky flex items-center px-3 text-sm font-medium text-lcars-bg">0 PENDING</div>
-                <div id="footer-update" class="flex-[2] bg-lcars-orange flex items-center px-3 text-sm font-medium text-lcars-bg">Last Update: --:--:--</div>
-                <div id="footer-version" class="flex-1 bg-lcars-peach flex items-center px-3 text-sm font-medium text-lcars-bg rounded-bl-lcars">v7.0</div>
+                <div id="footer-status" class="flex-1 bg-lcars-purple flex items-center px-3 text-[11px] font-medium text-lcars-bg rounded-tl-lcars">ONLINE</div>
+                <div id="footer-active" class="flex-1 bg-lcars-blue flex items-center px-3 text-[11px] font-medium text-lcars-bg">0 ACTIVE</div>
+                <div id="footer-pending" class="flex-1 bg-lcars-sky flex items-center px-3 text-[11px] font-medium text-lcars-bg">0 PENDING</div>
+                <div id="footer-update" class="flex-[2] bg-lcars-orange flex items-center px-3 text-[11px] font-medium text-lcars-bg">Last Update: --:--:--</div>
+                <div id="footer-version" class="flex-1 bg-lcars-peach flex items-center px-3 text-[11px] font-medium text-lcars-bg rounded-bl-lcars">v7.0</div>
             </div>
         </footer>
     </div>
 
     <!-- Connection Status -->
-    <div id="connection-status" class="fixed bottom-[60px] right-5 px-2.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider z-[100] flex items-center gap-1.5 backdrop-blur-xl bg-black/80 border border-status-alert text-status-alert">
+    <div id="connection-status" class="fixed bottom-[60px] right-5 px-2.5 py-1.5 rounded-xl text-[9px] font-bold uppercase tracking-wider z-[100] flex items-center gap-1.5 backdrop-blur-xl bg-black/80 border border-status-alert text-status-alert">
         <div id="connection-dot" class="w-1.5 h-1.5 rounded-full bg-status-alert"></div>
         <span id="connection-text">DISCONNECTED</span>
     </div>
 
     <!-- Keyboard Shortcuts -->
-    <div class="shortcuts-hint fixed bottom-[60px] left-[180px] px-3 py-1.5 bg-black/80 border border-lcars-tan rounded-lg text-xs text-lcars-gold z-[100] flex gap-3 backdrop-blur-xl">
+    <div class="shortcuts-hint fixed bottom-[60px] left-[180px] px-3 py-1.5 bg-black/80 border border-lcars-tan rounded-lg text-[9px] text-lcars-gold z-[100] flex gap-3 backdrop-blur-xl">
         <div class="flex items-center gap-1"><kbd class="bg-lcars-tan text-black px-1 rounded-sm font-bold">N</kbd> New Task</div>
         <div class="flex items-center gap-1"><kbd class="bg-lcars-tan text-black px-1 rounded-sm font-bold">M</kbd> Messages</div>
         <div class="flex items-center gap-1"><kbd class="bg-lcars-tan text-black px-1 rounded-sm font-bold">T</kbd> Scanlines</div>
@@ -464,7 +449,7 @@
     <div id="task-modal-overlay" class="fixed inset-0 bg-black/80 z-[1001] hidden items-center justify-center backdrop-blur-sm">
         <div class="task-modal w-[90%] max-w-[600px] max-h-[80vh] bg-lcars-panel border-2 border-lcars-orange rounded-lcars flex flex-col overflow-hidden">
             <div class="flex items-stretch h-[45px]">
-                <div class="w-[70px] bg-lcars-orange flex items-center justify-center text-xs font-bold text-black">TASK</div>
+                <div class="w-[70px] bg-lcars-orange flex items-center justify-center text-[10px] font-bold text-black">TASK</div>
                 <div class="flex-1 flex items-center justify-between px-4 bg-black/50">
                     <div id="modal-task-title" class="text-base font-bold text-lcars-gold">Task Title</div>
                     <div class="flex items-center gap-2">
@@ -476,31 +461,31 @@
             <div class="flex-1 overflow-y-auto p-4">
                 <div id="modal-task-meta" class="grid grid-cols-3 gap-3 mb-4 p-3 bg-black/30 rounded-lg"></div>
                 <div class="mb-4">
-                    <div class="text-xs font-bold uppercase tracking-wider text-lcars-tan mb-1">Description</div>
+                    <div class="text-[9px] font-bold uppercase tracking-wider text-lcars-tan mb-1">Description</div>
                     <div id="modal-task-desc" class="text-sm text-lcars-gold leading-relaxed">Task description...</div>
                 </div>
                 
                 <!-- Tabs -->
                 <div class="flex border-b border-white/10 mb-3">
-                    <button class="task-modal-tab active flex-1 py-2 px-3 bg-transparent border-none text-lcars-orange font-bold text-sm uppercase tracking-wider cursor-pointer relative" data-tab="comments" onclick="switchTaskTab('comments')">
-                        Comments <span id="comments-count" class="inline-flex items-center justify-center min-w-[16px] h-4 px-1 bg-lcars-orange text-black rounded-lg text-xs ml-1">0</span>
+                    <button class="task-modal-tab active flex-1 py-2 px-3 bg-transparent border-none text-lcars-orange font-bold text-[11px] uppercase tracking-wider cursor-pointer relative" data-tab="comments" onclick="switchTaskTab('comments')">
+                        Comments <span id="comments-count" class="inline-flex items-center justify-center min-w-[16px] h-4 px-1 bg-lcars-orange text-black rounded-lg text-[9px] ml-1">0</span>
                     </button>
-                    <button class="task-modal-tab flex-1 py-2 px-3 bg-transparent border-none text-lcars-tan font-bold text-sm uppercase tracking-wider cursor-pointer relative hover:text-lcars-orange" data-tab="activity" onclick="switchTaskTab('activity')">
-                        Activity <span id="activity-count" class="inline-flex items-center justify-center min-w-[16px] h-4 px-1 bg-lcars-violet text-black rounded-lg text-xs ml-1">0</span>
+                    <button class="task-modal-tab flex-1 py-2 px-3 bg-transparent border-none text-lcars-tan font-bold text-[11px] uppercase tracking-wider cursor-pointer relative hover:text-lcars-orange" data-tab="activity" onclick="switchTaskTab('activity')">
+                        Activity <span id="activity-count" class="inline-flex items-center justify-center min-w-[16px] h-4 px-1 bg-lcars-violet text-black rounded-lg text-[9px] ml-1">0</span>
                     </button>
                 </div>
                 
                 <div id="tab-comments" class="task-tab-content">
                     <div id="modal-task-comments" class="border-t border-white/10 pt-3"></div>
                     <div class="flex gap-2 mt-3">
-                        <textarea id="comment-input" placeholder="Add a comment..." rows="2" class="flex-1 bg-black/40 border border-lcars-tan rounded-md p-2 text-lcars-gold font-lcars text-sm resize-none focus:outline-none focus:border-lcars-orange"></textarea>
-                        <button onclick="addComment()" class="px-4 py-2 bg-lcars-orange border-none rounded-md text-black font-bold text-sm uppercase cursor-pointer hover:brightness-125 transition-all">Send</button>
+                        <textarea id="comment-input" placeholder="Add a comment..." rows="2" class="flex-1 bg-black/40 border border-lcars-tan rounded-md p-2 text-lcars-gold font-lcars text-[11px] resize-none focus:outline-none focus:border-lcars-orange"></textarea>
+                        <button onclick="addComment()" class="px-4 py-2 bg-lcars-orange border-none rounded-md text-black font-bold text-[11px] uppercase cursor-pointer hover:brightness-125 transition-all">Send</button>
                     </div>
                 </div>
                 
                 <div id="tab-activity" class="task-tab-content hidden">
                     <div id="activity-log-list" class="max-h-[200px] overflow-y-auto">
-                        <div class="text-center text-lcars-violet text-sm py-5">No activity logged yet</div>
+                        <div class="text-center text-lcars-violet text-[11px] py-5">No activity logged yet</div>
                     </div>
                 </div>
             </div>
@@ -511,7 +496,7 @@
     <div id="add-task-modal-overlay" class="fixed inset-0 bg-black/80 z-[1001] hidden items-center justify-center backdrop-blur-sm">
         <div class="task-modal w-[90%] max-w-[600px] max-h-[80vh] bg-lcars-panel border-2 border-lcars-green rounded-lcars flex flex-col overflow-hidden">
             <div class="flex items-stretch h-[45px]">
-                <div class="w-[70px] bg-lcars-green flex items-center justify-center text-xs font-bold text-black">NEW</div>
+                <div class="w-[70px] bg-lcars-green flex items-center justify-center text-[10px] font-bold text-black">NEW</div>
                 <div class="flex-1 flex items-center justify-between px-4 bg-black/50">
                     <div class="text-base font-bold text-lcars-green">Create New Task</div>
                     <button onclick="closeAddTaskModal()" class="bg-transparent border-none text-lcars-green text-2xl cursor-pointer px-2 hover:text-lcars-gold">×</button>
@@ -520,17 +505,17 @@
             <div class="flex-1 overflow-y-auto p-4">
                 <form id="add-task-form" onsubmit="submitNewTask(event)">
                     <div class="mb-4">
-                        <div class="text-xs font-bold uppercase tracking-wider text-lcars-tan mb-1">Title *</div>
-                        <input type="text" id="new-task-title" placeholder="Task title..." required class="w-full mt-1 bg-black/40 border border-lcars-tan rounded-md p-2 text-lcars-gold font-lcars text-sm focus:outline-none focus:border-lcars-orange">
+                        <div class="text-[9px] font-bold uppercase tracking-wider text-lcars-tan mb-1">Title *</div>
+                        <input type="text" id="new-task-title" placeholder="Task title..." required class="w-full mt-1 bg-black/40 border border-lcars-tan rounded-md p-2 text-lcars-gold font-lcars text-[11px] focus:outline-none focus:border-lcars-orange">
                     </div>
                     <div class="mb-4">
-                        <div class="text-xs font-bold uppercase tracking-wider text-lcars-tan mb-1">Description</div>
-                        <textarea id="new-task-desc" placeholder="Task description..." rows="3" class="w-full mt-1 bg-black/40 border border-lcars-tan rounded-md p-2 text-lcars-gold font-lcars text-sm resize-none focus:outline-none focus:border-lcars-orange"></textarea>
+                        <div class="text-[9px] font-bold uppercase tracking-wider text-lcars-tan mb-1">Description</div>
+                        <textarea id="new-task-desc" placeholder="Task description..." rows="3" class="w-full mt-1 bg-black/40 border border-lcars-tan rounded-md p-2 text-lcars-gold font-lcars text-[11px] resize-none focus:outline-none focus:border-lcars-orange"></textarea>
                     </div>
                     <div class="grid grid-cols-3 gap-3 mb-4 p-3 bg-black/30 rounded-lg">
                         <div class="text-center">
-                            <div class="text-xs font-bold uppercase tracking-wider text-lcars-tan mb-1">Assignee</div>
-                            <select id="new-task-assignee" class="w-full p-1.5 mt-1 bg-black/40 border border-lcars-tan rounded-md text-lcars-gold font-lcars text-sm focus:outline-none focus:border-lcars-orange">
+                            <div class="text-[9px] font-bold uppercase tracking-wider text-lcars-tan mb-1">Assignee</div>
+                            <select id="new-task-assignee" class="w-full p-1.5 mt-1 bg-black/40 border border-lcars-tan rounded-md text-lcars-gold font-lcars text-[11px] focus:outline-none focus:border-lcars-orange">
                                 <option value="">Unassigned</option>
                                 <option value="seven">Seven of Nine</option>
                                 <option value="geordi">Geordi La Forge</option>
@@ -540,16 +525,16 @@
                             </select>
                         </div>
                         <div class="text-center">
-                            <div class="text-xs font-bold uppercase tracking-wider text-lcars-tan mb-1">Priority</div>
-                            <select id="new-task-priority" class="w-full p-1.5 mt-1 bg-black/40 border border-lcars-tan rounded-md text-lcars-gold font-lcars text-sm focus:outline-none focus:border-lcars-orange">
+                            <div class="text-[9px] font-bold uppercase tracking-wider text-lcars-tan mb-1">Priority</div>
+                            <select id="new-task-priority" class="w-full p-1.5 mt-1 bg-black/40 border border-lcars-tan rounded-md text-lcars-gold font-lcars text-[11px] focus:outline-none focus:border-lcars-orange">
                                 <option value="low">Low</option>
                                 <option value="medium" selected>Medium</option>
                                 <option value="high">High</option>
                             </select>
                         </div>
                         <div class="text-center">
-                            <div class="text-xs font-bold uppercase tracking-wider text-lcars-tan mb-1">Category</div>
-                            <select id="new-task-category" class="w-full p-1.5 mt-1 bg-black/40 border border-lcars-tan rounded-md text-lcars-gold font-lcars text-sm focus:outline-none focus:border-lcars-orange">
+                            <div class="text-[9px] font-bold uppercase tracking-wider text-lcars-tan mb-1">Category</div>
+                            <select id="new-task-category" class="w-full p-1.5 mt-1 bg-black/40 border border-lcars-tan rounded-md text-lcars-gold font-lcars text-[11px] focus:outline-none focus:border-lcars-orange">
                                 <option value="general">General</option>
                                 <option value="engineering">Engineering</option>
                                 <option value="research">Research</option>
@@ -559,8 +544,8 @@
                         </div>
                     </div>
                     <div class="flex gap-2.5 justify-end mt-4">
-                        <button type="button" onclick="closeAddTaskModal()" class="px-4 py-2 bg-lcars-tan border-none rounded-md text-black font-bold text-sm uppercase cursor-pointer hover:brightness-125 transition-all">Cancel</button>
-                        <button type="submit" class="px-4 py-2 bg-lcars-green border-none rounded-md text-black font-bold text-sm uppercase cursor-pointer hover:brightness-125 transition-all">Create Task</button>
+                        <button type="button" onclick="closeAddTaskModal()" class="px-4 py-2 bg-lcars-tan border-none rounded-md text-black font-bold text-[11px] uppercase cursor-pointer hover:brightness-125 transition-all">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-lcars-green border-none rounded-md text-black font-bold text-[11px] uppercase cursor-pointer hover:brightness-125 transition-all">Create Task</button>
                     </div>
                 </form>
             </div>
@@ -571,32 +556,32 @@
     <div id="messages-modal" class="fixed inset-0 bg-black/85 z-[2000] hidden justify-center items-center">
         <div class="bg-[#0a0a12] border-[3px] border-lcars-violet rounded-lcars w-[90%] max-w-[800px] max-h-[80vh] flex flex-col overflow-hidden">
             <div class="flex items-stretch bg-lcars-violet text-black">
-                <div class="w-[70px] rounded-br-lcars flex items-center justify-center font-bold text-sm">COMMS</div>
+                <div class="w-[70px] rounded-br-lcars flex items-center justify-center font-bold text-[11px]">COMMS</div>
                 <div class="flex-1 px-4 py-3 text-lg font-bold tracking-widest">CREW MESSAGES</div>
                 <div onclick="closeMessagesModal()" class="w-12 bg-lcars-red flex items-center justify-center cursor-pointer text-lg font-bold rounded-bl-lcars hover:bg-red-400 transition-colors">✕</div>
             </div>
             <div class="flex flex-1 overflow-hidden">
                 <div class="w-[150px] bg-[#0d0d15] border-r-2 border-lcars-violet flex flex-col gap-1 p-2">
-                    <div class="messages-filter active px-3 py-2 bg-lcars-gold text-black font-bold text-xs rounded-lcars cursor-pointer text-center hover:brightness-125 transition-all" data-filter="all" onclick="filterMessages('all')">ALL</div>
-                    <div class="messages-filter px-3 py-2 bg-lcars-gold text-black font-bold text-xs rounded-lcars cursor-pointer text-center hover:brightness-125 transition-all" data-filter="unread" onclick="filterMessages('unread')">UNREAD</div>
+                    <div class="messages-filter active px-3 py-2 bg-lcars-gold text-black font-bold text-[10px] rounded-lcars cursor-pointer text-center hover:brightness-125 transition-all" data-filter="all" onclick="filterMessages('all')">ALL</div>
+                    <div class="messages-filter px-3 py-2 bg-lcars-gold text-black font-bold text-[10px] rounded-lcars cursor-pointer text-center hover:brightness-125 transition-all" data-filter="unread" onclick="filterMessages('unread')">UNREAD</div>
                     <hr class="border-lcars-violet my-2">
-                    <div class="messages-filter px-3 py-2 bg-lcars-gold text-black font-bold text-xs rounded-lcars cursor-pointer text-center hover:brightness-125 transition-all" data-filter="seven" onclick="filterMessages('seven')">SEVEN</div>
-                    <div class="messages-filter px-3 py-2 bg-lcars-gold text-black font-bold text-xs rounded-lcars cursor-pointer text-center hover:brightness-125 transition-all" data-filter="spock" onclick="filterMessages('spock')">SPOCK</div>
-                    <div class="messages-filter px-3 py-2 bg-lcars-gold text-black font-bold text-xs rounded-lcars cursor-pointer text-center hover:brightness-125 transition-all" data-filter="geordi" onclick="filterMessages('geordi')">GEORDI</div>
-                    <div class="messages-filter px-3 py-2 bg-lcars-gold text-black font-bold text-xs rounded-lcars cursor-pointer text-center hover:brightness-125 transition-all" data-filter="uhura" onclick="filterMessages('uhura')">UHURA</div>
-                    <div class="messages-filter px-3 py-2 bg-lcars-gold text-black font-bold text-xs rounded-lcars cursor-pointer text-center hover:brightness-125 transition-all" data-filter="quark" onclick="filterMessages('quark')">QUARK</div>
+                    <div class="messages-filter px-3 py-2 bg-lcars-gold text-black font-bold text-[10px] rounded-lcars cursor-pointer text-center hover:brightness-125 transition-all" data-filter="seven" onclick="filterMessages('seven')">SEVEN</div>
+                    <div class="messages-filter px-3 py-2 bg-lcars-gold text-black font-bold text-[10px] rounded-lcars cursor-pointer text-center hover:brightness-125 transition-all" data-filter="spock" onclick="filterMessages('spock')">SPOCK</div>
+                    <div class="messages-filter px-3 py-2 bg-lcars-gold text-black font-bold text-[10px] rounded-lcars cursor-pointer text-center hover:brightness-125 transition-all" data-filter="geordi" onclick="filterMessages('geordi')">GEORDI</div>
+                    <div class="messages-filter px-3 py-2 bg-lcars-gold text-black font-bold text-[10px] rounded-lcars cursor-pointer text-center hover:brightness-125 transition-all" data-filter="uhura" onclick="filterMessages('uhura')">UHURA</div>
+                    <div class="messages-filter px-3 py-2 bg-lcars-gold text-black font-bold text-[10px] rounded-lcars cursor-pointer text-center hover:brightness-125 transition-all" data-filter="quark" onclick="filterMessages('quark')">QUARK</div>
                 </div>
                 <div id="messages-list" class="flex-1 overflow-y-auto p-3">
                     <div class="text-lcars-tan text-center py-8">Loading messages...</div>
                 </div>
                 <div id="message-detail" class="flex-1 hidden flex-col p-4 border-l-2 border-lcars-violet">
                     <div id="detail-subject" class="text-base font-bold text-lcars-gold mb-1.5">Select a message</div>
-                    <div id="detail-meta" class="text-sm text-lcars-tan"></div>
+                    <div id="detail-meta" class="text-[11px] text-lcars-tan"></div>
                     <div id="detail-content" class="flex-1 p-3 bg-black/30 rounded-lcars my-3 overflow-y-auto leading-relaxed text-xs">Click a message to view details</div>
                     <div id="detail-actions" class="hidden gap-2">
-                        <button onclick="ackMessage()" class="px-4 py-2 bg-lcars-green text-black border-none rounded-lcars font-bold text-sm cursor-pointer hover:brightness-125 transition-all">ACK</button>
-                        <button onclick="createTaskFromMsg()" class="px-4 py-2 bg-lcars-orange text-black border-none rounded-lcars font-bold text-sm cursor-pointer hover:brightness-125 transition-all">TASK</button>
-                        <button onclick="deleteCurrentMsg()" class="px-4 py-2 bg-lcars-red text-black border-none rounded-lcars font-bold text-sm cursor-pointer hover:brightness-125 transition-all">DELETE</button>
+                        <button onclick="ackMessage()" class="px-4 py-2 bg-lcars-green text-black border-none rounded-lcars font-bold text-[11px] cursor-pointer hover:brightness-125 transition-all">ACK</button>
+                        <button onclick="createTaskFromMsg()" class="px-4 py-2 bg-lcars-orange text-black border-none rounded-lcars font-bold text-[11px] cursor-pointer hover:brightness-125 transition-all">TASK</button>
+                        <button onclick="deleteCurrentMsg()" class="px-4 py-2 bg-lcars-red text-black border-none rounded-lcars font-bold text-[11px] cursor-pointer hover:brightness-125 transition-all">DELETE</button>
                     </div>
                 </div>
             </div>
@@ -1048,14 +1033,14 @@
                                 <div class="w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold text-black" style="background: ${agent.color}">${agent.department}</div>
                                 <div class="flex-1 ml-2">
                                     <div class="text-xs font-bold text-lcars-gold">${agent.name}</div>
-                                    <div class="text-xs text-lcars-violet uppercase tracking-wider">${agent.role}</div>
+                                    <div class="text-[9px] text-lcars-violet uppercase tracking-wider">${agent.role}</div>
                                 </div>
-                                <div class="px-1.5 py-0.5 rounded-md text-sm font-bold uppercase ${statusInfo.class}">${statusInfo.label}</div>
+                                <div class="px-1.5 py-0.5 rounded-md text-[8px] font-bold uppercase ${statusInfo.class}">${statusInfo.label}</div>
                             </div>
                             <div class="flex flex-wrap gap-0.5 mb-1.5">
                                 ${platformBadges}
                             </div>
-                            <div class="flex justify-between text-xs text-lcars-sky mt-1.5 pt-1.5 border-t border-white/10">
+                            <div class="flex justify-between text-[10px] text-lcars-sky mt-1.5 pt-1.5 border-t border-white/10">
                                 <span>Tasks: <span class="font-bold text-lcars-gold">${taskCount}</span></span>
                                 ${crewData.efficiency !== undefined ? `<span>Eff: <span class="font-bold text-lcars-gold">${crewData.efficiency}%</span></span>` : ''}
                             </div>
@@ -1067,24 +1052,24 @@
                 if (this.sessionsData && (this.sessionsData.subagents?.length > 0 || this.sessionsData.crons?.length > 0)) {
                     html += `
                         <div class="bg-lcars-orange/10 border border-lcars-orange rounded-lcars-xs p-2.5 mt-2">
-                            <div class="flex justify-between items-center mb-2 text-sm font-bold text-lcars-orange">
+                            <div class="flex justify-between items-center mb-2 text-[11px] font-bold text-lcars-orange">
                                 <span>◈ ACTIVE SESSIONS</span>
                                 <span>${this.sessionsData.activeSubagents} agents, ${this.sessionsData.runningCrons} crons</span>
                             </div>
                             ${this.sessionsData.subagents.slice(0, 5).map(s => `
-                                <div class="flex items-center gap-2 py-1.5 text-xs border-b border-white/5 last:border-0">
+                                <div class="flex items-center gap-2 py-1.5 text-[10px] border-b border-white/5 last:border-0">
                                     <div class="w-1.5 h-1.5 rounded-full bg-status-active animate-pulse"></div>
                                     <span class="flex-1 text-lcars-gold truncate font-mono">${s.label || 'agent'}</span>
-                                    <span class="text-lcars-violet text-xs">${s.age || '--'}</span>
-                                    <span class="text-lcars-sky text-sm px-1 py-0.5 bg-lcars-sky/20 rounded">AGENT</span>
+                                    <span class="text-lcars-violet text-[9px]">${s.age || '--'}</span>
+                                    <span class="text-lcars-sky text-[8px] px-1 py-0.5 bg-lcars-sky/20 rounded">AGENT</span>
                                 </div>
                             `).join('')}
                             ${this.sessionsData.crons.slice(0, 5).map(s => `
-                                <div class="flex items-center gap-2 py-1.5 text-xs border-b border-white/5 last:border-0">
+                                <div class="flex items-center gap-2 py-1.5 text-[10px] border-b border-white/5 last:border-0">
                                     <div class="w-1.5 h-1.5 rounded-full bg-status-warning animate-pulse"></div>
                                     <span class="flex-1 text-lcars-gold truncate font-mono">${s.label || 'cron'}</span>
-                                    <span class="text-lcars-violet text-xs">${s.age || '--'}</span>
-                                    <span class="text-lcars-peach text-sm px-1 py-0.5 bg-lcars-peach/20 rounded">CRON</span>
+                                    <span class="text-lcars-violet text-[9px]">${s.age || '--'}</span>
+                                    <span class="text-lcars-peach text-[8px] px-1 py-0.5 bg-lcars-peach/20 rounded">CRON</span>
                                 </div>
                             `).join('')}
                         </div>
@@ -1120,12 +1105,12 @@
                              ondragover="event.preventDefault()" 
                              ondrop="cc.dropTask(event, '${status}')">
                             <div class="px-2.5 py-2 flex items-center justify-between border-b-2 border-lcars-tan">
-                                <span class="text-xs font-bold uppercase tracking-wider ${columnColors[status]}">${this.columnLabels[status] || status}</span>
-                                <span class="bg-lcars-tan text-black px-1.5 py-0.5 rounded-lg text-xs font-bold">${columnTasks.length}</span>
+                                <span class="text-[10px] font-bold uppercase tracking-wider ${columnColors[status]}">${this.columnLabels[status] || status}</span>
+                                <span class="bg-lcars-tan text-black px-1.5 py-0.5 rounded-lg text-[10px] font-bold">${columnTasks.length}</span>
                             </div>
                             <div class="flex-1 overflow-y-auto p-1.5">
                                 ${columnTasks.map(t => this.renderTaskCard(t, agents)).join('')}
-                                ${status === 'inbox' ? '<button class="w-full p-1.5 bg-lcars-orange/10 border border-dashed border-lcars-tan rounded-md text-lcars-tan font-lcars text-xs cursor-pointer transition-all hover:bg-lcars-orange/20 hover:border-lcars-orange hover:text-lcars-orange" onclick="showAddTask()">+ Add</button>' : ''}
+                                ${status === 'inbox' ? '<button class="w-full p-1.5 bg-lcars-orange/10 border border-dashed border-lcars-tan rounded-md text-lcars-tan font-lcars text-[10px] cursor-pointer transition-all hover:bg-lcars-orange/20 hover:border-lcars-orange hover:text-lcars-orange" onclick="showAddTask()">+ Add</button>' : ''}
                             </div>
                         </div>
                     `;
@@ -1148,16 +1133,16 @@
                          ondragstart="cc.dragTask(event, '${task.id}')"
                          onclick="cc.openTask('${task.id}')">
                         <div class="absolute top-0 left-0 w-[3px] h-full rounded-l-lg ${priorityColors[task.priority] || priorityColors.medium}"></div>
-                        <div class="text-sm font-semibold text-lcars-gold mb-1 pl-1.5">${this.escapeHtml(task.title)}</div>
-                        <div class="text-xs text-lcars-violet mb-1.5 pl-1.5 line-clamp-2">${this.escapeHtml(task.description || '')}</div>
+                        <div class="text-[11px] font-semibold text-lcars-gold mb-1 pl-1.5">${this.escapeHtml(task.title)}</div>
+                        <div class="text-[9px] text-lcars-violet mb-1.5 pl-1.5 line-clamp-2">${this.escapeHtml(task.description || '')}</div>
                         <div class="flex items-center justify-between pl-1.5">
                             ${agent ? `
                                 <div class="flex items-center gap-1">
-                                    <div class="w-4 h-4 rounded-sm flex items-center justify-center text-sm font-bold text-black" style="background: ${agent.color}">${agent.department}</div>
-                                    <span class="text-xs text-lcars-sky">${agent.name.split(' ')[0]}</span>
+                                    <div class="w-4 h-4 rounded-sm flex items-center justify-center text-[8px] font-bold text-black" style="background: ${agent.color}">${agent.department}</div>
+                                    <span class="text-[9px] text-lcars-sky">${agent.name.split(' ')[0]}</span>
                                 </div>
                             ` : '<span></span>'}
-                            <span class="px-1.5 py-0.5 rounded-sm text-xs font-bold uppercase bg-lcars-blue/20 text-lcars-blue">${task.category || 'general'}</span>
+                            <span class="px-1.5 py-0.5 rounded-sm text-[7px] font-bold uppercase bg-lcars-blue/20 text-lcars-blue">${task.category || 'general'}</span>
                         </div>
                     </div>
                 `;
@@ -1242,11 +1227,11 @@
                 if (countEl) countEl.textContent = `${active}/${systemTasks.length} ACTIVE`;
 
                 container.innerHTML = systemTasks.map(t => `
-                    <div class="flex items-center gap-2 py-1.5 border-b border-white/5 last:border-0 text-xs">
+                    <div class="flex items-center gap-2 py-1.5 border-b border-white/5 last:border-0 text-[10px]">
                         <div class="w-1.5 h-1.5 rounded-full ${t.statusColor}"></div>
                         <span class="flex-1 text-lcars-white truncate" title="${t.name}">${t.name}</span>
-                        <span class="text-sm text-lcars-sky">${t.nextRun}</span>
-                        <span class="text-lcars-teal text-xs uppercase">${t.agent}</span>
+                        <span class="text-[8px] text-lcars-sky">${t.nextRun}</span>
+                        <span class="text-lcars-teal text-[9px] uppercase">${t.agent}</span>
                     </div>
                 `).join('');
             }
@@ -1299,16 +1284,16 @@
                     if (hasDetails) {
                         const detailsContent = [];
                         if (item.toolName) {
-                            detailsContent.push(`<div class="mb-2"><span class="text-lcars-teal text-xs font-bold">TOOL:</span> <span class="text-lcars-gold font-mono">${this.escapeHtml(item.toolName)}</span></div>`);
+                            detailsContent.push(`<div class="mb-2"><span class="text-lcars-teal text-[9px] font-bold">TOOL:</span> <span class="text-lcars-gold font-mono">${this.escapeHtml(item.toolName)}</span></div>`);
                         }
                         if (item.toolArgs) {
                             const argsStr = typeof item.toolArgs === 'object' ? JSON.stringify(item.toolArgs, null, 2) : item.toolArgs;
-                            detailsContent.push(`<div class="mb-2"><span class="text-lcars-teal text-xs font-bold">ARGS:</span><pre class="text-lcars-sky text-xs font-mono mt-1 whitespace-pre-wrap break-all bg-black/30 p-2 rounded max-h-[100px] overflow-y-auto">${this.escapeHtml(argsStr)}</pre></div>`);
+                            detailsContent.push(`<div class="mb-2"><span class="text-lcars-teal text-[9px] font-bold">ARGS:</span><pre class="text-lcars-sky text-[9px] font-mono mt-1 whitespace-pre-wrap break-all bg-black/30 p-2 rounded max-h-[100px] overflow-y-auto">${this.escapeHtml(argsStr)}</pre></div>`);
                         }
                         if (item.result) {
                             const resultStr = typeof item.result === 'object' ? JSON.stringify(item.result, null, 2) : String(item.result);
                             const truncated = resultStr.length > 300 ? resultStr.substring(0, 300) + '...' : resultStr;
-                            detailsContent.push(`<div><span class="text-lcars-teal text-xs font-bold">RESULT:</span><pre class="text-lcars-green text-xs font-mono mt-1 whitespace-pre-wrap break-all bg-black/30 p-2 rounded max-h-[80px] overflow-y-auto">${this.escapeHtml(truncated)}</pre></div>`);
+                            detailsContent.push(`<div><span class="text-lcars-teal text-[9px] font-bold">RESULT:</span><pre class="text-lcars-green text-[9px] font-mono mt-1 whitespace-pre-wrap break-all bg-black/30 p-2 rounded max-h-[80px] overflow-y-auto">${this.escapeHtml(truncated)}</pre></div>`);
                         }
                         detailsHtml = `<div class="activity-details">${detailsContent.join('')}</div>`;
                     }
@@ -1319,18 +1304,18 @@
                              data-feed-id="${feedId}"
                              onclick="${hasDetails ? `cc.toggleFeedDetails('${feedId}')` : ''}">
                             <div class="flex gap-2">
-                                <div class="w-7 h-7 rounded-md flex items-center justify-center text-xs font-bold text-black flex-shrink-0" style="background: ${agent.color}">${agent.department}</div>
+                                <div class="w-7 h-7 rounded-md flex items-center justify-center text-[10px] font-bold text-black flex-shrink-0" style="background: ${agent.color}">${agent.department}</div>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center justify-between mb-0.5">
-                                        <span class="text-xs font-bold text-lcars-gold">${agent.name}</span>
+                                        <span class="text-[10px] font-bold text-lcars-gold">${agent.name}</span>
                                         <div class="flex items-center gap-2">
-                                            <span class="text-sm text-lcars-violet">${this.formatTimeAgo(item.timestamp)}</span>
+                                            <span class="text-[8px] text-lcars-violet">${this.formatTimeAgo(item.timestamp)}</span>
                                             ${hasDetails ? '<span class="activity-expand-icon text-lcars-orange">▶</span>' : ''}
                                         </div>
                                     </div>
-                                    <div class="text-xs text-lcars-sky">
+                                    <div class="text-[10px] text-lcars-sky">
                                         ${actionText}
-                                        ${hasDetails ? '<span class="text-sm text-lcars-tan ml-1">[details]</span>' : ''}
+                                        ${hasDetails ? '<span class="text-[8px] text-lcars-tan ml-1">[details]</span>' : ''}
                                     </div>
                                 </div>
                             </div>
@@ -1393,15 +1378,15 @@
                 
                 document.getElementById('modal-task-meta').innerHTML = `
                     <div class="text-center">
-                        <div class="text-xs font-bold uppercase tracking-wider text-lcars-tan mb-1">Status</div>
+                        <div class="text-[9px] font-bold uppercase tracking-wider text-lcars-tan mb-1">Status</div>
                         <div class="text-sm text-lcars-gold">${this.columnLabels[task.status] || task.status}</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-xs font-bold uppercase tracking-wider text-lcars-tan mb-1">Assignee</div>
+                        <div class="text-[9px] font-bold uppercase tracking-wider text-lcars-tan mb-1">Assignee</div>
                         <div class="text-sm text-lcars-gold">${assignee?.name || 'Unassigned'}</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-xs font-bold uppercase tracking-wider text-lcars-tan mb-1">Priority</div>
+                        <div class="text-[9px] font-bold uppercase tracking-wider text-lcars-tan mb-1">Priority</div>
                         <div class="text-sm font-bold ${priorityColors[task.priority] || priorityColors.medium}">${(task.priority || 'medium').toUpperCase()}</div>
                     </div>
                 `;
@@ -1411,19 +1396,19 @@
                     const author = agents[c.author] || { name: c.author, color: '#666', department: '?' };
                     return `
                         <div class="flex gap-2 p-2 bg-black/30 rounded-lg mb-2">
-                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold text-black flex-shrink-0" style="background: ${author.color}">${author.department}</div>
+                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold text-black flex-shrink-0" style="background: ${author.color}">${author.department}</div>
                             <div class="flex-1">
                                 <div class="flex justify-between mb-0.5">
-                                    <span class="text-xs font-bold text-lcars-gold">${author.name}</span>
-                                    <span class="text-sm text-lcars-violet">${this.formatTimeAgo(c.timestamp)}</span>
+                                    <span class="text-[10px] font-bold text-lcars-gold">${author.name}</span>
+                                    <span class="text-[8px] text-lcars-violet">${this.formatTimeAgo(c.timestamp)}</span>
                                 </div>
-                                <div class="text-sm text-lcars-sky">${this.escapeHtml(c.text)}</div>
+                                <div class="text-[11px] text-lcars-sky">${this.escapeHtml(c.text)}</div>
                             </div>
                         </div>
                     `;
                 }).join('');
                 
-                document.getElementById('modal-task-comments').innerHTML = comments || '<div class="text-lcars-violet text-sm py-2.5">No comments yet</div>';
+                document.getElementById('modal-task-comments').innerHTML = comments || '<div class="text-lcars-violet text-[11px] py-2.5">No comments yet</div>';
                 document.getElementById('comments-count').textContent = (task.comments || []).length;
                 
                 // Activity log
@@ -1432,7 +1417,7 @@
                 // Show activity count in header if there are logs
                 const logCount = (task.logs || []).length;
                 if (logCount > 0) {
-                    document.getElementById('modal-task-title').innerHTML = `${this.escapeHtml(task.title)} <span class="text-xs text-lcars-gold ml-2">(${logCount} activity entries)</span>`;
+                    document.getElementById('modal-task-title').innerHTML = `${this.escapeHtml(task.title)} <span class="text-[10px] text-lcars-gold ml-2">(${logCount} activity entries)</span>`;
                 }
                 
                 switchTaskTab('activity'); // Show activity by default
@@ -1449,7 +1434,7 @@
                 document.getElementById('activity-count').textContent = logs.length;
                 
                 if (logs.length === 0) {
-                    container.innerHTML = '<div class="text-center text-lcars-violet text-sm py-5">No activity logged yet</div>';
+                    container.innerHTML = '<div class="text-center text-lcars-violet text-[11px] py-5">No activity logged yet</div>';
                     return;
                 }
                 
@@ -1465,23 +1450,23 @@
                     if (hasDetails) {
                         const detailsContent = [];
                         if (log.toolName) {
-                            detailsContent.push(`<div class="mb-2"><span class="text-lcars-teal text-xs font-bold">TOOL:</span> <span class="text-lcars-gold font-mono">${this.escapeHtml(log.toolName)}</span></div>`);
+                            detailsContent.push(`<div class="mb-2"><span class="text-lcars-teal text-[9px] font-bold">TOOL:</span> <span class="text-lcars-gold font-mono">${this.escapeHtml(log.toolName)}</span></div>`);
                         }
                         if (log.toolArgs) {
                             const argsStr = typeof log.toolArgs === 'object' ? JSON.stringify(log.toolArgs, null, 2) : log.toolArgs;
-                            detailsContent.push(`<div class="mb-2"><span class="text-lcars-teal text-xs font-bold">ARGS:</span><pre class="text-lcars-sky text-xs font-mono mt-1 whitespace-pre-wrap break-all bg-black/30 p-2 rounded max-h-[150px] overflow-y-auto">${this.escapeHtml(argsStr)}</pre></div>`);
+                            detailsContent.push(`<div class="mb-2"><span class="text-lcars-teal text-[9px] font-bold">ARGS:</span><pre class="text-lcars-sky text-[9px] font-mono mt-1 whitespace-pre-wrap break-all bg-black/30 p-2 rounded max-h-[150px] overflow-y-auto">${this.escapeHtml(argsStr)}</pre></div>`);
                         }
                         if (log.payload) {
                             const payloadStr = typeof log.payload === 'object' ? JSON.stringify(log.payload, null, 2) : log.payload;
-                            detailsContent.push(`<div class="mb-2"><span class="text-lcars-teal text-xs font-bold">PAYLOAD:</span><pre class="text-lcars-sky text-xs font-mono mt-1 whitespace-pre-wrap break-all bg-black/30 p-2 rounded max-h-[150px] overflow-y-auto">${this.escapeHtml(payloadStr)}</pre></div>`);
+                            detailsContent.push(`<div class="mb-2"><span class="text-lcars-teal text-[9px] font-bold">PAYLOAD:</span><pre class="text-lcars-sky text-[9px] font-mono mt-1 whitespace-pre-wrap break-all bg-black/30 p-2 rounded max-h-[150px] overflow-y-auto">${this.escapeHtml(payloadStr)}</pre></div>`);
                         }
                         if (log.result) {
                             const resultStr = typeof log.result === 'object' ? JSON.stringify(log.result, null, 2) : String(log.result);
                             const truncated = resultStr.length > 500 ? resultStr.substring(0, 500) + '...' : resultStr;
-                            detailsContent.push(`<div class="mb-2"><span class="text-lcars-teal text-xs font-bold">RESULT:</span><pre class="text-lcars-green text-xs font-mono mt-1 whitespace-pre-wrap break-all bg-black/30 p-2 rounded max-h-[100px] overflow-y-auto">${this.escapeHtml(truncated)}</pre></div>`);
+                            detailsContent.push(`<div class="mb-2"><span class="text-lcars-teal text-[9px] font-bold">RESULT:</span><pre class="text-lcars-green text-[9px] font-mono mt-1 whitespace-pre-wrap break-all bg-black/30 p-2 rounded max-h-[100px] overflow-y-auto">${this.escapeHtml(truncated)}</pre></div>`);
                         }
                         if (log.details && typeof log.details === 'object') {
-                            detailsContent.push(`<div><span class="text-lcars-teal text-xs font-bold">DETAILS:</span><pre class="text-lcars-gold text-xs font-mono mt-1 whitespace-pre-wrap break-all bg-black/30 p-2 rounded max-h-[150px] overflow-y-auto">${this.escapeHtml(JSON.stringify(log.details, null, 2))}</pre></div>`);
+                            detailsContent.push(`<div><span class="text-lcars-teal text-[9px] font-bold">DETAILS:</span><pre class="text-lcars-gold text-[9px] font-mono mt-1 whitespace-pre-wrap break-all bg-black/30 p-2 rounded max-h-[150px] overflow-y-auto">${this.escapeHtml(JSON.stringify(log.details, null, 2))}</pre></div>`);
                         }
                         detailsHtml = `<div class="activity-details">${detailsContent.join('')}</div>`;
                     }
@@ -1491,19 +1476,19 @@
                              data-log-id="${logId}" 
                              onclick="${hasDetails ? `cc.toggleActivityDetails('${logId}')` : ''}">
                             <div class="flex gap-2">
-                                <div class="w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold text-black flex-shrink-0" style="background: ${agent.color}">${agent.department}</div>
+                                <div class="w-6 h-6 rounded-md flex items-center justify-center text-[9px] font-bold text-black flex-shrink-0" style="background: ${agent.color}">${agent.department}</div>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex justify-between items-center mb-0.5">
-                                        <span class="text-xs font-bold text-lcars-gold">${agent.name}</span>
+                                        <span class="text-[10px] font-bold text-lcars-gold">${agent.name}</span>
                                         <div class="flex items-center gap-2">
-                                            <span class="text-sm text-lcars-violet">${this.formatTimeAgo(log.timestamp)}</span>
+                                            <span class="text-[8px] text-lcars-violet">${this.formatTimeAgo(log.timestamp)}</span>
                                             ${hasDetails ? '<span class="activity-expand-icon text-lcars-orange">▶</span>' : ''}
                                         </div>
                                     </div>
-                                    <div class="text-sm text-lcars-sky">
-                                        <span class="activity-log-type inline-block px-1.5 py-0.5 rounded-sm text-sm font-bold uppercase mr-1.5 ${log.type || 'update'}">${log.type || 'update'}</span>
+                                    <div class="text-[11px] text-lcars-sky">
+                                        <span class="activity-log-type inline-block px-1.5 py-0.5 rounded-sm text-[8px] font-bold uppercase mr-1.5 ${log.type || 'update'}">${log.type || 'update'}</span>
                                         ${this.escapeHtml(log.message)}
-                                        ${hasDetails ? '<span class="text-sm text-lcars-tan ml-1">[details]</span>' : ''}
+                                        ${hasDetails ? '<span class="text-[8px] text-lcars-tan ml-1">[details]</span>' : ''}
                                     </div>
                                 </div>
                             </div>
@@ -1661,151 +1646,6 @@
         }
 
         // ═══════════════════════════════════════════════════════════════
-        // META-LEARNING / LESSONS LEARNED
-        // ═══════════════════════════════════════════════════════════════
-
-        window.lessonsExpanded = false;
-        window.lessonsData = null;
-
-        function toggleLessons() {
-            window.lessonsExpanded = !window.lessonsExpanded;
-            const content = document.getElementById('lessons-content');
-            const toggle = document.getElementById('lessons-toggle');
-            
-            if (window.lessonsExpanded) {
-                content.classList.remove('hidden');
-                toggle.textContent = '▲';
-                fetchLessons();
-            } else {
-                content.classList.add('hidden');
-                toggle.textContent = '▼';
-            }
-        }
-
-        async function fetchLessons() {
-            try {
-                const res = await fetch('/api/meta-learning');
-                const data = await res.json();
-                window.lessonsData = data;
-                renderLessons(data);
-            } catch (err) {
-                console.error('Failed to fetch lessons:', err);
-                document.getElementById('lessons-list').innerHTML = '<div class="text-xs text-lcars-tan">Failed to load lessons</div>';
-            }
-        }
-
-        function renderLessons(data) {
-            const container = document.getElementById('lessons-list');
-            if (!data || !data.lessons || data.lessons.length === 0) {
-                container.innerHTML = '<div class="text-xs text-lcars-tan opacity-60">No lessons learned yet. Run analysis to gather insights.</div>';
-                return;
-            }
-            
-            // Group lessons by severity
-            const severityIcons = {
-                critical: '🔴',
-                warning: '⚠️',
-                success: '✅',
-                info: 'ℹ️'
-            };
-            
-            const severityColors = {
-                critical: 'text-red-400',
-                warning: 'text-yellow-400',
-                success: 'text-green-400',
-                info: 'text-lcars-sky'
-            };
-            
-            let html = '';
-            
-            // Stats summary
-            if (data.statistics) {
-                html += `<div class="text-xs text-lcars-tan mb-2 opacity-70">
-                    📊 ${data.statistics.totalErrors || 0} errors tracked · ${data.statistics.totalRecoveries || 0} recoveries
-                </div>`;
-            }
-            
-            // Top errors
-            if (data.topErrors && data.topErrors.length > 0) {
-                html += '<div class="text-xs mb-2"><span class="text-lcars-violet font-bold">Top Issues:</span></div>';
-                for (const err of data.topErrors.slice(0, 3)) {
-                    html += `<div class="text-xs text-lcars-tan pl-2">• ${err.type}: ${err.count}x</div>`;
-                }
-            }
-            
-            // Agent reliability (top 5)
-            if (data.agentReliability && data.agentReliability.length > 0) {
-                html += '<div class="text-xs mt-2 mb-1"><span class="text-lcars-violet font-bold">Agent Reliability:</span></div>';
-                const sorted = [...data.agentReliability].sort((a, b) => b.reliability - a.reliability).slice(0, 5);
-                for (const agent of sorted) {
-                    const pct = (agent.reliability * 100).toFixed(0);
-                    const color = agent.reliability >= 0.8 ? 'text-green-400' : agent.reliability >= 0.5 ? 'text-yellow-400' : 'text-red-400';
-                    const icon = agent.reliability >= 0.8 ? '✅' : agent.reliability >= 0.5 ? '⚠️' : '🔴';
-                    html += `<div class="text-xs pl-2"><span class="${color}">${icon} ${agent.agent}</span>: ${pct}% (${agent.tasks} tasks)</div>`;
-                }
-            }
-            
-            // Lessons
-            if (data.lessons && data.lessons.length > 0) {
-                html += '<div class="text-xs mt-2 mb-1"><span class="text-lcars-violet font-bold">Key Insights:</span></div>';
-                for (const lesson of data.lessons.slice(0, 5)) {
-                    const icon = severityIcons[lesson.severity] || '•';
-                    const color = severityColors[lesson.severity] || 'text-lcars-tan';
-                    html += `<div class="text-xs pl-2 ${color}">${icon} ${lesson.lesson}</div>`;
-                }
-            }
-            
-            // Pending improvements
-            if (data.pendingImprovements > 0) {
-                html += `<div class="text-xs mt-2 text-lcars-violet">🚀 ${data.pendingImprovements} improvement suggestions pending</div>`;
-            }
-            
-            // Last analysis time
-            if (data.lastAnalysis) {
-                const time = new Date(data.lastAnalysis).toLocaleString();
-                html += `<div class="text-xs mt-2 text-lcars-tan opacity-50">Last analysis: ${time}</div>`;
-            }
-            
-            container.innerHTML = html;
-        }
-
-        async function triggerAnalysis() {
-            const btn = event.target;
-            btn.disabled = true;
-            btn.textContent = '⏳ Analyzing...';
-            
-            try {
-                const res = await fetch('/api/meta-learning/analyze', { method: 'POST' });
-                const result = await res.json();
-                
-                if (result.success) {
-                    btn.textContent = '✅ Done!';
-                    setTimeout(() => {
-                        btn.textContent = '🔄 Run Analysis';
-                        btn.disabled = false;
-                        fetchLessons();
-                    }, 1000);
-                } else {
-                    throw new Error(result.error);
-                }
-            } catch (err) {
-                console.error('Analysis failed:', err);
-                btn.textContent = '❌ Failed';
-                setTimeout(() => {
-                    btn.textContent = '🔄 Run Analysis';
-                    btn.disabled = false;
-                }, 2000);
-            }
-        }
-
-        // Auto-fetch lessons periodically when expanded
-        setInterval(() => {
-            if (window.lessonsExpanded) {
-                fetchLessons();
-            }
-        }, 60000); // Every minute when expanded
-
-        // ═══════════════════════════════════════════════════════════════
         // MESSAGES SYSTEM
         // ═══════════════════════════════════════════════════════════════
 
@@ -1874,10 +1714,10 @@
             
             container.innerHTML = messages.map(m => `
                 <div class="message-item bg-lcars-violet/10 border-l-4 ${m.read ? 'border-l-lcars-violet' : 'border-l-status-alert'} px-3 py-2.5 mb-2 rounded-r-lcars cursor-pointer transition-all hover:bg-lcars-violet/20" onclick="selectMessage('${m.id}')">
-                    <div class="text-xs text-lcars-sky mb-0.5 uppercase tracking-wider">${CREW_NAMES[m.from] || m.from} → ${CREW_NAMES[m.to] || m.to}</div>
+                    <div class="text-[10px] text-lcars-sky mb-0.5 uppercase tracking-wider">${CREW_NAMES[m.from] || m.from} → ${CREW_NAMES[m.to] || m.to}</div>
                     <div class="text-xs font-semibold text-lcars-gold mb-1">${escapeHtml(m.subject)}</div>
-                    <div class="text-xs text-lcars-tan flex justify-between">
-                        <span class="bg-lcars-violet text-black px-1.5 py-0.5 rounded-md text-sm font-bold">${m.type?.toUpperCase() || 'MSG'}</span>
+                    <div class="text-[9px] text-lcars-tan flex justify-between">
+                        <span class="bg-lcars-violet text-black px-1.5 py-0.5 rounded-md text-[8px] font-bold">${m.type?.toUpperCase() || 'MSG'}</span>
                         <span>${formatMessageTime(m.timestamp)}</span>
                     </div>
                 </div>

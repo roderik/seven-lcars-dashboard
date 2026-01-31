@@ -1861,6 +1861,89 @@ const httpServer = createServer(async (req, res) => {
     return;
   }
   
+  // GET /api/meta-learning - Get meta-learning analysis summary
+  if (req.url === '/api/meta-learning' && req.method === 'GET') {
+    try {
+      const result = execSync(
+        'node ~/.openclaw/crew/meta-learning.js summary 2>/dev/null',
+        { encoding: 'utf8', timeout: 10000 }
+      );
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(result);
+    } catch (e) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message, lessons: [], statistics: {} }));
+    }
+    return;
+  }
+  
+  // POST /api/meta-learning/analyze - Trigger fresh analysis
+  if (req.url === '/api/meta-learning/analyze' && req.method === 'POST') {
+    try {
+      const result = execSync(
+        'node ~/.openclaw/crew/meta-learning.js analyze 2>&1',
+        { encoding: 'utf8', timeout: 30000 }
+      );
+      log('INFO', 'Meta-learning analysis triggered via API');
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, message: 'Analysis complete', output: result }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: e.message }));
+    }
+    return;
+  }
+  
+  // GET /api/meta-learning/lessons - Get lessons only
+  if (req.url === '/api/meta-learning/lessons' && req.method === 'GET') {
+    try {
+      const result = execSync(
+        'node ~/.openclaw/crew/meta-learning.js lessons 2>/dev/null',
+        { encoding: 'utf8', timeout: 5000 }
+      );
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.end(result);
+    } catch (e) {
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.end('No lessons available');
+    }
+    return;
+  }
+  
+  // GET /api/meta-learning/improvements - Get improvement suggestions
+  if (req.url === '/api/meta-learning/improvements' && req.method === 'GET') {
+    try {
+      const result = execSync(
+        'node ~/.openclaw/crew/meta-learning.js improvements 2>/dev/null',
+        { encoding: 'utf8', timeout: 5000 }
+      );
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.end(result);
+    } catch (e) {
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.end('No improvements available');
+    }
+    return;
+  }
+  
+  // POST /api/meta-learning/mark-implemented/:id - Mark improvement as implemented
+  const markImplMatch = req.url.match(/^\/api\/meta-learning\/mark-implemented\/([^/]+)$/);
+  if (markImplMatch && req.method === 'POST') {
+    try {
+      const impId = markImplMatch[1];
+      const result = execSync(
+        `node ~/.openclaw/crew/meta-learning.js mark-implemented "${impId}" 2>&1`,
+        { encoding: 'utf8', timeout: 5000 }
+      );
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, message: result.trim() }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: e.message }));
+    }
+    return;
+  }
+  
   // Mission control route
   if (req.url === '/mission' || req.url === '/mission/') {
     try {
