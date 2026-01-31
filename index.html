@@ -206,21 +206,20 @@
         .platform-badge.qc { background: #00CED1; color: #000; }
         .platform-badge.review { background: #CC99CC; color: #000; }
         
-        /* Model tier badges */
+        /* Model tier badges (compact) */
         .model-badge {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 1px 4px;
+            width: 16px;
+            height: 16px;
             border-radius: 3px;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
-        .model-badge.opus { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: #fff; }
-        .model-badge.codex { background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; }
-        .model-badge.minimax { background: linear-gradient(135deg, #3498db, #2980b9); color: #fff; }
+        .model-badge.opus { background: #9b59b6; color: #fff; }
+        .model-badge.codex { background: #27ae60; color: #fff; }
+        .model-badge.minimax { background: #3498db; color: #fff; }
 
         /* Expandable activity entries */
         .activity-entry { cursor: pointer; }
@@ -417,6 +416,7 @@
                     <div class="w-[60px] bg-lcars-purple flex items-center justify-center text-xs font-bold text-lcars-bg uppercase tracking-wider">CREW</div>
                     <div class="flex-1 flex items-center justify-between px-3 bg-black/50">
                         <span class="text-sm font-bold tracking-widest uppercase text-lcars-purple">Agents</span>
+                        <span id="total-tasks-badge" class="text-xs text-lcars-gold font-bold"></span>
                     </div>
                 </div>
                 <div id="agents-list" class="flex-1 overflow-y-auto p-2">
@@ -1254,88 +1254,60 @@
                 }
 
                 const agents = this.tasksData.agents;
+                
+                // Calculate total tasks and update header
+                let totalTasks = 0;
+                Object.keys(agents).forEach(key => {
+                    totalTasks += this.getAgentTaskCount(key);
+                });
+                const totalBadge = document.getElementById('total-tasks-badge');
+                if (totalBadge) totalBadge.textContent = `${totalTasks} tasks`;
+                
                 let html = Object.entries(agents).map(([key, agent]) => {
                     const status = this.getAgentStatus(key);
                     const taskCount = this.getAgentTaskCount(key);
-                    const crewData = this.bridgeData?.crew?.[key] || {};
-                    const platforms = this.agentPlatforms[key] || [];
                     
-                    // More nuanced status labels and classes
+                    // Compact status
                     const statusConfig = {
-                        thinking: { label: 'THINKING', class: 'agent-state thinking' },
-                        building: { label: 'BUILDING', class: 'agent-state building' },
-                        researching: { label: 'RESEARCHING', class: 'agent-state researching' },
-                        reviewing: { label: 'REVIEWING', class: 'agent-state thinking' },
-                        waiting: { label: 'WAITING', class: 'agent-state waiting' },
-                        idle: { label: 'IDLE', class: 'agent-state idle' },
-                        offline: { label: 'OFFLINE', class: 'agent-state offline' }
+                        thinking: { label: '●', class: 'text-lcars-sky', title: 'Thinking' },
+                        building: { label: '●', class: 'text-green-400', title: 'Building' },
+                        researching: { label: '●', class: 'text-lcars-orange', title: 'Researching' },
+                        reviewing: { label: '●', class: 'text-lcars-violet', title: 'Reviewing' },
+                        waiting: { label: '○', class: 'text-lcars-peach', title: 'Waiting' },
+                        idle: { label: '○', class: 'text-gray-500', title: 'Idle' },
+                        offline: { label: '○', class: 'text-gray-700', title: 'Offline' }
                     };
                     const statusInfo = statusConfig[status] || statusConfig.idle;
                     
-                    // Get work-loop task info if available
-                    const workLoopTask = crewData.workLoopTask;
-                    
-                    // Generate platform badges
-                    const platformBadges = platforms.map(p => 
-                        `<span class="platform-badge ${p}">${p}</span>`
-                    ).join('');
-                    
-                    // Model tier badge
-                    const modelBadge = agent.model ? `<span class="model-badge ${agent.model}">${agent.model}</span>` : '';
+                    // Model tier badge (compact)
+                    const modelBadge = agent.model ? `<span class="model-badge ${agent.model}">${agent.model[0].toUpperCase()}</span>` : '';
                     
                     return `
-                        <div class="bg-black/40 rounded-lcars-xs p-2.5 mb-2 border-l-4 cursor-pointer transition-all hover:bg-black/60 hover:translate-x-1" style="border-left-color: ${agent.color}" data-agent="${key}">
-                            <div class="flex items-center justify-between mb-1.5">
-                                <div class="w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold text-black" style="background: ${agent.color}">${agent.department}</div>
-                                <div class="flex-1 ml-2">
-                                    <div class="flex items-center gap-1.5">
-                                        <span class="text-xs font-bold text-lcars-gold">${agent.name}</span>
-                                        ${modelBadge}
-                                    </div>
-                                    <div class="text-xs text-lcars-violet uppercase tracking-wider">${agent.role}</div>
-                                </div>
-                                <div class="px-1.5 py-0.5 rounded-md text-sm font-bold uppercase ${statusInfo.class}">${statusInfo.label}</div>
-                            </div>
-                            <div class="flex flex-wrap gap-0.5 mb-1.5">
-                                ${platformBadges}
-                            </div>
-                            ${workLoopTask ? `
-                            <div class="text-xs text-lcars-teal mt-1 mb-1 pl-1 truncate" title="${workLoopTask.taskId}">
-                                ⚡ ${workLoopTask.taskId.substring(0, 25)}...
-                            </div>
-                            ` : ''}
-                            <div class="flex justify-between text-xs text-lcars-sky mt-1.5 pt-1.5 border-t border-white/10">
-                                <span>Tasks: <span class="font-bold text-lcars-gold">${taskCount}</span></span>
-                                ${crewData.efficiency !== undefined ? `<span>Eff: <span class="font-bold text-lcars-gold">${crewData.efficiency}%</span></span>` : ''}
-                            </div>
+                        <div class="flex items-center gap-2 py-1.5 px-2 mb-1 bg-black/30 rounded cursor-pointer transition-all hover:bg-black/50 border-l-3" style="border-left: 3px solid ${agent.color}" data-agent="${key}">
+                            <span class="${statusInfo.class} text-lg" title="${statusInfo.title}">${statusInfo.label}</span>
+                            <span class="text-xs font-bold text-lcars-gold flex-1 truncate">${agent.name}</span>
+                            ${modelBadge}
+                            ${taskCount > 0 ? `<span class="text-xs text-lcars-sky">${taskCount}</span>` : ''}
                         </div>
                     `;
                 }).join('');
                 
-                // Add sessions mini section
+                // Add sessions mini section (compact)
                 if (this.sessionsData && (this.sessionsData.subagents?.length > 0 || this.sessionsData.crons?.length > 0)) {
                     html += `
-                        <div class="bg-lcars-orange/10 border border-lcars-orange rounded-lcars-xs p-2.5 mt-2">
-                            <div class="flex justify-between items-center mb-2 text-sm font-bold text-lcars-orange">
-                                <span>◈ ACTIVE SESSIONS</span>
-                                <span>${this.sessionsData.activeSubagents} agents, ${this.sessionsData.runningCrons} crons</span>
+                        <div class="bg-lcars-orange/10 border border-lcars-orange/50 rounded px-2 py-1.5 mt-2">
+                            <div class="flex justify-between items-center text-xs text-lcars-orange mb-1">
+                                <span class="font-bold">◈ ACTIVE</span>
+                                <span>${this.sessionsData.activeSubagents}A ${this.sessionsData.runningCrons}C</span>
                             </div>
-                            ${this.sessionsData.subagents.slice(0, 5).map(s => `
-                                <div class="flex items-center gap-2 py-1.5 text-xs border-b border-white/5 last:border-0">
-                                    <div class="w-1.5 h-1.5 rounded-full bg-status-active animate-pulse"></div>
-                                    <span class="flex-1 text-lcars-gold truncate font-mono">${s.label || 'agent'}</span>
-                                    <span class="text-lcars-violet text-xs">${s.age || '--'}</span>
-                                    <span class="text-lcars-sky text-sm px-1 py-0.5 bg-lcars-sky/20 rounded">AGENT</span>
-                                </div>
-                            `).join('')}
-                            ${this.sessionsData.crons.slice(0, 5).map(s => `
-                                <div class="flex items-center gap-2 py-1.5 text-xs border-b border-white/5 last:border-0">
-                                    <div class="w-1.5 h-1.5 rounded-full bg-status-warning animate-pulse"></div>
-                                    <span class="flex-1 text-lcars-gold truncate font-mono">${s.label || 'cron'}</span>
-                                    <span class="text-lcars-violet text-xs">${s.age || '--'}</span>
-                                    <span class="text-lcars-peach text-sm px-1 py-0.5 bg-lcars-peach/20 rounded">CRON</span>
-                                </div>
-                            `).join('')}
+                            <div class="flex flex-wrap gap-1">
+                                ${this.sessionsData.subagents.slice(0, 4).map(s => `
+                                    <span class="text-xs px-1.5 py-0.5 bg-lcars-sky/20 text-lcars-sky rounded truncate max-w-[80px]" title="${s.label}">${s.label?.split('-')[0] || 'agent'}</span>
+                                `).join('')}
+                                ${this.sessionsData.crons.slice(0, 3).map(s => `
+                                    <span class="text-xs px-1.5 py-0.5 bg-lcars-peach/20 text-lcars-peach rounded truncate max-w-[80px]" title="${s.label}">${s.label?.split('-')[0] || 'cron'}</span>
+                                `).join('')}
+                            </div>
                         </div>
                     `;
                 }
