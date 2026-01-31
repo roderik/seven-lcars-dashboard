@@ -1339,6 +1339,61 @@ const httpServer = createServer(async (req, res) => {
     return;
   }
   
+  // ═══════════════════════════════════════════════════════════════
+  // STALL DETECTION API - Agent Health Monitoring
+  // ═══════════════════════════════════════════════════════════════
+  
+  // GET /api/stall - Get stall detection status
+  if (req.url === '/api/stall' && req.method === 'GET') {
+    try {
+      const result = execSync(
+        'python3 ~/.openclaw/scripts/stall_detector.py api 2>/dev/null',
+        { encoding: 'utf8', timeout: 5000 }
+      );
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(result);
+    } catch (e) {
+      // Return empty state if script fails
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        recoveries_today: 0,
+        agents: {},
+        error: 'Stall detector unavailable'
+      }));
+    }
+    return;
+  }
+  
+  // POST /api/stall/check - Trigger stall check
+  if (req.url === '/api/stall/check' && req.method === 'POST') {
+    try {
+      const result = execSync(
+        'python3 ~/.openclaw/scripts/stall_detector.py check 2>&1',
+        { encoding: 'utf8', timeout: 10000 }
+      );
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, output: result }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: e.message }));
+    }
+    return;
+  }
+  
+  // POST /api/stall/reset - Reset stall counters
+  if (req.url === '/api/stall/reset' && req.method === 'POST') {
+    try {
+      execSync('python3 ~/.openclaw/scripts/stall_detector.py reset 2>/dev/null', { timeout: 5000 });
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: e.message }));
+    }
+    return;
+  }
+  
   // Mission control route
   if (req.url === '/mission' || req.url === '/mission/') {
     try {
