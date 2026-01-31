@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-01-31T21:10:30.850Z",
+  "lastUpdated": "2026-01-31T21:13:28.481Z",
   "columns": [
     "inbox",
     "assigned",
@@ -13988,12 +13988,12 @@
       "id": "task-1769893587993-2ftan3y5e",
       "title": "Fix system tasks panel flickering",
       "description": "System tasks panel keeps removing and re-adding items. Make updates incremental.",
-      "status": "peer_review",
+      "status": "done",
       "assignee": "geordi",
       "category": "engineering",
       "priority": "high",
       "createdAt": "2026-01-31T21:06:27.993Z",
-      "updatedAt": "2026-01-31T21:10:30.850Z",
+      "updatedAt": "2026-01-31T21:10:30.905Z",
       "comments": [],
       "logs": [
         {
@@ -14106,22 +14106,29 @@
         "reviewedAt": "2026-01-31T21:09:42.472Z"
       },
       "dataReview": {
-        "status": "pending",
-        "comments": [],
-        "assignedAt": "2026-01-31T21:08:03.214Z"
+        "status": "approved",
+        "comments": [
+          {
+            "author": "data",
+            "text": "Verified incremental DOM update pattern. Hash-based change detection, in-place property updates via data-task-id tracking, proper element lifecycle management. Commit 918eeae correctly diagnoses root cause (nextRun field changes) and implements clean fix. Well-engineered solution.",
+            "timestamp": "2026-01-31T21:10:30.905Z"
+          }
+        ],
+        "assignedAt": "2026-01-31T21:08:03.214Z",
+        "reviewedAt": "2026-01-31T21:10:30.905Z"
       }
     },
     {
       "id": "task-1769893713047-geordi",
       "title": "Remove keyboard shortcut overlay",
       "description": "Remove the keyboard shortcut overlay from the dashboard - no value. Look for shortcut hints or overlay in index.html.",
-      "status": "peer_review",
+      "status": "done",
       "assignee": "geordi",
       "category": "general",
       "priority": "low",
       "type": "spawned",
       "createdAt": "2026-01-31T21:08:33.047Z",
-      "updatedAt": "2026-01-31T21:10:28.405Z",
+      "updatedAt": "2026-01-31T21:11:54.842Z",
       "createdBy": "seven",
       "comments": [],
       "logs": [
@@ -14187,6 +14194,20 @@
           "agent": "spock",
           "message": "Peer Review: APPROVED - Clean removal of shortcut overlay (8-line HTML + 1 CSS rule). Keyboard shortcuts remain functional. Minimal, focused change.",
           "timestamp": "2026-01-31T21:10:28.339Z"
+        },
+        {
+          "id": "log-1769893842243",
+          "type": "system",
+          "agent": "work-loop",
+          "message": "Data QC reviewing task",
+          "timestamp": "2026-01-31T21:10:42.243Z"
+        },
+        {
+          "id": "log-1769893909657",
+          "type": "update",
+          "agent": "data",
+          "message": "QC Review: VERIFIED EXCELLENT. Commit 4c0da16 cleanly removes shortcut overlay (9 lines). Shortcuts still work. ANOMALY: Task not in tasks.json - orphaned review request. Work itself is flawless.",
+          "timestamp": "2026-01-31T21:11:49.657Z"
         }
       ],
       "peerReviewer": "spock",
@@ -14214,10 +14235,130 @@
         "reviewedAt": "2026-01-31T21:10:28.405Z"
       },
       "dataReview": {
-        "status": "pending",
-        "comments": [],
-        "assignedAt": "2026-01-31T21:09:35.875Z"
+        "status": "approved",
+        "comments": [
+          {
+            "author": "data",
+            "text": "Work verified excellent via commit 4c0da16. Clean 9-line removal, no orphaned refs, shortcuts still functional. Note: Task orphaned from tasks.json before QC - systemic issue to investigate.",
+            "timestamp": "2026-01-31T21:11:54.842Z"
+          }
+        ],
+        "assignedAt": "2026-01-31T21:09:35.875Z",
+        "reviewedAt": "2026-01-31T21:11:54.842Z"
       }
+    },
+    {
+      "id": "task-1769893872431-geordi",
+      "title": "Move Connected pill to bottom bar",
+      "description": "Move the WebSocket 'Connected' status pill to the bottom bar near the v7 version block",
+      "status": "review",
+      "assignee": "geordi",
+      "category": "general",
+      "priority": "low",
+      "type": "spawned",
+      "createdAt": "2026-01-31T21:11:12.431Z",
+      "updatedAt": "2026-01-31T21:12:15.494Z",
+      "createdBy": "seven",
+      "comments": [],
+      "logs": [
+        {
+          "id": "log-1769893872431",
+          "type": "system",
+          "agent": "spawn-task",
+          "message": "Task created and assigned to geordi via spawn-task",
+          "timestamp": "2026-01-31T21:11:12.431Z"
+        },
+        {
+          "id": "log-1769893872497",
+          "type": "system",
+          "agent": "spawn-task",
+          "message": "Agent geordi spawned with session spawned-geordi-task-1769893872-1769893872451",
+          "timestamp": "2026-01-31T21:11:12.497Z"
+        },
+        {
+          "id": "log-1769893882063",
+          "type": "update",
+          "agent": "geordi",
+          "message": "Starting work - examining dashboard structure to locate WebSocket Connected pill and bottom bar",
+          "timestamp": "2026-01-31T21:11:22.063Z"
+        },
+        {
+          "id": "log-1769893935425",
+          "type": "update",
+          "agent": "geordi",
+          "message": "Completed - moved connection status pill from floating position to bottom bar, next to v7.0 version block. Updated styling to use LCARS bg colors (sky=connected, red=disconnected). Committed.",
+          "timestamp": "2026-01-31T21:12:15.425Z"
+        }
+      ],
+      "peerReviewer": "spock",
+      "peerReview": null,
+      "dataReview": null
+    },
+    {
+      "id": "task-1769893936905-geordi",
+      "title": "Show peer reviewer as responsible during peer_review",
+      "description": "When task status is peer_review, the dashboard should show the peerReviewer as the responsible agent instead of the original assignee. Update the task card display logic.",
+      "status": "in_progress",
+      "assignee": "geordi",
+      "category": "general",
+      "priority": "medium",
+      "type": "spawned",
+      "createdAt": "2026-01-31T21:12:16.905Z",
+      "updatedAt": "2026-01-31T21:12:16.953Z",
+      "createdBy": "seven",
+      "comments": [],
+      "logs": [
+        {
+          "id": "log-1769893936905",
+          "type": "system",
+          "agent": "spawn-task",
+          "message": "Task created and assigned to geordi via spawn-task",
+          "timestamp": "2026-01-31T21:12:16.905Z"
+        },
+        {
+          "id": "log-1769893936953",
+          "type": "system",
+          "agent": "spawn-task",
+          "message": "Agent geordi spawned with session spawned-geordi-task-1769893936-1769893936919",
+          "timestamp": "2026-01-31T21:12:16.953Z"
+        }
+      ],
+      "peerReviewer": null,
+      "peerReview": null,
+      "dataReview": null
+    },
+    {
+      "id": "task-1769894008421-geordi",
+      "title": "Fix team pill width on task cards",
+      "description": "The team pill/badge on task cards is cutting off text because it's too narrow. Make it scale with the content (auto-width) instead of fixed width.",
+      "status": "in_progress",
+      "assignee": "geordi",
+      "category": "general",
+      "priority": "medium",
+      "type": "spawned",
+      "createdAt": "2026-01-31T21:13:28.421Z",
+      "updatedAt": "2026-01-31T21:13:28.481Z",
+      "createdBy": "seven",
+      "comments": [],
+      "logs": [
+        {
+          "id": "log-1769894008421",
+          "type": "system",
+          "agent": "spawn-task",
+          "message": "Task created and assigned to geordi via spawn-task",
+          "timestamp": "2026-01-31T21:13:28.421Z"
+        },
+        {
+          "id": "log-1769894008481",
+          "type": "system",
+          "agent": "spawn-task",
+          "message": "Agent geordi spawned with session spawned-geordi-task-1769894008-1769894008437",
+          "timestamp": "2026-01-31T21:13:28.481Z"
+        }
+      ],
+      "peerReviewer": null,
+      "peerReview": null,
+      "dataReview": null
     }
   ],
   "activity": [
@@ -19459,6 +19600,190 @@
       "taskTitle": "Fix system tasks panel flickering",
       "message": "Data QC Review: APPROVED ✅ - Verified incremental DOM update implementation. Hash-based cache prevents unnecessary renders; elements tracked via data-task-id and updated in-place; proper add/remove handling. Clean commit (918eeae) with accurate root cause documentation. No issues found.",
       "timestamp": "2026-01-31T21:10:30.850Z"
+    },
+    {
+      "id": "act-1769893830906-review",
+      "type": "data_review",
+      "action": "approve",
+      "agent": "data",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "comment": "Verified incremental DOM update pattern. Hash-based change detection, in-place property updates via data-task-id tracking, proper element lifecycle management. Commit 918eeae correctly diagnoses root cause (nextRun field changes) and implements clean fix. Well-engineered solution.",
+      "timestamp": "2026-01-31T21:10:30.905Z"
+    },
+    {
+      "id": "act-1769893830906-done",
+      "type": "status",
+      "action": "completed",
+      "agent": "system",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "approvedBy": [
+        "belanna",
+        "data"
+      ],
+      "timestamp": "2026-01-31T21:10:30.905Z"
+    },
+    {
+      "id": "act-1769893842243",
+      "type": "log",
+      "action": "logged",
+      "agent": "work-loop",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "message": "Data QC reviewing task",
+      "timestamp": "2026-01-31T21:10:42.243Z"
+    },
+    {
+      "id": "act-1769893872431-create",
+      "type": "task",
+      "action": "created",
+      "agent": "seven",
+      "taskId": "task-1769893872431-geordi",
+      "taskTitle": "Move Connected pill to bottom bar",
+      "timestamp": "2026-01-31T21:11:12.431Z"
+    },
+    {
+      "id": "act-1769893872431-assign",
+      "type": "status",
+      "action": "spawned",
+      "agent": "seven",
+      "taskId": "task-1769893872431-geordi",
+      "taskTitle": "Move Connected pill to bottom bar",
+      "target": "geordi",
+      "timestamp": "2026-01-31T21:11:12.431Z"
+    },
+    {
+      "id": "act-1769893872497",
+      "type": "log",
+      "action": "logged",
+      "agent": "spawn-task",
+      "taskId": "task-1769893872431-geordi",
+      "taskTitle": "Move Connected pill to bottom bar",
+      "message": "Agent geordi spawned with session spawned-geordi-task-1769893872-1769893872451",
+      "timestamp": "2026-01-31T21:11:12.497Z"
+    },
+    {
+      "id": "act-1769893882063",
+      "type": "log",
+      "action": "logged",
+      "agent": "geordi",
+      "taskId": "task-1769893872431-geordi",
+      "taskTitle": "Move Connected pill to bottom bar",
+      "message": "Starting work - examining dashboard structure to locate WebSocket Connected pill and bottom bar",
+      "timestamp": "2026-01-31T21:11:22.063Z"
+    },
+    {
+      "id": "act-1769893909657",
+      "type": "log",
+      "action": "logged",
+      "agent": "data",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "message": "QC Review: VERIFIED EXCELLENT. Commit 4c0da16 cleanly removes shortcut overlay (9 lines). Shortcuts still work. ANOMALY: Task not in tasks.json - orphaned review request. Work itself is flawless.",
+      "timestamp": "2026-01-31T21:11:49.657Z"
+    },
+    {
+      "id": "act-1769893914842-review",
+      "type": "data_review",
+      "action": "approve",
+      "agent": "data",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "comment": "Work verified excellent via commit 4c0da16. Clean 9-line removal, no orphaned refs, shortcuts still functional. Note: Task orphaned from tasks.json before QC - systemic issue to investigate.",
+      "timestamp": "2026-01-31T21:11:54.842Z"
+    },
+    {
+      "id": "act-1769893914842-done",
+      "type": "status",
+      "action": "completed",
+      "agent": "system",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "approvedBy": [
+        "spock",
+        "data"
+      ],
+      "timestamp": "2026-01-31T21:11:54.842Z"
+    },
+    {
+      "id": "act-1769893935446",
+      "type": "log",
+      "action": "logged",
+      "agent": "geordi",
+      "taskId": "task-1769893872431-geordi",
+      "taskTitle": "Move Connected pill to bottom bar",
+      "message": "Completed - moved connection status pill from floating position to bottom bar, next to v7.0 version block. Updated styling to use LCARS bg colors (sky=connected, red=disconnected). Committed.",
+      "timestamp": "2026-01-31T21:12:15.425Z"
+    },
+    {
+      "id": "act-1769893935494",
+      "type": "status",
+      "action": "moved",
+      "agent": "geordi",
+      "taskId": "task-1769893872431-geordi",
+      "taskTitle": "Move Connected pill to bottom bar",
+      "from": "review",
+      "to": "review",
+      "timestamp": "2026-01-31T21:12:15.494Z"
+    },
+    {
+      "id": "act-1769893936905-create",
+      "type": "task",
+      "action": "created",
+      "agent": "seven",
+      "taskId": "task-1769893936905-geordi",
+      "taskTitle": "Show peer reviewer as responsible during peer_review",
+      "timestamp": "2026-01-31T21:12:16.905Z"
+    },
+    {
+      "id": "act-1769893936905-assign",
+      "type": "status",
+      "action": "spawned",
+      "agent": "seven",
+      "taskId": "task-1769893936905-geordi",
+      "taskTitle": "Show peer reviewer as responsible during peer_review",
+      "target": "geordi",
+      "timestamp": "2026-01-31T21:12:16.905Z"
+    },
+    {
+      "id": "act-1769893936953",
+      "type": "log",
+      "action": "logged",
+      "agent": "spawn-task",
+      "taskId": "task-1769893936905-geordi",
+      "taskTitle": "Show peer reviewer as responsible during peer_review",
+      "message": "Agent geordi spawned with session spawned-geordi-task-1769893936-1769893936919",
+      "timestamp": "2026-01-31T21:12:16.953Z"
+    },
+    {
+      "id": "act-1769894008421-create",
+      "type": "task",
+      "action": "created",
+      "agent": "seven",
+      "taskId": "task-1769894008421-geordi",
+      "taskTitle": "Fix team pill width on task cards",
+      "timestamp": "2026-01-31T21:13:28.421Z"
+    },
+    {
+      "id": "act-1769894008421-assign",
+      "type": "status",
+      "action": "spawned",
+      "agent": "seven",
+      "taskId": "task-1769894008421-geordi",
+      "taskTitle": "Fix team pill width on task cards",
+      "target": "geordi",
+      "timestamp": "2026-01-31T21:13:28.421Z"
+    },
+    {
+      "id": "act-1769894008481",
+      "type": "log",
+      "action": "logged",
+      "agent": "spawn-task",
+      "taskId": "task-1769894008421-geordi",
+      "taskTitle": "Fix team pill width on task cards",
+      "message": "Agent geordi spawned with session spawned-geordi-task-1769894008-1769894008437",
+      "timestamp": "2026-01-31T21:13:28.481Z"
     }
   ],
   "agents": {

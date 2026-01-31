@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-01-31T21:11:49.657Z",
+  "lastUpdated": "2026-01-31T21:12:16.953Z",
   "columns": [
     "inbox",
     "assigned",
@@ -14122,13 +14122,13 @@
       "id": "task-1769893713047-geordi",
       "title": "Remove keyboard shortcut overlay",
       "description": "Remove the keyboard shortcut overlay from the dashboard - no value. Look for shortcut hints or overlay in index.html.",
-      "status": "peer_review",
+      "status": "done",
       "assignee": "geordi",
       "category": "general",
       "priority": "low",
       "type": "spawned",
       "createdAt": "2026-01-31T21:08:33.047Z",
-      "updatedAt": "2026-01-31T21:11:49.657Z",
+      "updatedAt": "2026-01-31T21:11:54.842Z",
       "createdBy": "seven",
       "comments": [],
       "logs": [
@@ -14235,22 +14235,29 @@
         "reviewedAt": "2026-01-31T21:10:28.405Z"
       },
       "dataReview": {
-        "status": "pending",
-        "comments": [],
-        "assignedAt": "2026-01-31T21:09:35.875Z"
+        "status": "approved",
+        "comments": [
+          {
+            "author": "data",
+            "text": "Work verified excellent via commit 4c0da16. Clean 9-line removal, no orphaned refs, shortcuts still functional. Note: Task orphaned from tasks.json before QC - systemic issue to investigate.",
+            "timestamp": "2026-01-31T21:11:54.842Z"
+          }
+        ],
+        "assignedAt": "2026-01-31T21:09:35.875Z",
+        "reviewedAt": "2026-01-31T21:11:54.842Z"
       }
     },
     {
       "id": "task-1769893872431-geordi",
       "title": "Move Connected pill to bottom bar",
       "description": "Move the WebSocket 'Connected' status pill to the bottom bar near the v7 version block",
-      "status": "in_progress",
+      "status": "review",
       "assignee": "geordi",
       "category": "general",
       "priority": "low",
       "type": "spawned",
       "createdAt": "2026-01-31T21:11:12.431Z",
-      "updatedAt": "2026-01-31T21:11:22.063Z",
+      "updatedAt": "2026-01-31T21:12:15.494Z",
       "createdBy": "seven",
       "comments": [],
       "logs": [
@@ -14274,6 +14281,46 @@
           "agent": "geordi",
           "message": "Starting work - examining dashboard structure to locate WebSocket Connected pill and bottom bar",
           "timestamp": "2026-01-31T21:11:22.063Z"
+        },
+        {
+          "id": "log-1769893935425",
+          "type": "update",
+          "agent": "geordi",
+          "message": "Completed - moved connection status pill from floating position to bottom bar, next to v7.0 version block. Updated styling to use LCARS bg colors (sky=connected, red=disconnected). Committed.",
+          "timestamp": "2026-01-31T21:12:15.425Z"
+        }
+      ],
+      "peerReviewer": "spock",
+      "peerReview": null,
+      "dataReview": null
+    },
+    {
+      "id": "task-1769893936905-geordi",
+      "title": "Show peer reviewer as responsible during peer_review",
+      "description": "When task status is peer_review, the dashboard should show the peerReviewer as the responsible agent instead of the original assignee. Update the task card display logic.",
+      "status": "in_progress",
+      "assignee": "geordi",
+      "category": "general",
+      "priority": "medium",
+      "type": "spawned",
+      "createdAt": "2026-01-31T21:12:16.905Z",
+      "updatedAt": "2026-01-31T21:12:16.953Z",
+      "createdBy": "seven",
+      "comments": [],
+      "logs": [
+        {
+          "id": "log-1769893936905",
+          "type": "system",
+          "agent": "spawn-task",
+          "message": "Task created and assigned to geordi via spawn-task",
+          "timestamp": "2026-01-31T21:12:16.905Z"
+        },
+        {
+          "id": "log-1769893936953",
+          "type": "system",
+          "agent": "spawn-task",
+          "message": "Agent geordi spawned with session spawned-geordi-task-1769893936-1769893936919",
+          "timestamp": "2026-01-31T21:12:16.953Z"
         }
       ],
       "peerReviewer": null,
@@ -19602,6 +19649,79 @@
       "taskTitle": "Remove keyboard shortcut overlay",
       "message": "QC Review: VERIFIED EXCELLENT. Commit 4c0da16 cleanly removes shortcut overlay (9 lines). Shortcuts still work. ANOMALY: Task not in tasks.json - orphaned review request. Work itself is flawless.",
       "timestamp": "2026-01-31T21:11:49.657Z"
+    },
+    {
+      "id": "act-1769893914842-review",
+      "type": "data_review",
+      "action": "approve",
+      "agent": "data",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "comment": "Work verified excellent via commit 4c0da16. Clean 9-line removal, no orphaned refs, shortcuts still functional. Note: Task orphaned from tasks.json before QC - systemic issue to investigate.",
+      "timestamp": "2026-01-31T21:11:54.842Z"
+    },
+    {
+      "id": "act-1769893914842-done",
+      "type": "status",
+      "action": "completed",
+      "agent": "system",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "approvedBy": [
+        "spock",
+        "data"
+      ],
+      "timestamp": "2026-01-31T21:11:54.842Z"
+    },
+    {
+      "id": "act-1769893935446",
+      "type": "log",
+      "action": "logged",
+      "agent": "geordi",
+      "taskId": "task-1769893872431-geordi",
+      "taskTitle": "Move Connected pill to bottom bar",
+      "message": "Completed - moved connection status pill from floating position to bottom bar, next to v7.0 version block. Updated styling to use LCARS bg colors (sky=connected, red=disconnected). Committed.",
+      "timestamp": "2026-01-31T21:12:15.425Z"
+    },
+    {
+      "id": "act-1769893935494",
+      "type": "status",
+      "action": "moved",
+      "agent": "geordi",
+      "taskId": "task-1769893872431-geordi",
+      "taskTitle": "Move Connected pill to bottom bar",
+      "from": "review",
+      "to": "review",
+      "timestamp": "2026-01-31T21:12:15.494Z"
+    },
+    {
+      "id": "act-1769893936905-create",
+      "type": "task",
+      "action": "created",
+      "agent": "seven",
+      "taskId": "task-1769893936905-geordi",
+      "taskTitle": "Show peer reviewer as responsible during peer_review",
+      "timestamp": "2026-01-31T21:12:16.905Z"
+    },
+    {
+      "id": "act-1769893936905-assign",
+      "type": "status",
+      "action": "spawned",
+      "agent": "seven",
+      "taskId": "task-1769893936905-geordi",
+      "taskTitle": "Show peer reviewer as responsible during peer_review",
+      "target": "geordi",
+      "timestamp": "2026-01-31T21:12:16.905Z"
+    },
+    {
+      "id": "act-1769893936953",
+      "type": "log",
+      "action": "logged",
+      "agent": "spawn-task",
+      "taskId": "task-1769893936905-geordi",
+      "taskTitle": "Show peer reviewer as responsible during peer_review",
+      "message": "Agent geordi spawned with session spawned-geordi-task-1769893936-1769893936919",
+      "timestamp": "2026-01-31T21:12:16.953Z"
     }
   ],
   "agents": {

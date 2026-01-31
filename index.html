@@ -1374,7 +1374,7 @@
                         <div class="flex items-center justify-between pl-1.5">
                             ${agent ? `
                                 <div class="flex items-center gap-1">
-                                    <div class="w-4 h-4 rounded-sm flex items-center justify-center text-sm font-bold text-black" style="background: ${agent.color}">${agent.department}</div>
+                                    <div class="min-w-5 h-5 px-1 rounded-sm flex items-center justify-center text-[10px] font-bold text-black whitespace-nowrap" style="background: ${agent.color}">${agent.department}</div>
                                     <span class="text-xs text-lcars-sky">${agent.name.split(' ')[0]}</span>
                                 </div>
                             ` : '<span></span>'}
@@ -1645,7 +1645,7 @@
                              data-feed-id="${feedId}"
                              onclick="${hasDetails ? `cc.toggleFeedDetails('${feedId}')` : ''}">
                             <div class="flex gap-2">
-                                <div class="w-7 h-7 rounded-md flex items-center justify-center text-xs font-bold text-black flex-shrink-0" style="background: ${agent.color}">${agent.department}</div>
+                                <div class="min-w-7 h-7 px-1.5 rounded-md flex items-center justify-center text-xs font-bold text-black flex-shrink-0 whitespace-nowrap" style="background: ${agent.color}">${agent.department}</div>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center justify-between mb-0.5">
                                         <span class="text-xs font-bold text-lcars-gold">${agent.name}</span>
@@ -1737,7 +1737,7 @@
                     const author = agents[c.author] || { name: c.author, color: '#666', department: '?' };
                     return `
                         <div class="flex gap-2 p-2 bg-black/30 rounded-lg mb-2">
-                            <div class="w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold text-black flex-shrink-0" style="background: ${author.color}">${author.department}</div>
+                            <div class="min-w-6 h-6 px-1 rounded-md flex items-center justify-center text-[10px] font-bold text-black flex-shrink-0 whitespace-nowrap" style="background: ${author.color}">${author.department}</div>
                             <div class="flex-1">
                                 <div class="flex justify-between mb-0.5">
                                     <span class="text-xs font-bold text-lcars-gold">${author.name}</span>
@@ -1841,7 +1841,7 @@
                              data-log-id="${logId}" 
                              onclick="${hasDetails ? `cc.toggleActivityDetails('${logId}')` : ''}">
                             <div class="flex gap-2">
-                                <div class="w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold text-black flex-shrink-0" style="background: ${agent.color}">${agent.department}</div>
+                                <div class="min-w-6 h-6 px-1 rounded-md flex items-center justify-center text-[10px] font-bold text-black flex-shrink-0 whitespace-nowrap" style="background: ${agent.color}">${agent.department}</div>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex justify-between items-center mb-0.5">
                                         <span class="text-xs font-bold text-lcars-gold">${agent.name}</span>
