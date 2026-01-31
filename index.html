@@ -312,21 +312,53 @@
 
         <!-- Stats Bar -->
         <div id="stats-bar" class="col-start-2 flex gap-3 p-3 pb-0 overflow-x-auto">
-            <!-- CPU -->
-            <div class="stat-card flex-shrink-0 min-w-[140px] bg-lcars-panel border-2 border-lcars-sky rounded-lcars-sm p-3 flex flex-col gap-1">
-                <div class="text-xs uppercase tracking-wider text-lcars-violet">CPU</div>
-                <div id="stat-cpu" class="text-xl font-bold text-lcars-gold">0%</div>
-                <div class="h-1 bg-white/10 rounded-sm mt-1 overflow-hidden">
-                    <div id="stat-cpu-bar" class="h-full bg-lcars-blue rounded-sm transition-all duration-500" style="width: 0%"></div>
+            <!-- Weather -->
+            <div class="stat-card flex-shrink-0 min-w-[160px] bg-lcars-panel border-2 border-lcars-teal rounded-lcars-sm p-3 flex flex-col gap-1">
+                <div class="text-xs uppercase tracking-wider text-lcars-violet flex items-center gap-1">
+                    <span id="weather-icon">🌤️</span> Brussels
+                </div>
+                <div id="stat-weather-temp" class="text-xl font-bold text-lcars-gold">--°C</div>
+                <div id="stat-weather-cond" class="text-xs text-lcars-tan truncate">Loading...</div>
+            </div>
+            <!-- System Health (CPU/Mem/Disk) -->
+            <div class="stat-card flex-shrink-0 min-w-[180px] bg-lcars-panel border-2 border-lcars-sky rounded-lcars-sm p-3 flex flex-col gap-1">
+                <div class="text-xs uppercase tracking-wider text-lcars-violet">System Health</div>
+                <div class="flex items-center gap-2">
+                    <div class="flex-1">
+                        <div class="text-xs text-lcars-tan">CPU</div>
+                        <div class="h-1.5 bg-white/10 rounded-sm overflow-hidden">
+                            <div id="stat-cpu-bar" class="h-full bg-lcars-blue rounded-sm transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div id="stat-cpu" class="text-sm font-bold text-lcars-gold w-10 text-right">0%</div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="flex-1">
+                        <div class="text-xs text-lcars-tan">MEM</div>
+                        <div class="h-1.5 bg-white/10 rounded-sm overflow-hidden">
+                            <div id="stat-mem-bar" class="h-full bg-lcars-purple rounded-sm transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div id="stat-mem" class="text-sm font-bold text-lcars-gold w-10 text-right">0%</div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="flex-1">
+                        <div class="text-xs text-lcars-tan">DISK</div>
+                        <div class="h-1.5 bg-white/10 rounded-sm overflow-hidden">
+                            <div id="stat-disk-bar" class="h-full bg-lcars-orange rounded-sm transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div id="stat-disk" class="text-sm font-bold text-lcars-gold w-10 text-right">0%</div>
                 </div>
             </div>
-            <!-- Memory -->
-            <div class="stat-card flex-shrink-0 min-w-[140px] bg-lcars-panel border-2 border-lcars-sky rounded-lcars-sm p-3 flex flex-col gap-1">
-                <div class="text-xs uppercase tracking-wider text-lcars-violet">Memory</div>
-                <div id="stat-mem" class="text-xl font-bold text-lcars-gold">0%</div>
-                <div class="h-1 bg-white/10 rounded-sm mt-1 overflow-hidden">
-                    <div id="stat-mem-bar" class="h-full bg-lcars-purple rounded-sm transition-all duration-500" style="width: 0%"></div>
+            <!-- Work Loop -->
+            <div class="stat-card flex-shrink-0 min-w-[150px] bg-lcars-panel border-2 border-lcars-green rounded-lcars-sm p-3 flex flex-col gap-1">
+                <div class="text-xs uppercase tracking-wider text-lcars-violet">Work Loop</div>
+                <div class="flex items-baseline gap-1">
+                    <span id="stat-workloop-status" class="text-xl font-bold text-lcars-gold">--</span>
+                    <span id="stat-workloop-indicator" class="w-2 h-2 rounded-full bg-status-offline"></span>
                 </div>
+                <div id="stat-workloop-sub" class="text-xs text-lcars-tan">0 workers • 0 queued</div>
             </div>
             <!-- Sessions -->
             <div class="stat-card flex-shrink-0 min-w-[140px] bg-lcars-panel border-2 border-lcars-orange rounded-lcars-sm p-3 flex flex-col gap-1">
@@ -339,6 +371,18 @@
                 <div class="text-xs uppercase tracking-wider text-lcars-violet">Tasks</div>
                 <div id="stat-tasks" class="text-xl font-bold text-lcars-gold">0</div>
                 <div id="stat-tasks-sub" class="text-xs text-lcars-tan">0 active</div>
+            </div>
+            <!-- Uptime -->
+            <div class="stat-card flex-shrink-0 min-w-[150px] bg-lcars-panel border-2 border-lcars-violet rounded-lcars-sm p-3 flex flex-col gap-1">
+                <div class="text-xs uppercase tracking-wider text-lcars-violet">Uptime</div>
+                <div class="flex items-center gap-2 text-xs">
+                    <span class="text-lcars-tan">GW:</span>
+                    <span id="stat-uptime-gw" class="font-bold text-lcars-gold">--</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                    <span class="text-lcars-tan">DASH:</span>
+                    <span id="stat-uptime-dash" class="font-bold text-lcars-gold">--</span>
+                </div>
             </div>
             <!-- P&L -->
             <div class="stat-card flex-shrink-0 min-w-[140px] bg-lcars-panel border-2 border-lcars-gold rounded-lcars-sm p-3 flex flex-col gap-1">
@@ -722,6 +766,14 @@
                         this.updateConnectionStatus('connected');
                         document.getElementById('footer-status').textContent = 'ONLINE';
                         this.ws.send(JSON.stringify({ type: 'get_tasks' }));
+                        
+                        // Fetch additional stats on connect
+                        this.fetchWeather();
+                        this.fetchSystemStats();
+                        this.fetchWorkLoop();
+                        
+                        // Set up refresh intervals
+                        this.startStatRefreshTimers();
                     };
                     
                     this.ws.onmessage = (event) => {
@@ -863,6 +915,22 @@
                 this.updateFooter();
             }
 
+            startStatRefreshTimers() {
+                // Clear existing timers
+                if (this.weatherTimer) clearInterval(this.weatherTimer);
+                if (this.systemTimer) clearInterval(this.systemTimer);
+                if (this.workLoopTimer) clearInterval(this.workLoopTimer);
+                
+                // Weather: refresh every 30 minutes
+                this.weatherTimer = setInterval(() => this.fetchWeather(), 30 * 60 * 1000);
+                
+                // System stats: refresh every 60 seconds
+                this.systemTimer = setInterval(() => this.fetchSystemStats(), 60 * 1000);
+                
+                // Work loop: refresh every 30 seconds
+                this.workLoopTimer = setInterval(() => this.fetchWorkLoop(), 30 * 1000);
+            }
+
             async fetchSessions() {
                 try {
                     const res = await fetch('/api/sessions');
@@ -884,6 +952,96 @@
                     }
                 } catch (e) {
                     console.log('Tasks fetch failed:', e.message);
+                }
+            }
+
+            async fetchWeather() {
+                try {
+                    const res = await fetch('/api/weather');
+                    if (res.ok) {
+                        this.weatherData = await res.json();
+                        this.renderWeather();
+                    }
+                } catch (e) {
+                    console.log('Weather fetch failed:', e.message);
+                }
+            }
+
+            async fetchSystemStats() {
+                try {
+                    const res = await fetch('/api/system');
+                    if (res.ok) {
+                        this.systemData = await res.json();
+                        this.renderSystemStats();
+                    }
+                } catch (e) {
+                    console.log('System stats fetch failed:', e.message);
+                }
+            }
+
+            async fetchWorkLoop() {
+                try {
+                    const res = await fetch('/api/work-loop');
+                    if (res.ok) {
+                        this.workLoopData = await res.json();
+                        this.renderWorkLoop();
+                    }
+                } catch (e) {
+                    console.log('Work-loop fetch failed:', e.message);
+                }
+            }
+
+            renderWeather() {
+                if (!this.weatherData) return;
+                const w = this.weatherData;
+                
+                document.getElementById('weather-icon').textContent = w.icon || '🌤️';
+                document.getElementById('stat-weather-temp').textContent = `${w.temp_c}°C`;
+                document.getElementById('stat-weather-cond').textContent = w.condition || '--';
+                document.getElementById('stat-weather-cond').title = `Feels like ${w.feels_like_c}°C • ${w.humidity}% humidity • ${w.wind_kph} km/h ${w.wind_dir}`;
+            }
+
+            renderSystemStats() {
+                if (!this.systemData) return;
+                const s = this.systemData;
+                
+                // Disk stats
+                const diskEl = document.getElementById('stat-disk');
+                const diskBar = document.getElementById('stat-disk-bar');
+                if (diskEl && diskBar) {
+                    const disk = s.disk?.percent || 0;
+                    diskEl.textContent = `${disk}%`;
+                    diskBar.style.width = `${disk}%`;
+                    diskBar.className = `h-full rounded-sm transition-all duration-500 ${disk > 90 ? 'bg-status-alert' : disk > 75 ? 'bg-lcars-orange' : 'bg-lcars-orange'}`;
+                }
+                
+                // Uptime stats
+                const gwEl = document.getElementById('stat-uptime-gw');
+                const dashEl = document.getElementById('stat-uptime-dash');
+                if (gwEl) gwEl.textContent = s.uptime?.gateway || '--';
+                if (dashEl) dashEl.textContent = s.uptime?.dashboard || '--';
+            }
+
+            renderWorkLoop() {
+                if (!this.workLoopData) return;
+                const wl = this.workLoopData;
+                
+                const statusEl = document.getElementById('stat-workloop-status');
+                const indicatorEl = document.getElementById('stat-workloop-indicator');
+                const subEl = document.getElementById('stat-workloop-sub');
+                
+                if (statusEl) {
+                    const isRunning = wl.status === 'running';
+                    statusEl.textContent = isRunning ? (wl.stats?.cycleCount || 0) : 'OFF';
+                    if (indicatorEl) {
+                        indicatorEl.className = `w-2 h-2 rounded-full ${isRunning ? 'bg-status-active animate-pulse' : 'bg-status-offline'}`;
+                    }
+                }
+                
+                if (subEl) {
+                    const workers = wl.activeWorkers ? Object.keys(wl.activeWorkers).length : 0;
+                    const queued = wl.queue?.length || 0;
+                    subEl.textContent = `${workers} workers • ${queued} queued`;
                 }
             }
 
@@ -915,6 +1073,16 @@
                 memBar.style.width = `${mem}%`;
                 memBar.className = `h-full rounded-sm transition-all duration-500 ${mem > 85 ? 'bg-status-alert' : mem > 70 ? 'bg-lcars-orange' : 'bg-lcars-purple'}`;
                 
+                // Disk (from bridgeData fallback)
+                const disk = system?.diskPercent || 0;
+                const diskEl = document.getElementById('stat-disk');
+                const diskBar = document.getElementById('stat-disk-bar');
+                if (diskEl && diskBar && !this.systemData) {
+                    diskEl.textContent = `${disk}%`;
+                    diskBar.style.width = `${disk}%`;
+                    diskBar.className = `h-full rounded-sm transition-all duration-500 ${disk > 90 ? 'bg-status-alert' : disk > 75 ? 'bg-lcars-orange' : 'bg-lcars-orange'}`;
+                }
+                
                 // Sessions (from API)
                 if (this.sessionsData) {
                     document.getElementById('stat-sessions').textContent = this.sessionsData.total || 0;
@@ -935,8 +1103,13 @@
                 pnlEl.className = `text-xl font-bold ${pnl >= 0 ? 'text-status-active' : 'text-status-alert'}`;
                 document.getElementById('stat-pnl-sub').textContent = `${quark.trades || 0} trades`;
                 
-                // Uptime
+                // Uptime (header bar)
                 document.getElementById('uptime').textContent = system?.uptime || '--';
+                
+                // Render additional stats if available
+                this.renderWeather();
+                this.renderSystemStats();
+                this.renderWorkLoop();
             }
 
             // Platform mappings for each agent

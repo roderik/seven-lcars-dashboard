@@ -1154,6 +1154,192 @@ const httpServer = createServer(async (req, res) => {
     return;
   }
   
+  // ═══════════════════════════════════════════════════════════════
+  // WEATHER API - Brussels weather from wttr.in
+  // ═══════════════════════════════════════════════════════════════
+  
+  if (req.url === '/api/weather' && req.method === 'GET') {
+    try {
+      const weatherData = getCached('weather', () => {
+        try {
+          const response = execSync(
+            'curl -s "wttr.in/Brussels?format=j1" --max-time 5',
+            { encoding: 'utf8', timeout: 6000 }
+          );
+          const data = JSON.parse(response);
+          const current = data.current_condition?.[0] || {};
+          const area = data.nearest_area?.[0] || {};
+          
+          // Map weather codes to icons
+          const weatherIcons = {
+            '113': '☀️', // Sunny
+            '116': '⛅', // Partly cloudy
+            '119': '☁️', // Cloudy
+            '122': '☁️', // Overcast
+            '143': '🌫️', // Mist
+            '176': '🌦️', // Patchy rain
+            '179': '🌨️', // Patchy snow
+            '182': '🌨️', // Patchy sleet
+            '185': '🌨️', // Patchy freezing drizzle
+            '200': '⛈️', // Thunder
+            '227': '🌨️', // Blowing snow
+            '230': '❄️', // Blizzard
+            '248': '🌫️', // Fog
+            '260': '🌫️', // Freezing fog
+            '263': '🌧️', // Patchy light drizzle
+            '266': '🌧️', // Light drizzle
+            '281': '🌧️', // Freezing drizzle
+            '284': '🌧️', // Heavy freezing drizzle
+            '293': '🌧️', // Patchy light rain
+            '296': '🌧️', // Light rain
+            '299': '🌧️', // Moderate rain
+            '302': '🌧️', // Heavy rain
+            '305': '🌧️', // Heavy rain
+            '308': '🌧️', // Heavy rain
+            '311': '🌧️', // Freezing rain
+            '314': '🌧️', // Heavy freezing rain
+            '317': '🌨️', // Light sleet
+            '320': '🌨️', // Moderate sleet
+            '323': '🌨️', // Patchy light snow
+            '326': '🌨️', // Light snow
+            '329': '🌨️', // Patchy moderate snow
+            '332': '🌨️', // Moderate snow
+            '335': '🌨️', // Patchy heavy snow
+            '338': '❄️', // Heavy snow
+            '350': '🌨️', // Ice pellets
+            '353': '🌧️', // Light rain shower
+            '356': '🌧️', // Moderate rain shower
+            '359': '🌧️', // Torrential rain
+            '362': '🌨️', // Light sleet showers
+            '365': '🌨️', // Moderate sleet showers
+            '368': '🌨️', // Light snow showers
+            '371': '🌨️', // Moderate snow showers
+            '374': '🌨️', // Light ice pellet showers
+            '377': '🌨️', // Heavy ice pellet showers
+            '386': '⛈️', // Patchy light rain with thunder
+            '389': '⛈️', // Heavy rain with thunder
+            '392': '⛈️', // Patchy light snow with thunder
+            '395': '⛈️', // Heavy snow with thunder
+          };
+          
+          const code = current.weatherCode || '116';
+          const icon = weatherIcons[code] || '🌤️';
+          
+          return {
+            location: area.areaName?.[0]?.value || 'Brussels',
+            country: area.country?.[0]?.value || 'Belgium',
+            temp_c: parseInt(current.temp_C) || 0,
+            temp_f: parseInt(current.temp_F) || 32,
+            feels_like_c: parseInt(current.FeelsLikeC) || 0,
+            condition: current.weatherDesc?.[0]?.value || 'Unknown',
+            icon: icon,
+            weatherCode: code,
+            humidity: parseInt(current.humidity) || 0,
+            wind_kph: parseInt(current.windspeedKmph) || 0,
+            wind_dir: current.winddir16Point || 'N',
+            uv: parseInt(current.uvIndex) || 0,
+            visibility: parseInt(current.visibility) || 10,
+            pressure: parseInt(current.pressure) || 1013,
+            cloud_cover: parseInt(current.cloudcover) || 0,
+            lastUpdated: new Date().toISOString()
+          };
+        } catch (e) {
+          log('ERROR', 'Weather fetch failed:', { error: e.message });
+          return null;
+        }
+      });
+      
+      if (weatherData) {
+        // Set longer cache TTL for weather (30 minutes)
+        cache.weather = { ...cache.weather, ttl: 1800000 };
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(weatherData));
+      } else {
+        res.writeHead(503, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Weather service unavailable' }));
+      }
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+  
+  // ═══════════════════════════════════════════════════════════════
+  // SYSTEM STATS API - Consolidated system health
+  // ═══════════════════════════════════════════════════════════════
+  
+  if (req.url === '/api/system' && req.method === 'GET') {
+    try {
+      const stats = getSystemStats();
+      
+      // Get gateway uptime
+      let gatewayUptime = null;
+      try {
+        const gwStatus = execSync(
+          '/home/roderik/.npm-global/bin/openclaw gateway status --json 2>/dev/null || echo "{}"',
+          { encoding: 'utf8', timeout: 3000 }
+        );
+        const gwData = JSON.parse(gwStatus);
+        if (gwData.uptime) {
+          gatewayUptime = gwData.uptime;
+        } else if (gwData.startedAt) {
+          gatewayUptime = Math.floor((Date.now() - new Date(gwData.startedAt).getTime()) / 1000);
+        }
+      } catch (e) {}
+      
+      // Format uptime helper
+      const formatUptime = (seconds) => {
+        if (!seconds || seconds < 0) return '--';
+        const d = Math.floor(seconds / 86400);
+        const h = Math.floor((seconds % 86400) / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        if (d > 0) return `${d}d ${h}h`;
+        if (h > 0) return `${h}h ${m}m`;
+        return `${m}m`;
+      };
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        cpu: {
+          usage: stats.cpuUsage,
+          cores: stats.cpuCores,
+          temp: stats.cpuTemp,
+          load: stats.load
+        },
+        memory: {
+          used: stats.memUsed,
+          total: stats.memTotal,
+          percent: stats.memPercent
+        },
+        disk: {
+          used: stats.diskUsed,
+          total: stats.diskTotal,
+          percent: stats.diskPercent
+        },
+        network: {
+          inKBps: stats.netIn,
+          outKBps: stats.netOut,
+          inMB: stats.netInMB,
+          outMB: stats.netOutMB
+        },
+        docker: stats.docker,
+        uptime: {
+          system: stats.uptime,
+          dashboard: formatUptime(Math.floor(process.uptime())),
+          dashboardSeconds: Math.floor(process.uptime()),
+          gateway: formatUptime(gatewayUptime),
+          gatewaySeconds: gatewayUptime
+        },
+        timestamp: new Date().toISOString()
+      }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+  
   // API endpoint for current data
   if (req.url === '/api/data') {
     gatherBridgeData().then(data => {
