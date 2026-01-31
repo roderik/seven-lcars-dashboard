@@ -1319,6 +1319,42 @@ const httpServer = createServer(async (req, res) => {
   }
   
   // ═══════════════════════════════════════════════════════════════
+  // CHECKPOINTS API - State Recovery System
+  // ═══════════════════════════════════════════════════════════════
+  
+  // GET /api/checkpoints - List active checkpoints for dashboard
+  if (req.url === '/api/checkpoints' && req.method === 'GET') {
+    try {
+      const result = execSync('node ~/.openclaw/crew/crew-checkpoint.js dashboard', {
+        encoding: 'utf8',
+        timeout: 5000
+      });
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(result);
+    } catch (e) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ checkpoints: [], stats: { created: 0, restored: 0, cleaned: 0 }, error: e.message }));
+    }
+    return;
+  }
+  
+  // GET /api/checkpoints/status - Checkpoint system status
+  if (req.url === '/api/checkpoints/status' && req.method === 'GET') {
+    try {
+      const result = execSync('node ~/.openclaw/crew/crew-checkpoint.js status', {
+        encoding: 'utf8',
+        timeout: 5000
+      });
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(result);
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+  
+  // ═══════════════════════════════════════════════════════════════
   // MESSAGES API - Crew Communication
   // ═══════════════════════════════════════════════════════════════
   
@@ -1857,6 +1893,214 @@ const httpServer = createServer(async (req, res) => {
     } catch (e) {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ success: false, error: e.message }));
+    }
+    return;
+  }
+  
+  // ═══════════════════════════════════════════════════════════════
+  // @MENTION ROUTING API - Direct Agent Messaging
+  // ═══════════════════════════════════════════════════════════════
+  
+  // Crew roster for @mention routing
+  const MENTION_ROSTER = {
+    seven: { sessionLabel: 'seven-direct', role: 'Orchestrator', model: 'opus' },
+    geordi: { sessionLabel: 'geordi-direct', role: 'Chief Engineer', model: 'sonnet' },
+    belanna: { sessionLabel: 'belanna-direct', role: 'Engineer', model: 'sonnet' },
+    icheb: { sessionLabel: 'icheb-direct', role: 'Tech Specialist', model: 'Minimax' },
+    spock: { sessionLabel: 'spock-direct', role: 'Science Officer', model: 'sonnet' },
+    tuvok: { sessionLabel: 'tuvok-direct', role: 'Security Officer', model: 'sonnet' },
+    doctor: { sessionLabel: 'doctor-direct', role: 'Medical Officer', model: 'sonnet' },
+    uhura: { sessionLabel: 'uhura-direct', role: 'Comms Officer', model: 'Minimax' },
+    harry: { sessionLabel: 'harry-direct', role: 'Ops Officer', model: 'Minimax' },
+    quark: { sessionLabel: 'quark-direct', role: 'Trade Advisor', model: 'sonnet' },
+    tom: { sessionLabel: 'tom-direct', role: 'Risk Trader', model: 'sonnet' },
+    neelix: { sessionLabel: 'neelix-direct', role: 'Resources', model: 'Minimax' },
+    data: { sessionLabel: 'data-direct', role: 'QC Officer', model: 'sonnet' }
+  };
+  
+  // Parse @mentions from text
+  function parseMentionsFromText(text) {
+    const pattern = /@(\w+)/gi;
+    const mentions = [];
+    let match;
+    while ((match = pattern.exec(text)) !== null) {
+      const name = match[1].toLowerCase();
+      if (MENTION_ROSTER[name]) {
+        mentions.push({
+          agent: name,
+          config: MENTION_ROSTER[name],
+          position: match.index,
+          raw: match[0]
+        });
+      }
+    }
+    return mentions;
+  }
+  
+  // GET /api/mention/roster - Get all crew with session keys
+  if (req.url === '/api/mention/roster' && req.method === 'GET') {
+    const roster = Object.entries(MENTION_ROSTER).map(([name, config]) => ({
+      name,
+      sessionKey: `agent:main:subagent:${config.sessionLabel}`,
+      ...config
+    }));
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ roster, count: roster.length }));
+    return;
+  }
+  
+  // POST /api/mention/parse - Parse @mentions from text (preview)
+  if (req.url === '/api/mention/parse' && req.method === 'POST') {
+    try {
+      const body = await parseBody(req);
+      const text = body.message || body.text || '';
+      const mentions = parseMentionsFromText(text);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ 
+        text, 
+        mentions,
+        validAgents: Object.keys(MENTION_ROSTER)
+      }));
+    } catch (e) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+  
+  // POST /api/mention/route - Route message to mentioned agent
+  if (req.url === '/api/mention/route' && req.method === 'POST') {
+    try {
+      const body = await parseBody(req);
+      const message = body.message || body.text || '';
+      const explicitAgent = body.agent?.toLowerCase();
+      
+      if (!message) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Message required' }));
+        return;
+      }
+      
+      let targetAgent = explicitAgent;
+      let cleanMessage = message;
+      
+      // If no explicit agent, parse from message
+      if (!targetAgent) {
+        const mentions = parseMentionsFromText(message);
+        if (mentions.length === 0) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ 
+            error: 'No valid @mentions found',
+            validAgents: Object.keys(MENTION_ROSTER)
+          }));
+          return;
+        }
+        targetAgent = mentions[0].agent;
+        cleanMessage = message.replace(mentions[0].raw, '').trim().replace(/^[,:\-]+\s*/, '');
+      }
+      
+      const config = MENTION_ROSTER[targetAgent];
+      if (!config) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: `Unknown agent: ${targetAgent}` }));
+        return;
+      }
+      
+      // Build task for the agent
+      const agentTask = `
+You are ${targetAgent.charAt(0).toUpperCase() + targetAgent.slice(1)}, ${config.role} on the starship.
+
+**Direct Message from Captain:**
+${cleanMessage}
+
+**Instructions:**
+1. Complete the requested task
+2. When done, your response will be delivered to the Captain
+3. Be concise but thorough
+4. Sign your response with your role
+
+🖖 Engage.
+      `.trim();
+      
+      // Use OpenClaw CLI to route to agent
+      const label = config.sessionLabel;
+      const model = config.model;
+      
+      try {
+        // Route via openclaw agent --agent (spawns a new turn for the named agent)
+        // The agent responds back to main session automatically
+        const spawnCmd = [
+          'openclaw', 'agent',
+          '--agent', targetAgent,
+          '--message', JSON.stringify(agentTask),
+          '--deliver',  // Deliver response back to the source channel
+          '--json'
+        ].join(' ');
+        
+        const result = execSync(spawnCmd, { encoding: 'utf8', timeout: 60000 });
+        
+        log('INFO', '@mention routed to agent:', { agent: targetAgent });
+        
+        // Parse result if it's JSON
+        let parsedResult = result;
+        try {
+          parsedResult = JSON.parse(result);
+        } catch {}
+        
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: true,
+          agent: targetAgent,
+          sessionKey: `agent:main:subagent:${label}`,
+          model,
+          message: cleanMessage,
+          response: parsedResult
+        }));
+      } catch (error) {
+        log('ERROR', '@mention routing failed:', { agent: targetAgent, error: error.message });
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: false,
+          agent: targetAgent,
+          sessionKey: `agent:main:subagent:${label}`,
+          error: error.message
+        }));
+      }
+    } catch (e) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+  
+  // GET /api/mention/sessions - Get all agent direct sessions
+  if (req.url === '/api/mention/sessions' && req.method === 'GET') {
+    try {
+      const sessionsData = await getSessions();
+      const directSessions = (sessionsData || []).filter(s => 
+        s.key && s.key.includes('-direct')
+      ).map(s => {
+        const labelMatch = s.key.match(/subagent:(\w+)-direct/);
+        const agent = labelMatch ? labelMatch[1] : 'unknown';
+        return {
+          agent,
+          sessionKey: s.key,
+          model: s.model,
+          tokens: s.totalTokens,
+          updatedAt: s.updatedAt,
+          status: s.status || 'idle'
+        };
+      });
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ 
+        sessions: directSessions, 
+        count: directSessions.length,
+        roster: Object.keys(MENTION_ROSTER)
+      }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
     }
     return;
   }
