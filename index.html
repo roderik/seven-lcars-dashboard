@@ -306,9 +306,6 @@
 
         <!-- Sidebar: Crew by Department -->
         <aside class="lcars-sidebar row-span-2 flex flex-col overflow-hidden">
-            <!-- LCARS Header Cap -->
-            <div class="h-3 bg-lcars-purple rounded-br-[15px]"></div>
-            
             <!-- CREW Title Bar -->
             <div class="h-7 mt-1 mr-1 rounded-r-[20px] flex items-center justify-center" 
                  style="background: linear-gradient(90deg, #CC99CC 0%, #9999FF 100%); box-shadow: 0 0 15px rgba(153,153,255,0.4);">
@@ -319,28 +316,6 @@
             <div id="sidebar-crew" class="flex-1 flex flex-col gap-0 overflow-y-auto pr-1 mt-1">
                 <!-- Rendered by JS -->
             </div>
-            
-            <!-- Messages Button - LCARS style -->
-            <div class="mt-2 mr-1">
-                <button onclick="openMessagesModal()" id="messages-btn" 
-                        class="w-full h-9 rounded-r-[20px] flex items-center justify-center gap-2 text-xs font-bold text-black uppercase cursor-pointer transition-all hover:brightness-110"
-                        style="background: #9999CC; box-shadow: 0 0 12px rgba(153,153,204,0.5), inset 0 2px 0 rgba(255,255,255,0.25);">
-                    <span class="tracking-wider">MESSAGES</span>
-                    <span id="msg-badge" class="hidden min-w-[20px] h-5 bg-status-alert text-black text-[10px] font-bold px-1.5 rounded-full flex items-center justify-center animate-pulse">0</span>
-                </button>
-            </div>
-            
-            <!-- New Task Button -->
-            <div class="mt-1 mr-1">
-                <button onclick="showAddTask()" 
-                        class="w-full h-8 rounded-r-[20px] flex items-center justify-center text-xs font-bold text-black uppercase cursor-pointer transition-all hover:brightness-110"
-                        style="background: #99CC99; box-shadow: 0 0 10px rgba(153,204,153,0.4), inset 0 2px 0 rgba(255,255,255,0.25);">
-                    <span class="tracking-wider">+ NEW TASK</span>
-                </button>
-            </div>
-            
-            <!-- Bottom Elbow -->
-            <div class="sidebar-elbow-bottom bg-lcars-tan h-[30px] mt-2 rounded-tl-[15px]"></div>
         </aside>
 
         <!-- Stats Bar -->
@@ -931,6 +906,7 @@
                 if (this.weatherTimer) clearInterval(this.weatherTimer);
                 if (this.systemTimer) clearInterval(this.systemTimer);
                 if (this.workLoopTimer) clearInterval(this.workLoopTimer);
+                if (this.systemTasksTimer) clearInterval(this.systemTasksTimer);
                 
                 // Weather: refresh every 30 minutes
                 this.weatherTimer = setInterval(() => this.fetchWeather(), 30 * 60 * 1000);
@@ -940,6 +916,12 @@
                 
                 // Work loop: refresh every 30 seconds
                 this.workLoopTimer = setInterval(() => this.fetchWorkLoop(), 30 * 1000);
+                
+                // System tasks: refresh every 20 seconds (dedicated timer, separate from render cycle)
+                this.systemTasksTimer = setInterval(() => this.fetchSystemTasksData(), 20 * 1000);
+                
+                // Initial fetch of system tasks data
+                this.fetchSystemTasksData();
             }
 
             async fetchSessions() {
@@ -1301,32 +1283,22 @@
                         const pulseStyle = statusInfo.pulse ? 'animation: pulse-badge 1.5s infinite;' : '';
                         
                         return `
-                            <div class="flex items-center gap-2 py-1.5 px-2 cursor-pointer rounded-r-lg transition-all hover:bg-white/10" 
+                            <div class="flex items-center gap-1.5 py-1.5 px-1.5 cursor-pointer rounded-r-lg transition-all hover:bg-white/10 overflow-hidden" 
                                  data-agent="${agent.key}"
                                  style="border-left: 3px solid transparent;"
                                  onmouseover="this.style.borderLeftColor='${dept.color}'"
                                  onmouseout="this.style.borderLeftColor='transparent'">
-                                <span class="text-base" style="color: ${statusInfo.color}; text-shadow: 0 0 8px ${statusInfo.color}; ${pulseStyle}">${statusInfo.dot}</span>
-                                <span class="text-sm text-lcars-gold flex-1 truncate font-semibold tracking-wide">${firstName}</span>
-                                ${statusInfo.label ? `<span class="text-[8px] font-bold px-1.5 py-0.5 rounded-sm" style="background: ${statusInfo.color}; color: #000;">${statusInfo.label}</span>` : ''}
-                                ${modelLetter ? `<span class="w-4 h-4 rounded text-[9px] font-bold flex items-center justify-center text-white" style="background: ${modelColors[modelLetter]}; box-shadow: 0 0 6px ${modelColors[modelLetter]};">${modelLetter}</span>` : ''}
-                                ${taskCount > 0 ? `<span class="min-w-[20px] h-5 flex items-center justify-center text-[10px] font-bold rounded-full bg-lcars-sky text-black">${taskCount}</span>` : ''}
+                                <span class="text-sm shrink-0" style="color: ${statusInfo.color}; text-shadow: 0 0 8px ${statusInfo.color}; ${pulseStyle}">${statusInfo.dot}</span>
+                                <span class="text-xs text-lcars-gold truncate font-semibold" style="min-width: 35px;">${firstName}</span>
+                                ${statusInfo.label ? `<span class="text-[7px] font-bold px-1 py-0.5 rounded-sm shrink-0" style="background: ${statusInfo.color}; color: #000;">${statusInfo.label}</span>` : ''}
+                                ${modelLetter ? `<span class="w-3.5 h-3.5 rounded text-[8px] font-bold flex items-center justify-center text-white shrink-0" style="background: ${modelColors[modelLetter]};">${modelLetter}</span>` : ''}
+                                ${taskCount > 0 ? `<span class="w-4 h-4 flex items-center justify-center text-[8px] font-bold rounded-full bg-lcars-sky text-black shrink-0">${taskCount}</span>` : ''}
                             </div>
                         `;
                     }).join('');
                     
                     return header + rows;
                 }).join('');
-                
-                // Active sessions indicator with bold LCARS glow
-                if (this.sessionsData && (this.sessionsData.activeSubagents > 0 || this.sessionsData.runningCrons > 0)) {
-                    html += `
-                        <div class="h-7 mt-4 rounded-r-[20px] flex items-center justify-between px-3 animate-pulse" 
-                             style="background: #FF9900; box-shadow: 0 0 20px rgba(255,153,0,0.6), inset 0 2px 0 rgba(255,255,255,0.3);">
-                            <span class="text-black font-bold text-[10px] uppercase tracking-wider">◈ ACTIVE</span>
-                            <span class="text-black/80 text-[9px] font-bold">${this.sessionsData.activeSubagents}A ${this.sessionsData.runningCrons}C</span>
-                        </div>`;
-                }
                 
                 container.innerHTML = html;
             }
@@ -1425,92 +1397,197 @@
                 `;
             }
 
-            async renderSystemTasks() {
+            // System tasks data cache - separate from render cycle
+            systemTasksCache = { data: null, hash: null, lastFetch: 0 };
+            systemTasksFetchInProgress = false;
+
+            // Fetch system tasks data (called on timer, not on every render)
+            async fetchSystemTasksData() {
+                // Prevent concurrent fetches
+                if (this.systemTasksFetchInProgress) return;
+                this.systemTasksFetchInProgress = true;
+                
+                try {
+                    // Fetch cron jobs from API
+                    let cronJobs = [];
+                    try {
+                        const res = await fetch('/api/cron');
+                        const data = await res.json();
+                        cronJobs = data.jobs || [];
+                    } catch (e) {
+                        console.error('Failed to fetch cron jobs:', e);
+                    }
+
+                    // Map cron jobs to display format
+                    const systemTasks = cronJobs.filter(j => j.enabled).map(job => {
+                        let agent = 'seven';
+                        let type = 'monitoring';
+                        
+                        // Determine agent based on job name
+                        if (job.name.includes('email') || job.name.includes('gmail')) {
+                            agent = 'uhura';
+                            type = 'communications';
+                        } else if (job.name.includes('quark') || job.name.includes('trading')) {
+                            agent = 'quark';
+                            type = 'trading';
+                        } else if (job.name.includes('git') || job.name.includes('qmd')) {
+                            agent = 'geordi';
+                            type = 'engineering';
+                        }
+                        
+                        // Determine status
+                        let taskStatus = 'idle';
+                        let statusColor = 'bg-lcars-violet';
+                        
+                        if (job.lastStatus === 'ok') {
+                            taskStatus = 'active';
+                            statusColor = 'bg-status-active';
+                        } else if (job.lastStatus === 'running') {
+                            taskStatus = 'running';
+                            statusColor = 'bg-status-active animate-pulse';
+                        } else if (job.lastStatus === 'error') {
+                            taskStatus = 'error';
+                            statusColor = 'bg-status-alert';
+                        }
+                        
+                        // Format name
+                        const displayName = job.name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                        
+                        return {
+                            id: job.name, // Stable ID for diffing
+                            name: displayName,
+                            agent,
+                            type,
+                            taskStatus,
+                            statusColor,
+                            nextRun: job.nextRunIn || '--',
+                            lastRun: job.lastRunAgo || '--'
+                        };
+                    });
+
+                    // Also add work-loop status (always first)
+                    try {
+                        const wlRes = await fetch('/api/work-loop');
+                        const wlData = await wlRes.json();
+                        systemTasks.unshift({
+                            id: 'work-loop', // Stable ID
+                            name: 'Work Loop',
+                            agent: 'seven',
+                            type: 'coordination',
+                            taskStatus: wlData.status === 'running' ? 'active' : 'idle',
+                            statusColor: wlData.status === 'running' ? 'bg-status-active animate-pulse' : 'bg-lcars-violet',
+                            nextRun: `${wlData.queue?.length || 0} queued`,
+                            lastRun: `${wlData.stats?.cycleCount || 0} cycles`
+                        });
+                    } catch (e) {}
+
+                    // Create hash to detect changes
+                    const newHash = JSON.stringify(systemTasks);
+                    
+                    // Only update cache and re-render if data changed
+                    if (newHash !== this.systemTasksCache.hash) {
+                        this.systemTasksCache = { 
+                            data: systemTasks, 
+                            hash: newHash, 
+                            lastFetch: Date.now() 
+                        };
+                        this.renderSystemTasksFromCache();
+                    }
+                } finally {
+                    this.systemTasksFetchInProgress = false;
+                }
+            }
+
+            // Render system tasks from cache with INCREMENTAL DOM updates (no flicker)
+            renderSystemTasksFromCache() {
                 const container = document.getElementById('system-tasks-list');
                 const countEl = document.getElementById('system-count');
+                const systemTasks = this.systemTasksCache.data || [];
                 
-                // Fetch cron jobs from API
-                let cronJobs = [];
-                try {
-                    const res = await fetch('/api/cron');
-                    const data = await res.json();
-                    cronJobs = data.jobs || [];
-                } catch (e) {
-                    console.error('Failed to fetch cron jobs:', e);
-                }
-
-                // Map cron jobs to display format
-                const systemTasks = cronJobs.filter(j => j.enabled).map(job => {
-                    let agent = 'seven';
-                    let type = 'monitoring';
-                    
-                    // Determine agent based on job name
-                    if (job.name.includes('email') || job.name.includes('gmail')) {
-                        agent = 'uhura';
-                        type = 'communications';
-                    } else if (job.name.includes('quark') || job.name.includes('trading')) {
-                        agent = 'quark';
-                        type = 'trading';
-                    } else if (job.name.includes('git') || job.name.includes('qmd')) {
-                        agent = 'geordi';
-                        type = 'engineering';
-                    }
-                    
-                    // Determine status
-                    let taskStatus = 'idle';
-                    let statusColor = 'bg-lcars-violet';
-                    
-                    if (job.lastStatus === 'ok') {
-                        taskStatus = 'active';
-                        statusColor = 'bg-status-active';
-                    } else if (job.lastStatus === 'running') {
-                        taskStatus = 'running';
-                        statusColor = 'bg-status-active animate-pulse';
-                    } else if (job.lastStatus === 'error') {
-                        taskStatus = 'error';
-                        statusColor = 'bg-status-alert';
-                    }
-                    
-                    // Format name
-                    const displayName = job.name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                    
-                    return {
-                        name: displayName,
-                        agent,
-                        type,
-                        taskStatus,
-                        statusColor,
-                        nextRun: job.nextRunIn || '--',
-                        lastRun: job.lastRunAgo || '--'
-                    };
-                });
-
-                // Also add work-loop status
-                try {
-                    const wlRes = await fetch('/api/work-loop');
-                    const wlData = await wlRes.json();
-                    systemTasks.unshift({
-                        name: 'Work Loop',
-                        agent: 'seven',
-                        type: 'coordination',
-                        taskStatus: wlData.status === 'running' ? 'active' : 'idle',
-                        statusColor: wlData.status === 'running' ? 'bg-status-active animate-pulse' : 'bg-lcars-violet',
-                        nextRun: `${wlData.queue?.length || 0} queued`,
-                        lastRun: `${wlData.stats?.cycleCount || 0} cycles`
-                    });
-                } catch (e) {}
-
                 const active = systemTasks.filter(t => t.taskStatus === 'active' || t.taskStatus === 'running').length;
                 if (countEl) countEl.textContent = `${active}/${systemTasks.length} ACTIVE`;
 
-                container.innerHTML = systemTasks.map(t => `
-                    <div class="flex items-center gap-2 py-1.5 border-b border-white/5 last:border-0 text-xs">
-                        <div class="w-1.5 h-1.5 rounded-full ${t.statusColor}"></div>
-                        <span class="flex-1 text-lcars-white truncate" title="${t.name}">${t.name}</span>
-                        <span class="text-sm text-lcars-sky">${t.nextRun}</span>
-                        <span class="text-lcars-teal text-xs uppercase">${t.agent}</span>
-                    </div>
-                `).join('');
+                // Get existing items by ID
+                const existingItems = new Map();
+                container.querySelectorAll('.system-task-item').forEach(el => {
+                    existingItems.set(el.dataset.taskId, el);
+                });
+
+                // Track which IDs we've seen (for removal)
+                const seenIds = new Set();
+
+                // Update or create each task item
+                systemTasks.forEach((t, idx) => {
+                    seenIds.add(t.id);
+                    let el = existingItems.get(t.id);
+                    
+                    if (el) {
+                        // UPDATE existing element in-place (no flicker)
+                        const statusDot = el.querySelector('div');
+                        const nameSpan = el.children[1];
+                        const nextRunSpan = el.children[2];
+                        const agentSpan = el.children[3];
+                        
+                        // Only update if changed
+                        if (statusDot && statusDot.className !== `w-1.5 h-1.5 rounded-full ${t.statusColor}`) {
+                            statusDot.className = `w-1.5 h-1.5 rounded-full ${t.statusColor}`;
+                        }
+                        if (nameSpan && nameSpan.textContent !== t.name) {
+                            nameSpan.textContent = t.name;
+                            nameSpan.title = t.name;
+                        }
+                        if (nextRunSpan && nextRunSpan.textContent !== t.nextRun) {
+                            nextRunSpan.textContent = t.nextRun;
+                        }
+                        if (agentSpan && agentSpan.textContent !== t.agent) {
+                            agentSpan.textContent = t.agent;
+                        }
+                        
+                        // Ensure correct position
+                        if (container.children[idx] !== el) {
+                            container.insertBefore(el, container.children[idx] || null);
+                        }
+                    } else {
+                        // CREATE new element
+                        el = document.createElement('div');
+                        el.className = 'system-task-item flex items-center gap-2 py-1.5 border-b border-white/5 last:border-0 text-xs';
+                        el.dataset.taskId = t.id;
+                        el.innerHTML = `
+                            <div class="w-1.5 h-1.5 rounded-full ${t.statusColor}"></div>
+                            <span class="flex-1 text-lcars-white truncate" title="${t.name}">${t.name}</span>
+                            <span class="text-sm text-lcars-sky">${t.nextRun}</span>
+                            <span class="text-lcars-teal text-xs uppercase">${t.agent}</span>
+                        `;
+                        
+                        // Insert at correct position
+                        if (container.children[idx]) {
+                            container.insertBefore(el, container.children[idx]);
+                        } else {
+                            container.appendChild(el);
+                        }
+                    }
+                });
+
+                // REMOVE items that no longer exist
+                existingItems.forEach((el, id) => {
+                    if (!seenIds.has(id)) {
+                        el.remove();
+                    }
+                });
+            }
+
+            // Called from render() - just renders from cache, doesn't fetch
+            async renderSystemTasks() {
+                // If we have cached data, render it immediately (no flicker)
+                if (this.systemTasksCache.data) {
+                    this.renderSystemTasksFromCache();
+                }
+                
+                // Trigger a background fetch if cache is stale (> 15s old)
+                const cacheAge = Date.now() - (this.systemTasksCache.lastFetch || 0);
+                if (cacheAge > 15000 || !this.systemTasksCache.data) {
+                    this.fetchSystemTasksData();
+                }
             }
 
             renderFeed() {

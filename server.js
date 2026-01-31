@@ -2339,6 +2339,90 @@ const httpServer = createServer(async (req, res) => {
     return;
   }
   
+  // ═══════════════════════════════════════════════════════════════
+  // SPAWN-TASK API (Session ↔ Task Mapping)
+  // ═══════════════════════════════════════════════════════════════
+  
+  // GET /api/spawn-task/state - Get session-to-task mappings
+  if (req.url === '/api/spawn-task/state' && req.method === 'GET') {
+    try {
+      const stateFile = join(process.env.HOME, '.openclaw/crew/spawn-task-state.json');
+      if (existsSync(stateFile)) {
+        const state = JSON.parse(readFileSync(stateFile, 'utf8'));
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(state));
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ sessionToTask: {}, taskToSession: {}, spawns: [] }));
+      }
+    } catch (e) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ sessionToTask: {}, taskToSession: {}, spawns: [], error: e.message }));
+    }
+    return;
+  }
+  
+  // GET /api/spawn-task/lookup/:sessionId - Lookup task by session ID
+  const spawnLookupMatch = req.url.match(/^\/api\/spawn-task\/lookup\/([^/]+)$/);
+  if (spawnLookupMatch && req.method === 'GET') {
+    try {
+      const sessionId = spawnLookupMatch[1];
+      const stateFile = join(process.env.HOME, '.openclaw/crew/spawn-task-state.json');
+      if (existsSync(stateFile)) {
+        const state = JSON.parse(readFileSync(stateFile, 'utf8'));
+        const taskId = state.sessionToTask[sessionId];
+        if (taskId) {
+          // Get full task details
+          const tasksData = loadTasks();
+          const task = tasksData.tasks.find(t => t.id === taskId);
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ found: true, taskId, task }));
+        } else {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ found: false, sessionId }));
+        }
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ found: false, sessionId }));
+      }
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+  
+  // POST /api/spawn-task - Create task and spawn agent
+  if (req.url === '/api/spawn-task' && req.method === 'POST') {
+    try {
+      const body = await parseBody(req);
+      if (!body.title) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Title is required' }));
+        return;
+      }
+      
+      // Build CLI command
+      const args = ['node', '~/.openclaw/crew/spawn-task.js'];
+      args.push('--title', `"${body.title.replace(/"/g, '\\"')}"`);
+      if (body.agent) args.push('--agent', body.agent);
+      else args.push('--auto-route');
+      if (body.desc) args.push('--desc', `"${body.desc.replace(/"/g, '\\"')}"`);
+      if (body.priority) args.push('--priority', body.priority);
+      if (body.category) args.push('--category', body.category);
+      args.push('--json');
+      
+      const result = execSync(args.join(' '), { encoding: 'utf8', timeout: 30000 });
+      log('INFO', 'Spawn-task via API:', { title: body.title, agent: body.agent });
+      res.writeHead(201, { 'Content-Type': 'application/json' });
+      res.end(result);
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: e.message }));
+    }
+    return;
+  }
+  
   // POST /api/work-loop/priority/:id - Boost task priority
   const priorityMatch = req.url.match(/^\/api\/work-loop\/priority\/([^/]+)$/);
   if (priorityMatch && req.method === 'POST') {
