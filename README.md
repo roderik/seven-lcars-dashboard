@@ -1,61 +1,68 @@
-# 🖖 LCARS Bridge Dashboard v6
+# 🖖 LCARS Bridge Dashboard v7
 
-**Enhanced Star Trek LCARS-style dashboard for OpenClaw with agent introspection**
+**Star Trek LCARS-style command center for OpenClaw with task management, agent introspection, and multi-agent coordination.**
 
 ![LCARS](https://img.shields.io/badge/LCARS-47.6-orange)
 ![Status](https://img.shields.io/badge/Status-Production-green)
-![Version](https://img.shields.io/badge/Version-6.0-blue)
+![Version](https://img.shields.io/badge/Version-7.0-blue)
 
-## What's New in v6
+## What's New in v7
 
-### Visual Enhancements
-- **Starfield background** - Animated twinkling stars for authentic space feel
-- **Scanlines overlay** - Classic CRT monitor effect (toggle with `T`)
-- **Panel entrance animations** - Smooth fade-in with staggered timing
-- **Glow effects** - Active elements pulse and glow
-- **Shimmer animations** - Subtle light sweep on bars and buttons
-- **Enhanced hover states** - Panels and buttons respond to interaction
+### Task & Agent Management System
+- **Full Kanban board** - Inbox → Assigned → In Progress → Review → Done
+- **12 crew members** - Seven, Geordi, Spock, Uhura, Quark, Data, B'Elanna, Harry, Icheb, Tom, Neelix, Tuvok, Doctor
+- **Multi-Agent Peer Review** - Team of Rivals system with cross-discipline pairings
+- **Work Loop integration** - Auto-routing tasks to appropriate crew members
+- **Agent direct messaging** - @mention routing to specific agents
 
-### New Features
-- **Alert ticker** - Scrolling status bar with real-time system alerts
-- **Sessions panel** - Full agent/subagent introspection (see below)
-- **Keyboard shortcuts** - Quick navigation with number keys
-- **Dynamic status colors** - CPU/memory bars change color based on load
-- **Panel highlighting** - Click sidebar to highlight target panel
+### New Dashboard Panels
+- **System Tasks** - Real-time cron job status (Email Triage, Crew Heartbeat, Health Checks, Polymarket Tracker)
+- **Activity Feed** - Filterable by task/tool/thinking/status
+- **Lessons Learned** - Meta-learning system insights from past mistakes
+- **Sessions** - Full OpenClaw session introspection with crew name matching
+- **Messages** - Inter-agent communication panel
 
-### Agent Introspection (Sessions Panel)
-Real-time visibility into all OpenClaw sessions:
-- Active session count (running vs total)
-- Session labels and identifiers
-- Status indicators with pulse animations
-- Channel type (telegram, cli, etc.)
-- Session duration (auto-updating)
-- Model being used
-- Sorted by status (running first)
+### Backend Features
+- **Checkpoint System** - State snapshots before critical operations
+- **Decision Lineage** - Full audit trail of all decisions
+- **Git Conflict Detection** - Prevents agent overwrites
+- **Self-Healing Watchdog** - 13 health checks with auto-recovery
+- **Stall Detection** - Monitors agent activity and alerts on stalls
+
+### Visual Enhancements (from v6)
+- **Starfield background** - Animated twinkling stars
+- **Scanlines overlay** - Classic CRT effect (toggle with `T`)
+- **Panel animations** - Smooth fade-in with staggered timing
+- **Glow effects** - Active elements pulse
+- **Improved readability** - Minimum 12px font sizes
 
 ## Keyboard Shortcuts
 
 | Key | Action |
 |-----|--------|
-| `1` | Jump to Seven of Nine |
-| `2` | Jump to Spock |
-| `3` | Jump to Geordi |
-| `4` | Jump to Uhura |
-| `5` | Jump to Quark |
-| `6` | Jump to System |
-| `7` | Jump to Sessions |
-| `R` | Request refresh |
-| `T` | Toggle scanlines |
+| `N` | New Task |
+| `M` | Messages |
+| `T` | Toggle Scanlines |
+| `R` | Refresh |
+| `Esc` | Close Modals |
 
 ## Crew Panels
 
-- **Seven of Nine** - Main agent sessions and efficiency
-- **Spock** - Research tasks and logic analysis
-- **Geordi La Forge** - Git status, commits, and engineering tasks
-- **Uhura** - Email counts and communications
-- **Quark** - Trading P&L with sparkline charts
-- **System** - CPU/Memory/Disk with dynamic color coding
-- **Sessions** - Full agent introspection
+| Crew | Role | Specialty |
+|------|------|-----------|
+| Seven of Nine | Number One | Orchestration, delegation |
+| Geordi La Forge | Chief Engineer | Dashboard, infrastructure |
+| Spock | Science Officer | Research, logic analysis |
+| Uhura | Comms Officer | Email, communications |
+| Quark | Trade Advisor | Polymarket, trading |
+| Data | QC Officer | Quality control, verification |
+| B'Elanna Torres | Chief Engineer | Practical solutions |
+| Harry Kim | Operations | System monitoring |
+| Icheb | Borg Specialist | Code optimization |
+| Tom Paris | Risk Trader | Speculation analysis |
+| Neelix | Resource Mgmt | Risk mitigation |
+| Tuvok | Security/Research | Security assessment |
+| The Doctor | EMH Research | Empirical research |
 
 ## Quick Start
 
@@ -71,36 +78,34 @@ node server.js
 
 Open in browser: **http://localhost:4242**
 
-## Testing
-
-```bash
-# Run tests
-./test.sh
-
-# Manual health check
-curl http://localhost:4242/health
-
-# Get API data
-curl http://localhost:4242/api/data | jq
-```
-
 ## API Endpoints
 
 | Endpoint | Description |
 |----------|-------------|
 | `GET /` | Dashboard HTML |
 | `GET /health` | Server health check |
-| `GET /api/data` | Current bridge data (JSON) |
+| `GET /api/data` | Bridge data (JSON) |
+| `GET /api/tasks` | Task list with activity |
+| `POST /api/tasks` | Create new task |
+| `DELETE /api/tasks/:id` | Delete task |
+| `GET /api/sessions` | OpenClaw sessions |
+| `GET /api/cron` | Cron job status |
+| `GET /api/messages` | Crew messages |
+| `GET /api/meta-learning` | Lessons learned |
+| `GET /api/checkpoints` | Checkpoint status |
+| `GET /api/git-locks` | Git lock status |
+| `GET /api/stall` | Stall detection status |
+| `GET /api/work-loop` | Work loop status |
 | `WS /` | WebSocket for real-time updates |
 
 ## Data Sources
 
-- **Seven**: OpenClaw session API (`/api/sessions`)
-- **Spock**: Session analysis (research-related)
-- **Geordi**: Git status and worktrees
-- **Uhura**: Email counts via `gog gmail`
-- **Quark**: Portfolio from `~/.openclaw/workspace/quark/portfolio.json`
-- **Sessions**: Full session list with metadata
+- **Tasks**: `~/.openclaw/dashboard/tasks.json`
+- **Messages**: `~/.openclaw/crew/messages.json`
+- **Sessions**: OpenClaw Gateway API (port 18789)
+- **Crons**: OpenClaw cron list API
+- **Quark**: `~/.openclaw/workspace/quark/portfolio.json`
+- **Git**: Workspace and skills directories
 - **System**: `/proc` filesystem
 
 ## Configuration
@@ -112,12 +117,26 @@ Environment variables:
 
 ```
 ~/.openclaw/dashboard/
-├── index.html      # Dashboard frontend (v6)
+├── index.html      # Dashboard frontend (v7)
 ├── server.js       # Node.js WebSocket server
+├── tasks.json      # Task data store
 ├── package.json    # Dependencies
 ├── start.sh        # Startup script
 ├── test.sh         # Test script
 └── README.md       # This file
+```
+
+## Related Scripts
+
+```
+~/.openclaw/crew/
+├── crew-task.js        # Task management CLI (v2.0 with peer review)
+├── crew-log.js         # Activity logging
+├── crew-audit.js       # Decision lineage
+├── crew-checkpoint.js  # State snapshots
+├── crew-msg.js         # Inter-agent messaging
+├── meta-learning.js    # Lessons learned
+└── work-loop.js        # Auto task routing
 ```
 
 ## Requirements
@@ -128,21 +147,33 @@ Environment variables:
 
 ## Changelog
 
+### v7.0
+- Complete task management system (Kanban)
+- 12 crew member support
+- Multi-agent peer review (Team of Rivals)
+- Work loop integration
+- Agent direct messaging (@mentions)
+- System Tasks panel
+- Activity feed with filters
+- Messages panel
+- Lessons learned panel
+- Checkpoint API
+- Git conflict detection API
+- Stall detection API
+- Improved font readability (min 12px)
+
 ### v6.0
-- Added starfield background animation
-- Added scanlines CRT effect with toggle
-- Added panel entrance animations
-- Added alert ticker with system status
-- Added Sessions panel for agent introspection
-- Added keyboard shortcuts for navigation
-- Added dynamic color coding for system stats
-- Added glow and shimmer effects
-- Improved hover states and transitions
-- Improved panel highlighting on navigation
+- Starfield background animation
+- Scanlines CRT effect
+- Panel entrance animations
+- Alert ticker
+- Sessions panel
+- Keyboard shortcuts
+- Dynamic color coding
 
 ### v5.0
 - Initial production release
-- All crew panels implemented
+- All crew panels
 - Real-time WebSocket updates
 - Sparkline charts for trading
 
