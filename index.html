@@ -467,15 +467,13 @@
                 <div id="footer-active" class="flex-1 bg-lcars-blue flex items-center px-3 text-sm font-medium text-lcars-bg">0 ACTIVE</div>
                 <div id="footer-pending" class="flex-1 bg-lcars-sky flex items-center px-3 text-sm font-medium text-lcars-bg">0 PENDING</div>
                 <div id="footer-update" class="flex-[2] bg-lcars-orange flex items-center px-3 text-sm font-medium text-lcars-bg">Last Update: --:--:--</div>
-                <div id="footer-version" class="flex-1 bg-lcars-peach flex items-center px-3 text-sm font-medium text-lcars-bg rounded-bl-lcars">v7.0</div>
+                <div id="footer-version" class="flex-1 bg-lcars-peach flex items-center px-3 text-sm font-medium text-lcars-bg">v7.0</div>
+                <div id="connection-status" class="bg-lcars-red flex items-center gap-1.5 px-3 text-sm font-bold text-lcars-bg rounded-bl-lcars uppercase">
+                    <div id="connection-dot" class="w-2 h-2 rounded-full bg-lcars-bg"></div>
+                    <span id="connection-text">DISCONNECTED</span>
+                </div>
             </div>
         </footer>
-    </div>
-
-    <!-- Connection Status -->
-    <div id="connection-status" class="fixed bottom-[60px] right-5 px-2.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider z-[100] flex items-center gap-1.5 backdrop-blur-xl bg-black/80 border border-status-alert text-status-alert">
-        <div id="connection-dot" class="w-1.5 h-1.5 rounded-full bg-status-alert"></div>
-        <span id="connection-text">DISCONNECTED</span>
     </div>
 
     <!-- Toast Notifications -->
@@ -788,15 +786,13 @@
                 const text = document.getElementById('connection-text');
                 
                 if (status === 'connected') {
-                    el.classList.remove('border-status-alert', 'text-status-alert');
-                    el.classList.add('border-status-active', 'text-status-active');
-                    dot.classList.remove('bg-status-alert');
-                    dot.classList.add('bg-status-active', 'animate-pulse');
+                    el.classList.remove('bg-lcars-red');
+                    el.classList.add('bg-lcars-sky');
+                    dot.classList.add('animate-pulse');
                 } else {
-                    el.classList.remove('border-status-active', 'text-status-active');
-                    el.classList.add('border-status-alert', 'text-status-alert');
-                    dot.classList.remove('bg-status-active', 'animate-pulse');
-                    dot.classList.add('bg-status-alert');
+                    el.classList.remove('bg-lcars-sky');
+                    el.classList.add('bg-lcars-red');
+                    dot.classList.remove('animate-pulse');
                 }
                 text.textContent = status.toUpperCase();
             }

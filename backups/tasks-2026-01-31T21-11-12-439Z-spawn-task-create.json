@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-01-31T21:03:33.167Z",
+  "lastUpdated": "2026-01-31T21:10:42.243Z",
   "columns": [
     "inbox",
     "assigned",
@@ -13983,211 +13983,258 @@
         "assignedAt": "2026-01-31T20:57:47.289Z",
         "reviewedAt": "2026-01-31T20:59:36.811Z"
       }
+    },
+    {
+      "id": "task-1769893587993-2ftan3y5e",
+      "title": "Fix system tasks panel flickering",
+      "description": "System tasks panel keeps removing and re-adding items. Make updates incremental.",
+      "status": "done",
+      "assignee": "geordi",
+      "category": "engineering",
+      "priority": "high",
+      "createdAt": "2026-01-31T21:06:27.993Z",
+      "updatedAt": "2026-01-31T21:10:30.905Z",
+      "comments": [],
+      "logs": [
+        {
+          "id": "log-1769893601755",
+          "type": "system",
+          "agent": "work-loop",
+          "message": "Work Loop routed to geordi (assigned complexity, model: claude-opus-4-5)",
+          "timestamp": "2026-01-31T21:06:41.755Z"
+        },
+        {
+          "id": "log-1769893611302",
+          "type": "update",
+          "agent": "geordi",
+          "message": "Starting investigation - locating system tasks panel code",
+          "timestamp": "2026-01-31T21:06:51.302Z"
+        },
+        {
+          "id": "log-1769893648471",
+          "type": "update",
+          "agent": "geordi",
+          "message": "Root cause identified: nextRun field (relative time like 'in 5s') changes constantly, causing full innerHTML replacement. Fix: implement incremental DOM updates.",
+          "timestamp": "2026-01-31T21:07:28.471Z"
+        },
+        {
+          "id": "log-1769893683168",
+          "type": "update",
+          "agent": "geordi",
+          "message": "Fix implemented and committed: Replaced innerHTML with incremental DOM updates. Elements now update in-place without flicker.",
+          "timestamp": "2026-01-31T21:08:03.168Z"
+        },
+        {
+          "id": "log-1769893683296",
+          "type": "system",
+          "agent": "work-loop",
+          "message": "belanna peer reviewing task",
+          "timestamp": "2026-01-31T21:08:03.296Z"
+        },
+        {
+          "id": "log-1769893691928",
+          "type": "system",
+          "agent": "work-loop",
+          "message": "belanna peer reviewing task",
+          "timestamp": "2026-01-31T21:08:11.927Z"
+        },
+        {
+          "id": "log-1769893722011",
+          "type": "system",
+          "agent": "work-loop",
+          "message": "belanna peer reviewing task",
+          "timestamp": "2026-01-31T21:08:42.011Z"
+        },
+        {
+          "id": "log-1769893743412",
+          "type": "update",
+          "agent": "belanna",
+          "message": "Peer Review (B'Elanna): Implementation verified. Commit 918eeae correctly identifies and fixes root cause - nextRun field constantly changing caused full innerHTML replacement. Solution uses incremental DOM updates: (1) Dedicated 20s timer for data fetch, (2) Hash-based cache to detect changes, (3) In-place element updates via data-task-id tracking, (4) Proper add/remove/reorder handling. Well-engineered fix.",
+          "timestamp": "2026-01-31T21:09:03.412Z"
+        },
+        {
+          "id": "log-1769893743564",
+          "type": "system",
+          "agent": "work-loop",
+          "message": "Data QC reviewing task",
+          "timestamp": "2026-01-31T21:09:03.564Z"
+        },
+        {
+          "id": "log-1769893747005",
+          "type": "update",
+          "agent": "belanna",
+          "message": "Peer Review: APPROVED. Incremental DOM updates are correctly implemented - tracks elements by data-task-id, updates properties in-place, hash-based change detection. Clean separation of fetch vs render cycles. No flicker.",
+          "timestamp": "2026-01-31T21:09:07.005Z"
+        },
+        {
+          "id": "log-1769893782403",
+          "type": "update",
+          "agent": "belanna",
+          "message": "Peer Review: APPROVED ✅ - Solid incremental DOM update implementation. Key improvements: (1) Separated data fetch from render cycle with dedicated timer, (2) Cache with hash comparison prevents unnecessary renders, (3) Proper element tracking via data-task-id, (4) In-place property updates eliminate flicker, (5) Concurrent fetch protection. Clean commit message documenting root cause and solution.",
+          "timestamp": "2026-01-31T21:09:42.403Z"
+        },
+        {
+          "id": "log-1769893830850",
+          "type": "update",
+          "agent": "data",
+          "message": "Data QC Review: APPROVED ✅ - Verified incremental DOM update implementation. Hash-based cache prevents unnecessary renders; elements tracked via data-task-id and updated in-place; proper add/remove handling. Clean commit (918eeae) with accurate root cause documentation. No issues found.",
+          "timestamp": "2026-01-31T21:10:30.850Z"
+        }
+      ],
+      "peerReviewer": "belanna",
+      "peerReview": {
+        "status": "approved",
+        "comments": [
+          {
+            "author": "belanna",
+            "text": "Incremental DOM updates correctly implemented - tracks items by data-task-id, updates in-place, hash-based change detection. Eliminates flicker. Solid engineering.",
+            "timestamp": "2026-01-31T21:09:03.469Z"
+          },
+          {
+            "author": "belanna",
+            "text": "LGTM. Proper DOM diffing eliminates flicker without over-engineering. Hash comparison, in-place updates, correct element tracking.",
+            "timestamp": "2026-01-31T21:09:07.074Z"
+          },
+          {
+            "author": "belanna",
+            "text": "Solid implementation. Properly separated fetch/render cycles, uses hash-based change detection, incremental DOM updates with data-task-id tracking. No edge cases missed. Ship it.",
+            "timestamp": "2026-01-31T21:09:42.472Z"
+          }
+        ],
+        "suggestions": [],
+        "assignedAt": "2026-01-31T21:08:03.214Z",
+        "reviewedAt": "2026-01-31T21:09:42.472Z"
+      },
+      "dataReview": {
+        "status": "approved",
+        "comments": [
+          {
+            "author": "data",
+            "text": "Verified incremental DOM update pattern. Hash-based change detection, in-place property updates via data-task-id tracking, proper element lifecycle management. Commit 918eeae correctly diagnoses root cause (nextRun field changes) and implements clean fix. Well-engineered solution.",
+            "timestamp": "2026-01-31T21:10:30.905Z"
+          }
+        ],
+        "assignedAt": "2026-01-31T21:08:03.214Z",
+        "reviewedAt": "2026-01-31T21:10:30.905Z"
+      }
+    },
+    {
+      "id": "task-1769893713047-geordi",
+      "title": "Remove keyboard shortcut overlay",
+      "description": "Remove the keyboard shortcut overlay from the dashboard - no value. Look for shortcut hints or overlay in index.html.",
+      "status": "peer_review",
+      "assignee": "geordi",
+      "category": "general",
+      "priority": "low",
+      "type": "spawned",
+      "createdAt": "2026-01-31T21:08:33.047Z",
+      "updatedAt": "2026-01-31T21:10:42.243Z",
+      "createdBy": "seven",
+      "comments": [],
+      "logs": [
+        {
+          "id": "log-1769893713047",
+          "type": "system",
+          "agent": "spawn-task",
+          "message": "Task created and assigned to geordi via spawn-task",
+          "timestamp": "2026-01-31T21:08:33.047Z"
+        },
+        {
+          "id": "log-1769893713097",
+          "type": "system",
+          "agent": "spawn-task",
+          "message": "Agent geordi spawned with session spawned-geordi-task-1769893713-1769893713062",
+          "timestamp": "2026-01-31T21:08:33.097Z"
+        },
+        {
+          "id": "log-1769893775815",
+          "type": "complete",
+          "agent": "geordi",
+          "message": "Removed keyboard shortcut overlay (8-line HTML block + CSS reference). Keyboard shortcuts N/M/T/Esc still work. Committed: 4c0da16",
+          "timestamp": "2026-01-31T21:09:35.815Z"
+        },
+        {
+          "id": "log-1769893775974",
+          "type": "system",
+          "agent": "work-loop",
+          "message": "spock peer reviewing task",
+          "timestamp": "2026-01-31T21:09:35.974Z"
+        },
+        {
+          "id": "log-1769893782102",
+          "type": "system",
+          "agent": "work-loop",
+          "message": "spock peer reviewing task",
+          "timestamp": "2026-01-31T21:09:42.102Z"
+        },
+        {
+          "id": "log-1769893782583",
+          "type": "system",
+          "agent": "work-loop",
+          "message": "spock peer reviewing task",
+          "timestamp": "2026-01-31T21:09:42.583Z"
+        },
+        {
+          "id": "log-1769893812179",
+          "type": "system",
+          "agent": "work-loop",
+          "message": "spock peer reviewing task",
+          "timestamp": "2026-01-31T21:10:12.179Z"
+        },
+        {
+          "id": "log-1769893823516",
+          "type": "update",
+          "agent": "spock",
+          "message": "Peer Review: APPROVED. Verified removal of shortcut overlay div + CSS. Keyboard shortcuts N/M/T/Esc still functional. Clean 9-line removal, commit 4c0da16.",
+          "timestamp": "2026-01-31T21:10:23.516Z"
+        },
+        {
+          "id": "log-1769893828339",
+          "type": "update",
+          "agent": "spock",
+          "message": "Peer Review: APPROVED - Clean removal of shortcut overlay (8-line HTML + 1 CSS rule). Keyboard shortcuts remain functional. Minimal, focused change.",
+          "timestamp": "2026-01-31T21:10:28.339Z"
+        },
+        {
+          "id": "log-1769893842243",
+          "type": "system",
+          "agent": "work-loop",
+          "message": "Data QC reviewing task",
+          "timestamp": "2026-01-31T21:10:42.243Z"
+        }
+      ],
+      "peerReviewer": "spock",
+      "peerReview": {
+        "status": "approved",
+        "comments": [
+          {
+            "author": "spock",
+            "text": "Clean removal. 9 lines deleted (8 HTML + 1 CSS rule). Keyboard shortcuts N/M/T/Esc verified functional. No regressions.",
+            "timestamp": "2026-01-31T21:10:22.591Z"
+          },
+          {
+            "author": "spock",
+            "text": "Clean removal of overlay hint element and associated CSS. Shortcuts still functional. Logical implementation.",
+            "timestamp": "2026-01-31T21:10:23.576Z"
+          },
+          {
+            "author": "spock",
+            "text": "Clean surgical removal. HTML overlay and orphaned CSS rule both removed. Keyboard functionality verified intact at line 714.",
+            "timestamp": "2026-01-31T21:10:28.405Z"
+          }
+        ],
+        "suggestions": [],
+        "assignedAt": "2026-01-31T21:09:35.875Z",
+        "reviewedAt": "2026-01-31T21:10:28.405Z"
+      },
+      "dataReview": {
+        "status": "pending",
+        "comments": [],
+        "assignedAt": "2026-01-31T21:09:35.875Z"
+      }
     }
   ],
   "activity": [
-    {
-      "id": "act-1769885066593",
-      "type": "log",
-      "action": "logged",
-      "agent": "data",
-      "taskId": "task-1769858335746-geordi",
-      "taskTitle": "Fix Sessions tile - add endpoint and show active subagents/crons",
-      "message": "QC Review: APPROVED - Sessions tile implementation verified. Endpoint returns subagent/cron data, dashboard displays correctly. Live test confirmed: 10 total, 1 subagent, 5 crons.",
-      "timestamp": "2026-01-31T18:44:26.593Z"
-    },
-    {
-      "id": "act-1769885066676",
-      "type": "status",
-      "action": "moved",
-      "agent": "data",
-      "taskId": "task-1769858335746-geordi",
-      "taskTitle": "Fix Sessions tile - add endpoint and show active subagents/crons",
-      "from": "done",
-      "to": "done",
-      "timestamp": "2026-01-31T18:44:26.676Z"
-    },
-    {
-      "id": "act-1769885067794",
-      "type": "log",
-      "action": "logged",
-      "agent": "work-loop",
-      "taskId": "task-1769865032823-spock",
-      "taskTitle": "Research Opportunities - Settlemint business & AI automation trends",
-      "message": "Data QC reviewing task",
-      "timestamp": "2026-01-31T18:44:27.794Z"
-    },
-    {
-      "id": "act-1769885083971",
-      "type": "log",
-      "action": "logged",
-      "agent": "data",
-      "taskId": "task-1769858335746-geordi",
-      "taskTitle": "Fix Sessions tile - add endpoint and show active subagents/crons",
-      "message": "QC Review (post-completion): VERIFIED ✅ Implementation confirmed - /api/sessions endpoint fetches from OpenClaw sessions_list, returns subagent/cron counts. Frontend tile displays total sessions with 'X agents, Y crons' subtitle. Quality standards met.",
-      "timestamp": "2026-01-31T18:44:43.971Z"
-    },
-    {
-      "id": "act-1769885092484-m0p5mwanm",
-      "type": "task",
-      "action": "created",
-      "agent": "system",
-      "taskId": "task-1769885092484-uu49u1ets",
-      "taskTitle": "Fix Dashboard: Data showing idle when actively processing",
-      "timestamp": "2026-01-31T18:44:52.484Z"
-    },
-    {
-      "id": "act-1769885092484-md97muo7p",
-      "type": "status",
-      "action": "assigned",
-      "agent": "system",
-      "taskId": "task-1769885092484-uu49u1ets",
-      "target": "geordi",
-      "timestamp": "2026-01-31T18:44:52.484Z"
-    },
-    {
-      "id": "act-1769885097910",
-      "type": "status",
-      "action": "moved",
-      "agent": "geordi",
-      "taskId": "task-1769885092484-uu49u1ets",
-      "taskTitle": "Fix Dashboard: Data showing idle when actively processing",
-      "from": "assigned",
-      "to": "in_progress",
-      "timestamp": "2026-01-31T18:44:57.910Z"
-    },
-    {
-      "id": "act-1769885097985",
-      "type": "log",
-      "action": "logged",
-      "agent": "work-loop",
-      "taskId": "task-1769885092484-uu49u1ets",
-      "taskTitle": "Fix Dashboard: Data showing idle when actively processing",
-      "message": "Work Loop routed to geordi (assigned complexity, model: claude-opus-4-5)",
-      "timestamp": "2026-01-31T18:44:57.985Z"
-    },
-    {
-      "id": "act-1769885098065",
-      "type": "log",
-      "action": "logged",
-      "agent": "work-loop",
-      "taskId": "task-1769865032823-spock",
-      "taskTitle": "Research Opportunities - Settlemint business & AI automation trends",
-      "message": "Data QC reviewing task",
-      "timestamp": "2026-01-31T18:44:58.065Z"
-    },
-    {
-      "id": "act-1769885100329",
-      "type": "log",
-      "action": "logged",
-      "agent": "data",
-      "taskId": "task-1769865032823-spock",
-      "taskTitle": "Research Opportunities - Settlemint business & AI automation trends",
-      "message": "QC Review: APPROVED ✅ - Exceptional research quality. All 4 categories (tools_to_build, partnerships_to_explore, time_savers, revenue_opportunities) thoroughly addressed. 10+ verified sources. Concrete revenue projections. Professional structure. Ready for Captain's review.",
-      "timestamp": "2026-01-31T18:45:00.297Z"
-    },
-    {
-      "id": "act-1769885100419",
-      "type": "status",
-      "action": "moved",
-      "agent": "data",
-      "taskId": "task-1769865032823-spock",
-      "taskTitle": "Research Opportunities - Settlemint business & AI automation trends",
-      "from": "done",
-      "to": "done",
-      "timestamp": "2026-01-31T18:45:00.419Z"
-    },
-    {
-      "id": "act-1769885102839-rad63prjk",
-      "type": "status",
-      "action": "qc_approved",
-      "agent": "data",
-      "taskId": "task-1769865032823-spock",
-      "taskTitle": "Research Opportunities - Settlemint business & AI automation trends",
-      "timestamp": "2026-01-31T18:45:02.839Z"
-    },
-    {
-      "id": "act-1769885128213",
-      "type": "log",
-      "action": "logged",
-      "agent": "work-loop",
-      "taskId": "task-1769868024094-geordi",
-      "taskTitle": "Git Conflict Detection - Prevent Agent Overwrites",
-      "message": "Data QC reviewing task",
-      "timestamp": "2026-01-31T18:45:28.213Z"
-    },
-    {
-      "id": "act-1769885129401",
-      "type": "log",
-      "action": "logged",
-      "agent": "data",
-      "taskId": "task-1769865032823-spock",
-      "taskTitle": "Research Opportunities - Settlemint business & AI automation trends",
-      "message": "QC Review: APPROVED. Comprehensive research covering all 4 categories. 10 sources cited. Actionable recommendations with revenue estimates. Strong strategic positioning advice. Quality: 24/25.",
-      "timestamp": "2026-01-31T18:45:29.401Z"
-    },
-    {
-      "id": "act-1769885129497",
-      "type": "status",
-      "action": "moved",
-      "agent": "data",
-      "taskId": "task-1769865032823-spock",
-      "taskTitle": "Research Opportunities - Settlemint business & AI automation trends",
-      "from": "done",
-      "to": "done",
-      "timestamp": "2026-01-31T18:45:29.497Z"
-    },
-    {
-      "id": "act-1769885138061",
-      "type": "log",
-      "action": "logged",
-      "agent": "geordi",
-      "taskId": "task-1769885092484-uu49u1ets",
-      "taskTitle": "Fix Dashboard: Data showing idle when actively processing",
-      "message": "Found root cause: Dashboard doesn't read work-loop-state.json for active workers. Data shows as IDLE because getAgentStatus() only checks sessions, tasks, and bridge data - not work-loop active workers. Implementing fix now.",
-      "timestamp": "2026-01-31T18:45:38.061Z"
-    },
-    {
-      "id": "act-1769885158352",
-      "type": "log",
-      "action": "logged",
-      "agent": "work-loop",
-      "taskId": "task-1769868024094-geordi",
-      "taskTitle": "Git Conflict Detection - Prevent Agent Overwrites",
-      "message": "Data QC reviewing task",
-      "timestamp": "2026-01-31T18:45:58.352Z"
-    },
-    {
-      "id": "act-1769885188506",
-      "type": "log",
-      "action": "logged",
-      "agent": "work-loop",
-      "taskId": "task-1769868024094-geordi",
-      "taskTitle": "Git Conflict Detection - Prevent Agent Overwrites",
-      "message": "Data QC reviewing task",
-      "timestamp": "2026-01-31T18:46:28.506Z"
-    },
-    {
-      "id": "act-1769885193115",
-      "type": "log",
-      "action": "logged",
-      "agent": "data",
-      "taskId": "task-1769868024094-geordi",
-      "taskTitle": "Git Conflict Detection - Prevent Agent Overwrites",
-      "message": "QC Review: APPROVED ✅ | Git Conflict Detection system fully implemented. All 6 requirements verified: pre-edit checks, auto-stash, file locks, cross-agent warnings, auto-commit cycle, dashboard API. Functional testing passed. Clean CLI with 8 commands. Work-loop integration confirmed.",
-      "timestamp": "2026-01-31T18:46:33.089Z"
-    },
-    {
-      "id": "act-1769885193190",
-      "type": "status",
-      "action": "moved",
-      "agent": "data",
-      "taskId": "task-1769868024094-geordi",
-      "taskTitle": "Git Conflict Detection - Prevent Agent Overwrites",
-      "from": "done",
-      "to": "done",
-      "timestamp": "2026-01-31T18:46:33.190Z"
-    },
     {
       "id": "act-1769885193450-4tux17u8r",
       "type": "status",
@@ -19074,6 +19121,391 @@
       "taskId": "task-1769893398253-geordi",
       "taskTitle": "Verify Dashboard Task Integration",
       "timestamp": "2026-01-31T21:03:33.160Z"
+    },
+    {
+      "id": "act-1769893587993-yy41e6dgn",
+      "type": "task",
+      "action": "created",
+      "agent": "system",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "timestamp": "2026-01-31T21:06:27.993Z"
+    },
+    {
+      "id": "act-1769893587993-1ci5h3vzs",
+      "type": "status",
+      "action": "assigned",
+      "agent": "system",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "target": "geordi",
+      "timestamp": "2026-01-31T21:06:27.993Z"
+    },
+    {
+      "id": "act-1769893601706",
+      "type": "status",
+      "action": "moved",
+      "agent": "geordi",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "from": "assigned",
+      "to": "in_progress",
+      "timestamp": "2026-01-31T21:06:41.706Z"
+    },
+    {
+      "id": "act-1769893601755",
+      "type": "log",
+      "action": "logged",
+      "agent": "work-loop",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "message": "Work Loop routed to geordi (assigned complexity, model: claude-opus-4-5)",
+      "timestamp": "2026-01-31T21:06:41.755Z"
+    },
+    {
+      "id": "act-1769893611302",
+      "type": "log",
+      "action": "logged",
+      "agent": "geordi",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "message": "Starting investigation - locating system tasks panel code",
+      "timestamp": "2026-01-31T21:06:51.302Z"
+    },
+    {
+      "id": "act-1769893648471",
+      "type": "log",
+      "action": "logged",
+      "agent": "geordi",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "message": "Root cause identified: nextRun field (relative time like 'in 5s') changes constantly, causing full innerHTML replacement. Fix: implement incremental DOM updates.",
+      "timestamp": "2026-01-31T21:07:28.471Z"
+    },
+    {
+      "id": "act-1769893683168",
+      "type": "log",
+      "action": "logged",
+      "agent": "geordi",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "message": "Fix implemented and committed: Replaced innerHTML with incremental DOM updates. Elements now update in-place without flicker.",
+      "timestamp": "2026-01-31T21:08:03.168Z"
+    },
+    {
+      "id": "act-1769893683214-peer",
+      "type": "peer_review",
+      "action": "assigned",
+      "agent": "system",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "peerReviewer": "belanna",
+      "author": "geordi",
+      "timestamp": "2026-01-31T21:08:03.214Z"
+    },
+    {
+      "id": "act-1769893683214",
+      "type": "status",
+      "action": "moved",
+      "agent": "geordi",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "from": "in_progress",
+      "to": "review",
+      "timestamp": "2026-01-31T21:08:03.214Z"
+    },
+    {
+      "id": "act-1769893683296",
+      "type": "log",
+      "action": "logged",
+      "agent": "work-loop",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "message": "belanna peer reviewing task",
+      "timestamp": "2026-01-31T21:08:03.296Z"
+    },
+    {
+      "id": "act-1769893691928",
+      "type": "log",
+      "action": "logged",
+      "agent": "work-loop",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "message": "belanna peer reviewing task",
+      "timestamp": "2026-01-31T21:08:11.927Z"
+    },
+    {
+      "id": "act-1769893713047-create",
+      "type": "task",
+      "action": "created",
+      "agent": "seven",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "timestamp": "2026-01-31T21:08:33.047Z"
+    },
+    {
+      "id": "act-1769893713047-assign",
+      "type": "status",
+      "action": "spawned",
+      "agent": "seven",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "target": "geordi",
+      "timestamp": "2026-01-31T21:08:33.047Z"
+    },
+    {
+      "id": "act-1769893713097",
+      "type": "log",
+      "action": "logged",
+      "agent": "spawn-task",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "message": "Agent geordi spawned with session spawned-geordi-task-1769893713-1769893713062",
+      "timestamp": "2026-01-31T21:08:33.097Z"
+    },
+    {
+      "id": "act-1769893722011",
+      "type": "log",
+      "action": "logged",
+      "agent": "work-loop",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "message": "belanna peer reviewing task",
+      "timestamp": "2026-01-31T21:08:42.011Z"
+    },
+    {
+      "id": "act-1769893743412",
+      "type": "log",
+      "action": "logged",
+      "agent": "belanna",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "message": "Peer Review (B'Elanna): Implementation verified. Commit 918eeae correctly identifies and fixes root cause - nextRun field constantly changing caused full innerHTML replacement. Solution uses incremental DOM updates: (1) Dedicated 20s timer for data fetch, (2) Hash-based cache to detect changes, (3) In-place element updates via data-task-id tracking, (4) Proper add/remove/reorder handling. Well-engineered fix.",
+      "timestamp": "2026-01-31T21:09:03.412Z"
+    },
+    {
+      "id": "act-1769893743469-review",
+      "type": "peer_review",
+      "action": "approve",
+      "agent": "belanna",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "comment": "Incremental DOM updates correctly implemented - tracks items by data-task-id, updates in-place, hash-based change detection. Eliminates flicker. Solid engineering.",
+      "timestamp": "2026-01-31T21:09:03.469Z"
+    },
+    {
+      "id": "act-1769893743564",
+      "type": "log",
+      "action": "logged",
+      "agent": "work-loop",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "message": "Data QC reviewing task",
+      "timestamp": "2026-01-31T21:09:03.564Z"
+    },
+    {
+      "id": "act-1769893747015",
+      "type": "log",
+      "action": "logged",
+      "agent": "belanna",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "message": "Peer Review: APPROVED. Incremental DOM updates are correctly implemented - tracks elements by data-task-id, updates properties in-place, hash-based change detection. Clean separation of fetch vs render cycles. No flicker.",
+      "timestamp": "2026-01-31T21:09:07.005Z"
+    },
+    {
+      "id": "act-1769893747074-review",
+      "type": "peer_review",
+      "action": "approve",
+      "agent": "belanna",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "comment": "LGTM. Proper DOM diffing eliminates flicker without over-engineering. Hash comparison, in-place updates, correct element tracking.",
+      "timestamp": "2026-01-31T21:09:07.074Z"
+    },
+    {
+      "id": "act-1769893775815",
+      "type": "log",
+      "action": "logged",
+      "agent": "geordi",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "message": "Removed keyboard shortcut overlay (8-line HTML block + CSS reference). Keyboard shortcuts N/M/T/Esc still work. Committed: 4c0da16",
+      "timestamp": "2026-01-31T21:09:35.815Z"
+    },
+    {
+      "id": "act-1769893775875-peer",
+      "type": "peer_review",
+      "action": "assigned",
+      "agent": "system",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "peerReviewer": "spock",
+      "author": "geordi",
+      "timestamp": "2026-01-31T21:09:35.875Z"
+    },
+    {
+      "id": "act-1769893775875",
+      "type": "status",
+      "action": "moved",
+      "agent": "geordi",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "from": "in_progress",
+      "to": "review",
+      "timestamp": "2026-01-31T21:09:35.875Z"
+    },
+    {
+      "id": "act-1769893775974",
+      "type": "log",
+      "action": "logged",
+      "agent": "work-loop",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "message": "spock peer reviewing task",
+      "timestamp": "2026-01-31T21:09:35.974Z"
+    },
+    {
+      "id": "act-1769893782102",
+      "type": "log",
+      "action": "logged",
+      "agent": "work-loop",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "message": "spock peer reviewing task",
+      "timestamp": "2026-01-31T21:09:42.102Z"
+    },
+    {
+      "id": "act-1769893782414",
+      "type": "log",
+      "action": "logged",
+      "agent": "belanna",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "message": "Peer Review: APPROVED ✅ - Solid incremental DOM update implementation. Key improvements: (1) Separated data fetch from render cycle with dedicated timer, (2) Cache with hash comparison prevents unnecessary renders, (3) Proper element tracking via data-task-id, (4) In-place property updates eliminate flicker, (5) Concurrent fetch protection. Clean commit message documenting root cause and solution.",
+      "timestamp": "2026-01-31T21:09:42.403Z"
+    },
+    {
+      "id": "act-1769893782472-review",
+      "type": "peer_review",
+      "action": "approve",
+      "agent": "belanna",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "comment": "Solid implementation. Properly separated fetch/render cycles, uses hash-based change detection, incremental DOM updates with data-task-id tracking. No edge cases missed. Ship it.",
+      "timestamp": "2026-01-31T21:09:42.472Z"
+    },
+    {
+      "id": "act-1769893782583",
+      "type": "log",
+      "action": "logged",
+      "agent": "work-loop",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "message": "spock peer reviewing task",
+      "timestamp": "2026-01-31T21:09:42.583Z"
+    },
+    {
+      "id": "act-1769893812179",
+      "type": "log",
+      "action": "logged",
+      "agent": "work-loop",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "message": "spock peer reviewing task",
+      "timestamp": "2026-01-31T21:10:12.179Z"
+    },
+    {
+      "id": "act-1769893822591-review",
+      "type": "peer_review",
+      "action": "approve",
+      "agent": "spock",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "comment": "Clean removal. 9 lines deleted (8 HTML + 1 CSS rule). Keyboard shortcuts N/M/T/Esc verified functional. No regressions.",
+      "timestamp": "2026-01-31T21:10:22.591Z"
+    },
+    {
+      "id": "act-1769893823526",
+      "type": "log",
+      "action": "logged",
+      "agent": "spock",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "message": "Peer Review: APPROVED. Verified removal of shortcut overlay div + CSS. Keyboard shortcuts N/M/T/Esc still functional. Clean 9-line removal, commit 4c0da16.",
+      "timestamp": "2026-01-31T21:10:23.516Z"
+    },
+    {
+      "id": "act-1769893823577-review",
+      "type": "peer_review",
+      "action": "approve",
+      "agent": "spock",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "comment": "Clean removal of overlay hint element and associated CSS. Shortcuts still functional. Logical implementation.",
+      "timestamp": "2026-01-31T21:10:23.576Z"
+    },
+    {
+      "id": "act-1769893828352",
+      "type": "log",
+      "action": "logged",
+      "agent": "spock",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "message": "Peer Review: APPROVED - Clean removal of shortcut overlay (8-line HTML + 1 CSS rule). Keyboard shortcuts remain functional. Minimal, focused change.",
+      "timestamp": "2026-01-31T21:10:28.339Z"
+    },
+    {
+      "id": "act-1769893828405-review",
+      "type": "peer_review",
+      "action": "approve",
+      "agent": "spock",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "comment": "Clean surgical removal. HTML overlay and orphaned CSS rule both removed. Keyboard functionality verified intact at line 714.",
+      "timestamp": "2026-01-31T21:10:28.405Z"
+    },
+    {
+      "id": "act-1769893830859",
+      "type": "log",
+      "action": "logged",
+      "agent": "data",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "message": "Data QC Review: APPROVED ✅ - Verified incremental DOM update implementation. Hash-based cache prevents unnecessary renders; elements tracked via data-task-id and updated in-place; proper add/remove handling. Clean commit (918eeae) with accurate root cause documentation. No issues found.",
+      "timestamp": "2026-01-31T21:10:30.850Z"
+    },
+    {
+      "id": "act-1769893830906-review",
+      "type": "data_review",
+      "action": "approve",
+      "agent": "data",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "comment": "Verified incremental DOM update pattern. Hash-based change detection, in-place property updates via data-task-id tracking, proper element lifecycle management. Commit 918eeae correctly diagnoses root cause (nextRun field changes) and implements clean fix. Well-engineered solution.",
+      "timestamp": "2026-01-31T21:10:30.905Z"
+    },
+    {
+      "id": "act-1769893830906-done",
+      "type": "status",
+      "action": "completed",
+      "agent": "system",
+      "taskId": "task-1769893587993-2ftan3y5e",
+      "taskTitle": "Fix system tasks panel flickering",
+      "approvedBy": [
+        "belanna",
+        "data"
+      ],
+      "timestamp": "2026-01-31T21:10:30.905Z"
+    },
+    {
+      "id": "act-1769893842243",
+      "type": "log",
+      "action": "logged",
+      "agent": "work-loop",
+      "taskId": "task-1769893713047-geordi",
+      "taskTitle": "Remove keyboard shortcut overlay",
+      "message": "Data QC reviewing task",
+      "timestamp": "2026-01-31T21:10:42.243Z"
     }
   ],
   "agents": {
