@@ -277,7 +277,7 @@
     <div class="scanlines fixed inset-0 pointer-events-none z-[1000] opacity-30"></div>
 
     <!-- Main Frame -->
-    <div class="lcars-frame grid grid-cols-[160px_1fr] grid-rows-[70px_auto_1fr_50px] h-screen relative z-10">
+    <div class="lcars-frame grid grid-cols-[140px_1fr] grid-rows-[70px_auto_1fr_50px] h-screen relative z-10">
         
         <!-- Header -->
         <header class="col-span-2 flex items-stretch">
@@ -304,25 +304,17 @@
             </div>
         </header>
 
-        <!-- Sidebar -->
-        <aside class="lcars-sidebar row-span-2 flex flex-col gap-1 pt-1">
-            <button class="bg-lcars-purple h-10 rounded-r-lcars flex items-center px-3 text-sm font-bold text-lcars-bg uppercase tracking-wider cursor-pointer hover:brightness-125 hover:translate-x-1 transition-all shadow-[0_0_15px_rgba(255,153,0,0.5)]">
-                COMMAND
-            </button>
-            <button onclick="showAddTask()" class="bg-lcars-blue h-10 rounded-r-lcars flex items-center px-3 text-sm font-bold text-lcars-bg uppercase tracking-wider cursor-pointer hover:brightness-125 hover:translate-x-1 transition-all">
-                NEW TASK
-            </button>
-            <button onclick="toggleView('agents')" class="bg-lcars-green h-10 rounded-r-lcars flex items-center px-3 text-sm font-bold text-lcars-bg uppercase tracking-wider cursor-pointer hover:brightness-125 hover:translate-x-1 transition-all">
-                CREW
-            </button>
-            <button onclick="toggleView('system')" class="bg-lcars-sky h-10 rounded-r-lcars flex items-center px-3 text-sm font-bold text-lcars-bg uppercase tracking-wider cursor-pointer hover:brightness-125 hover:translate-x-1 transition-all">
-                SYSTEM
-            </button>
-            <button onclick="openMessagesModal()" id="messages-btn" class="bg-lcars-violet h-10 rounded-r-lcars flex items-center px-3 text-sm font-bold text-lcars-bg uppercase tracking-wider cursor-pointer hover:brightness-125 hover:translate-x-1 transition-all">
-                MESSAGES <span id="msg-badge" class="hidden bg-status-alert text-black text-xs font-bold px-1.5 py-0.5 rounded-xl ml-1.5 animate-pulse">0</span>
-            </button>
-            <div class="flex-1 bg-lcars-tan rounded-r-lcars min-h-[20px]"></div>
-            <div class="sidebar-elbow-bottom bg-lcars-tan h-[30px]"></div>
+        <!-- Sidebar: Crew by Department -->
+        <aside class="lcars-sidebar row-span-2 flex flex-col pt-1 overflow-hidden">
+            <div id="sidebar-crew" class="flex-1 flex flex-col gap-0.5 overflow-y-auto pr-1">
+                <!-- Rendered by JS -->
+            </div>
+            <div class="flex gap-1 mt-1">
+                <button onclick="openMessagesModal()" id="messages-btn" class="flex-1 bg-lcars-violet h-8 rounded-r-lg flex items-center justify-center text-xs font-bold text-lcars-bg uppercase cursor-pointer hover:brightness-125 transition-all">
+                    MSG <span id="msg-badge" class="hidden bg-status-alert text-black text-xs font-bold px-1 rounded-xl ml-1 animate-pulse">0</span>
+                </button>
+            </div>
+            <div class="sidebar-elbow-bottom bg-lcars-tan h-[30px] mt-1"></div>
         </aside>
 
         <!-- Stats Bar -->
@@ -407,39 +399,14 @@
             </div>
         </div>
 
-        <!-- Main Content - Three Panel Layout -->
-        <main class="mission-content col-start-2 grid grid-cols-[260px_1fr_320px] gap-3 p-3 overflow-hidden">
+        <!-- Main Content - Two Panel Layout -->
+        <main class="mission-content col-start-2 grid grid-cols-[1fr_340px] gap-3 p-3 overflow-hidden">
             
-            <!-- Left Panel: Agents -->
-            <div class="agents-panel bg-lcars-panel border-2 border-lcars-purple rounded-lcars flex flex-col overflow-hidden">
-                <div class="flex items-stretch h-[38px] flex-shrink-0">
-                    <div class="w-[60px] bg-lcars-purple flex items-center justify-center text-xs font-bold text-lcars-bg uppercase tracking-wider">CREW</div>
-                    <div class="flex-1 flex items-center justify-between px-3 bg-black/50">
-                        <span class="text-sm font-bold tracking-widest uppercase text-lcars-purple">Agents</span>
-                        <span id="total-tasks-badge" class="text-xs text-lcars-gold font-bold"></span>
-                    </div>
-                </div>
-                <div id="agents-list" class="flex-1 overflow-y-auto p-2">
-                    <!-- Agent cards rendered here -->
-                </div>
-                <!-- Lessons Learned Section -->
-                <div id="lessons-section" class="border-t-2 border-lcars-purple/30 mt-2">
-                    <div class="flex items-center justify-between px-3 py-2 bg-black/30 cursor-pointer" onclick="toggleLessons()">
-                        <span class="text-xs font-bold tracking-wider uppercase text-lcars-violet">📚 Lessons Learned</span>
-                        <span id="lessons-toggle" class="text-lcars-violet text-xs">▼</span>
-                    </div>
-                    <div id="lessons-content" class="hidden p-2 max-h-[200px] overflow-y-auto">
-                        <div id="lessons-list" class="space-y-2">
-                            <!-- Lessons rendered here -->
-                        </div>
-                        <button onclick="triggerAnalysis()" class="mt-2 w-full py-1 bg-lcars-violet/20 text-lcars-violet border border-lcars-violet/50 rounded text-xs hover:bg-lcars-violet/40 transition-all">
-                            🔄 Run Analysis
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <!-- Hidden container for compatibility -->
+            <div id="agents-list" class="hidden"></div>
+            <span id="total-tasks-badge" class="hidden"></span>
 
-            <!-- Center Panel: Mission Queue (Kanban) -->
+            <!-- Left Panel: Mission Queue (Kanban) -->
             <div class="mission-panel bg-lcars-panel border-2 border-lcars-blue rounded-lcars flex flex-col overflow-hidden">
                 <div class="flex items-stretch h-[38px] flex-shrink-0">
                     <div class="w-[60px] bg-lcars-blue flex items-center justify-center text-xs font-bold text-lcars-bg uppercase tracking-wider">QUEUE</div>
@@ -1247,27 +1214,22 @@
             }
 
             renderAgents() {
-                const container = document.getElementById('agents-list');
-                if (!this.tasksData?.agents) {
-                    container.innerHTML = '<div class="text-lcars-violet text-center py-5">Loading...</div>';
-                    return;
-                }
+                const container = document.getElementById('sidebar-crew');
+                if (!container || !this.tasksData?.agents) return;
 
                 const agents = this.tasksData.agents;
                 
-                // Calculate total tasks and update header
-                let totalTasks = 0;
-                Object.keys(agents).forEach(key => {
-                    totalTasks += this.getAgentTaskCount(key);
-                });
-                const totalBadge = document.getElementById('total-tasks-badge');
-                if (totalBadge) totalBadge.textContent = `${totalTasks} tasks`;
+                // Department config with LCARS colors
+                const depts = [
+                    { id: 'CMD', name: 'CMD', color: '#cc99cc' },
+                    { id: 'ENG', name: 'ENG', color: '#9999ff' },
+                    { id: 'COM', name: 'COM', color: '#cc6699' },
+                    { id: 'SCI', name: 'SCI', color: '#99cc99' },
+                    { id: 'TRD', name: 'TRD', color: '#ffcc99' },
+                    { id: 'QC', name: 'QC', color: '#ffd700' }
+                ];
                 
                 // Group agents by department
-                const deptOrder = ['CMD', 'ENG', 'COM', 'SCI', 'TRD', 'QC'];
-                const deptNames = { CMD: 'Command', ENG: 'Engineering', COM: 'Communications', SCI: 'Research', TRD: 'Trading', QC: 'Quality Control' };
-                const deptColors = { CMD: '#cc99cc', ENG: '#9999ff', COM: '#cc6699', SCI: '#99cc99', TRD: '#ffcc99', QC: '#ffd700' };
-                
                 const grouped = {};
                 Object.entries(agents).forEach(([key, agent]) => {
                     const dept = agent.department || 'OTHER';
@@ -1275,61 +1237,53 @@
                     grouped[dept].push({ key, ...agent });
                 });
                 
-                // Status config
-                const statusConfig = {
-                    thinking: { label: '●', class: 'text-lcars-sky', title: 'Thinking' },
-                    building: { label: '●', class: 'text-green-400', title: 'Building' },
-                    researching: { label: '●', class: 'text-lcars-orange', title: 'Researching' },
-                    reviewing: { label: '●', class: 'text-lcars-violet', title: 'Reviewing' },
-                    waiting: { label: '○', class: 'text-lcars-peach', title: 'Waiting' },
-                    idle: { label: '○', class: 'text-gray-500', title: 'Idle' },
-                    offline: { label: '○', class: 'text-gray-700', title: 'Offline' }
+                // Status indicators
+                const getStatus = (key) => {
+                    const status = this.getAgentStatus(key);
+                    const active = ['thinking', 'building', 'researching', 'reviewing'].includes(status);
+                    return active ? '●' : '○';
+                };
+                const getStatusColor = (key) => {
+                    const status = this.getAgentStatus(key);
+                    const colors = { thinking: '#99ccff', building: '#99ff99', researching: '#ffcc66', reviewing: '#cc99cc' };
+                    return colors[status] || '#666';
                 };
                 
-                let html = deptOrder.filter(d => grouped[d]).map(dept => {
-                    const deptAgents = grouped[dept];
-                    const agentRows = deptAgents.map(agent => {
-                        const status = this.getAgentStatus(agent.key);
+                let html = depts.filter(d => grouped[d.id]).map(dept => {
+                    const deptAgents = grouped[dept.id];
+                    
+                    // Department header as LCARS button
+                    const header = `<div class="bg-[${dept.color}] h-7 rounded-r-lg flex items-center px-2 text-xs font-bold text-lcars-bg uppercase tracking-wider mb-0.5">${dept.name}</div>`;
+                    
+                    // Agent rows
+                    const rows = deptAgents.map(agent => {
                         const taskCount = this.getAgentTaskCount(agent.key);
-                        const statusInfo = statusConfig[status] || statusConfig.idle;
-                        const modelBadge = agent.model ? `<span class="model-badge ${agent.model}">${agent.model[0].toUpperCase()}</span>` : '';
+                        const statusDot = getStatus(agent.key);
+                        const statusColor = getStatusColor(agent.key);
+                        const firstName = agent.name.split(' ')[0];
+                        const modelLetter = agent.model ? agent.model[0].toUpperCase() : '';
+                        const modelColors = { O: '#9b59b6', C: '#27ae60', M: '#3498db' };
                         
                         return `
-                            <div class="flex items-center gap-2 py-1 px-2 bg-black/20 rounded cursor-pointer hover:bg-black/40" data-agent="${agent.key}">
-                                <span class="${statusInfo.class}" title="${statusInfo.title}">${statusInfo.label}</span>
-                                <span class="text-xs text-lcars-gold flex-1 truncate">${agent.name.split(' ')[0]}</span>
-                                ${modelBadge}
-                                ${taskCount > 0 ? `<span class="text-xs text-lcars-sky">${taskCount}</span>` : ''}
+                            <div class="flex items-center gap-1 py-0.5 px-2 cursor-pointer hover:bg-white/10 rounded-r transition-all" data-agent="${agent.key}">
+                                <span style="color: ${statusColor}">${statusDot}</span>
+                                <span class="text-xs text-lcars-gold flex-1 truncate font-medium">${firstName}</span>
+                                ${modelLetter ? `<span class="w-4 h-4 rounded text-[9px] font-bold flex items-center justify-center text-white" style="background: ${modelColors[modelLetter]}">${modelLetter}</span>` : ''}
+                                ${taskCount > 0 ? `<span class="text-[10px] text-lcars-sky font-bold">${taskCount}</span>` : ''}
                             </div>
                         `;
                     }).join('');
                     
-                    return `
-                        <div class="mb-2">
-                            <div class="text-xs font-bold uppercase tracking-wider px-1 py-0.5 mb-1" style="color: ${deptColors[dept]}">${deptNames[dept]}</div>
-                            <div class="space-y-0.5">${agentRows}</div>
-                        </div>
-                    `;
+                    return header + rows;
                 }).join('');
                 
-                // Add sessions mini section (compact)
-                if (this.sessionsData && (this.sessionsData.subagents?.length > 0 || this.sessionsData.crons?.length > 0)) {
+                // Active sessions indicator
+                if (this.sessionsData && (this.sessionsData.activeSubagents > 0 || this.sessionsData.runningCrons > 0)) {
                     html += `
-                        <div class="bg-lcars-orange/10 border border-lcars-orange/50 rounded px-2 py-1.5 mt-2">
-                            <div class="flex justify-between items-center text-xs text-lcars-orange mb-1">
-                                <span class="font-bold">◈ ACTIVE</span>
-                                <span>${this.sessionsData.activeSubagents}A ${this.sessionsData.runningCrons}C</span>
-                            </div>
-                            <div class="flex flex-wrap gap-1">
-                                ${this.sessionsData.subagents.slice(0, 4).map(s => `
-                                    <span class="text-xs px-1.5 py-0.5 bg-lcars-sky/20 text-lcars-sky rounded truncate max-w-[80px]" title="${s.label}">${s.label?.split('-')[0] || 'agent'}</span>
-                                `).join('')}
-                                ${this.sessionsData.crons.slice(0, 3).map(s => `
-                                    <span class="text-xs px-1.5 py-0.5 bg-lcars-peach/20 text-lcars-peach rounded truncate max-w-[80px]" title="${s.label}">${s.label?.split('-')[0] || 'cron'}</span>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `;
+                        <div class="bg-lcars-orange h-6 rounded-r-lg flex items-center justify-between px-2 text-[10px] font-bold text-lcars-bg uppercase mt-1">
+                            <span>ACTIVE</span>
+                            <span>${this.sessionsData.activeSubagents}A ${this.sessionsData.runningCrons}C</span>
+                        </div>`;
                 }
                 
                 container.innerHTML = html;
