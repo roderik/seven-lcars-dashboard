@@ -27,10 +27,17 @@
 
 import { WebSocketServer, WebSocket } from 'ws';
 import { createServer } from 'http';
-import { readFileSync, writeFileSync, existsSync, watchFile, statSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, watchFile, statSync, copyFileSync, mkdirSync, readdirSync, unlinkSync, renameSync, utimesSync } from 'fs';
 import { execSync, exec } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { createRequire } from 'module';
+import { homedir } from 'os';
+import { gzipSync } from 'zlib';
+
+// Import backup protection module (CommonJS)
+const require = createRequire(import.meta.url);
+const tasksBackup = require(join(homedir(), '.openclaw/crew/tasks-backup.js'));
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -47,8 +54,68 @@ const cache = {
   gitStatus: { workspace: null, skills: null, lastUpdate: 0, ttl: 30000 }, // 30s TTL
   sessions: { data: null, lastUpdate: 0, ttl: 10000 }, // 10s TTL
   quarkData: { data: null, lastUpdate: 0, ttl: 5000 }, // 5s TTL (trade updates)
-  bridgeData: { data: null, lastUpdate: 0, ttl: 10000 } // 10s TTL
+  bridgeData: { data: null, lastUpdate: 0, ttl: 10000 }, // 10s TTL
+  gatewayStatus: { data: null, lastUpdate: 0, ttl: 60000 } // 60s TTL (slow call - cache longer)
 };
+
+// ═══════════════════════════════════════════════════════════════
+// GZIP COMPRESSION - Performance optimization
+// ═══════════════════════════════════════════════════════════════
+
+// GZIP disabled - causing blocking issues on large responses
+// Compress at client side or use CDN for large payloads
+
+function sendJsonResponse(res, data, statusCode = 200) {
+  const json = JSON.stringify(data);
+  res.writeHead(statusCode, { 'Content-Type': 'application/json' });
+  res.end(json);
+}
+
+// Async gateway status updater (runs in background)
+let gatewayStatusPromise = null;
+async function updateGatewayStatusAsync() {
+  if (gatewayStatusPromise) return gatewayStatusPromise;
+  
+  gatewayStatusPromise = new Promise((resolve) => {
+    exec('/home/roderik/.npm-global/bin/openclaw gateway status --json 2>/dev/null',
+      { timeout: 2000, maxBuffer: 1024 * 100 },
+      (err, stdout) => {
+        gatewayStatusPromise = null;
+        if (err) {
+          resolve(null);
+          return;
+        }
+        try {
+          const gwData = JSON.parse(stdout);
+          let uptime = null;
+          if (gwData.uptime) {
+            uptime = gwData.uptime;
+          } else if (gwData.startedAt) {
+            uptime = Math.floor((Date.now() - new Date(gwData.startedAt).getTime()) / 1000);
+          }
+          cache.gatewayStatus.data = uptime;
+          cache.gatewayStatus.lastUpdate = Date.now();
+          resolve(uptime);
+        } catch (e) {
+          resolve(null);
+        }
+      }
+    );
+  });
+  
+  return gatewayStatusPromise;
+}
+
+// Get gateway uptime (non-blocking, uses cache)
+function getGatewayUptime() {
+  const now = Date.now();
+  if (cache.gatewayStatus.data !== null && (now - cache.gatewayStatus.lastUpdate) < cache.gatewayStatus.ttl) {
+    return cache.gatewayStatus.data;
+  }
+  // Trigger async update but return stale data (or null)
+  updateGatewayStatusAsync();
+  return cache.gatewayStatus.data;
+}
 
 function getCached(key, fetchFn) {
   const now = Date.now();
@@ -345,14 +412,103 @@ function loadTasks() {
   return getDefaultTasks();
 }
 
-// Save tasks to file
-function saveTasks(tasksData) {
+// Prune old activity and logs to keep file size manageable
+const MAX_ACTIVITY_ENTRIES = 500;
+const MAX_LOGS_PER_TASK = 50;
+const ARCHIVE_DONE_OLDER_THAN_DAYS = 7;
+
+function pruneTaskData(tasksData) {
+  let pruned = false;
+  
+  // Prune activity to most recent MAX_ACTIVITY_ENTRIES
+  if (tasksData.activity && tasksData.activity.length > MAX_ACTIVITY_ENTRIES) {
+    tasksData.activity = tasksData.activity.slice(-MAX_ACTIVITY_ENTRIES);
+    pruned = true;
+  }
+  
+  // Prune logs per task
+  if (tasksData.tasks) {
+    tasksData.tasks = tasksData.tasks.map(task => {
+      if (task.logs && task.logs.length > MAX_LOGS_PER_TASK) {
+        task.logs = task.logs.slice(-MAX_LOGS_PER_TASK);
+        pruned = true;
+      }
+      return task;
+    });
+  }
+  
+  return pruned;
+}
+
+// Archive old completed tasks
+function archiveOldTasks(tasksData) {
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - ARCHIVE_DONE_OLDER_THAN_DAYS);
+  
+  const toArchive = [];
+  const toKeep = [];
+  
+  (tasksData.tasks || []).forEach(task => {
+    if (task.status === 'done' && task.updatedAt) {
+      const taskDate = new Date(task.updatedAt);
+      if (taskDate < cutoffDate) {
+        toArchive.push(task);
+      } else {
+        toKeep.push(task);
+      }
+    } else {
+      toKeep.push(task);
+    }
+  });
+  
+  if (toArchive.length > 0) {
+    // Write to archive file
+    const archivePath = join(__dirname, 'backups', `tasks-archive-${new Date().toISOString().split('T')[0]}.json`);
+    try {
+      let existing = [];
+      if (existsSync(archivePath)) {
+        existing = JSON.parse(readFileSync(archivePath, 'utf8'));
+      }
+      writeFileSync(archivePath, JSON.stringify([...existing, ...toArchive], null, 2));
+      log('INFO', `Archived ${toArchive.length} old tasks to ${archivePath}`);
+    } catch (e) {
+      log('ERROR', 'Archive write failed:', { error: e.message });
+      return 0;
+    }
+  }
+  
+  tasksData.tasks = toKeep;
+  return toArchive.length;
+}
+
+// Save tasks to file (with backup protection)
+function saveTasks(tasksData, reason = 'dashboard-update') {
   try {
-    tasksData.lastUpdated = new Date().toISOString();
-    writeFileSync(TASKS_FILE, JSON.stringify(tasksData, null, 2));
+    // Prune old data before saving
+    pruneTaskData(tasksData);
+    
+    // Use backup-protected write
+    const result = tasksBackup.safeWriteTasks(tasksData, { reason });
+    
+    if (!result.success) {
+      if (result.blocked) {
+        log('WARN', 'Tasks write BLOCKED by backup protection:', { 
+          error: result.error,
+          current: result.current,
+          new: result.new
+        });
+      } else {
+        log('ERROR', 'Tasks write failed:', { error: result.error });
+      }
+      return false;
+    }
+    
     // Invalidate cache after save
     tasksCache.data = null;
-    log('INFO', 'Tasks saved successfully');
+    log('INFO', 'Tasks saved successfully', { 
+      taskCount: result.taskCount,
+      backupPath: result.backupPath 
+    });
     return true;
   } catch (e) {
     log('ERROR', 'Error saving tasks:', { error: e.message });
@@ -371,23 +527,25 @@ function getDefaultTasks() {
     agents: {
       // Command
       seven: { name: "Seven of Nine", role: "Number One", department: "CMD", badges: ["LEAD"], color: "#cc99cc", model: "opus" },
-      // Engineering
+      // Engineering (Opus/Codex/MiniMax)
       geordi: { name: "Geordi La Forge", role: "Chief Engineer", department: "ENG", badges: ["SPC"], color: "#9999ff", model: "opus" },
-      belanna: { name: "B'Elanna Torres", role: "Chief Engineer", department: "ENG", badges: ["SPC"], color: "#cc6666", model: "opus" },
+      belanna: { name: "B'Elanna Torres", role: "Engineering", department: "ENG", badges: ["SPC"], color: "#cc6666", model: "codex" },
       icheb: { name: "Icheb", role: "Borg Specialist", department: "ENG", badges: [], color: "#66cccc", model: "minimax" },
-      // Communications
-      uhura: { name: "Nyota Uhura", role: "Comms Officer", department: "COM", badges: [], color: "#cc6699", model: "minimax" },
+      // Communications (Opus/Codex/MiniMax)
+      uhura: { name: "Nyota Uhura", role: "Comms Officer", department: "COM", badges: ["SPC"], color: "#cc6699", model: "opus" },
+      hoshi: { name: "Hoshi Sato", role: "Linguist", department: "COM", badges: [], color: "#cc99ff", model: "codex" },
       harry: { name: "Harry Kim", role: "Operations", department: "COM", badges: [], color: "#99ccff", model: "minimax" },
-      // Research
+      // Research (Opus/Codex/MiniMax)
       spock: { name: "Spock", role: "Science Officer", department: "SCI", badges: ["SPC"], color: "#99cc99", model: "opus" },
-      tuvok: { name: "Tuvok", role: "Security/Research", department: "SCI", badges: ["SPC"], color: "#9999cc", model: "opus" },
+      tuvok: { name: "Tuvok", role: "Security/Research", department: "SCI", badges: [], color: "#9999cc", model: "codex" },
       doctor: { name: "The Doctor", role: "EMH Research", department: "SCI", badges: [], color: "#99ff99", model: "minimax" },
-      // Trading
-      quark: { name: "Quark", role: "Trade Advisor", department: "TRD", badges: [], color: "#ffcc99", model: "opus" },
-      tom: { name: "Tom Paris", role: "Risk Trader", department: "TRD", badges: [], color: "#ff9999", model: "opus" },
+      // Trading (Opus/Codex/MiniMax)
+      quark: { name: "Quark", role: "Trade Advisor", department: "TRD", badges: ["SPC"], color: "#ffcc99", model: "opus" },
+      tom: { name: "Tom Paris", role: "Risk Trader", department: "TRD", badges: [], color: "#ff9999", model: "codex" },
       neelix: { name: "Neelix", role: "Resource Mgmt", department: "TRD", badges: [], color: "#ffcc66", model: "minimax" },
-      // Quality Control
-      data: { name: "Data", role: "Quality Control", department: "QC", badges: ["SPC", "QC"], color: "#ffd700", model: "opus" }
+      // Quality Control (Opus/Codex)
+      data: { name: "Data", role: "Quality Control", department: "QC", badges: ["SPC", "QC"], color: "#ffd700", model: "opus" },
+      lal: { name: "Lal", role: "QC Testing", department: "QC", badges: ["QC"], color: "#ffdd55", model: "codex" }
     }
   };
 }
@@ -1273,34 +1431,24 @@ const httpServer = createServer(async (req, res) => {
     try {
       const stats = getSystemStats();
       
-      // Get gateway uptime
-      let gatewayUptime = null;
-      try {
-        const gwStatus = execSync(
-          '/home/roderik/.npm-global/bin/openclaw gateway status --json 2>/dev/null || echo "{}"',
-          { encoding: 'utf8', timeout: 3000 }
-        );
-        const gwData = JSON.parse(gwStatus);
-        if (gwData.uptime) {
-          gatewayUptime = gwData.uptime;
-        } else if (gwData.startedAt) {
-          gatewayUptime = Math.floor((Date.now() - new Date(gwData.startedAt).getTime()) / 1000);
-        }
-      } catch (e) {}
+      // Use non-blocking cached gateway uptime
+      const gatewayUptime = getGatewayUptime();
       
       // Format uptime helper
       const formatUptime = (seconds) => {
-        if (!seconds || seconds < 0) return '--';
+        if (!seconds || seconds < 0 || isNaN(seconds)) return '--';
         const d = Math.floor(seconds / 86400);
         const h = Math.floor((seconds % 86400) / 3600);
         const m = Math.floor((seconds % 3600) / 60);
+        if (isNaN(d) || isNaN(h) || isNaN(m)) return '--';
         if (d > 0) return `${d}d ${h}h`;
         if (h > 0) return `${h}h ${m}m`;
         return `${m}m`;
       };
       
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({
+      // Store request for gzip check
+      res.req = req;
+      sendJsonResponse(res, {
         cpu: {
           usage: stats.cpuUsage,
           cores: stats.cpuCores,
@@ -1332,7 +1480,7 @@ const httpServer = createServer(async (req, res) => {
           gatewaySeconds: gatewayUptime
         },
         timestamp: new Date().toISOString()
-      }));
+      });
     } catch (e) {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: e.message }));
@@ -1343,8 +1491,8 @@ const httpServer = createServer(async (req, res) => {
   // API endpoint for current data
   if (req.url === '/api/data') {
     gatherBridgeData().then(data => {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(data));
+      res.req = req;
+      sendJsonResponse(res, data);
     }).catch(err => {
       res.writeHead(500);
       res.end(JSON.stringify({ error: err.message }));
@@ -1352,102 +1500,83 @@ const httpServer = createServer(async (req, res) => {
     return;
   }
   
-  // SESSIONS API - OpenClaw sessions
+  // SESSIONS API - OpenClaw sessions (cached, async)
   if (req.url === '/api/sessions') {
-    try {
-      const output = execSync('/home/roderik/.npm-global/bin/openclaw sessions list --json 2>/dev/null || echo "{}"', { encoding: 'utf8', maxBuffer: 1024 * 1024 });
-      let data = {};
-      try { data = JSON.parse(output); } catch (e) {}
-      
-      const sessions = data.sessions || [];
-      const active = sessions.filter(s => 
-        s.key && (s.key.includes('subagent') || s.key.includes('cron') || s.key === 'agent:main:main')
-      );
-      const subagents = active.filter(s => s.key.includes('subagent'));
-      const crons = active.filter(s => s.key.includes('cron'));
-      
-      // Format duration for display
-      const formatAge = (ms) => {
-        if (!ms) return '--';
-        const secs = Math.floor(ms / 1000);
-        if (secs < 60) return `${secs}s`;
-        const mins = Math.floor(secs / 60);
-        if (mins < 60) return `${mins}m`;
-        const hours = Math.floor(mins / 60);
-        if (hours < 24) return `${hours}h`;
-        return `${Math.floor(hours / 24)}d`;
-      };
-      
-      // Try to get crew names from running work-loop processes
-      let processCrewMap = {};
-      try {
-        const psOutput = execSync('ps aux | grep "openclaw agent" | grep workloop | grep -v grep', { encoding: 'utf8', timeout: 2000 });
-        const lines = psOutput.split('\n').filter(l => l.trim());
-        for (const line of lines) {
-          // Extract session-id and crew name from: --session-id "workloop-<crew>-task-..."
-          const sessionMatch = line.match(/--session-id\s+"?workloop-(\w+)-task-(\d+)/);
-          if (sessionMatch) {
-            const crew = sessionMatch[1];
-            const taskPrefix = sessionMatch[2];
-            // Map task prefix to crew name
-            processCrewMap[taskPrefix] = crew;
-          }
-        }
-      } catch (e) {}
-      
-      // Cross-reference with tasks to get crew names
-      const tasksData = loadTasks();
-      const taskAssignees = {};
-      (tasksData.tasks || []).forEach(t => {
-        if (t.assignee && t.id) {
-          // Extract numeric prefix from task ID (e.g., task-1769858335746-geordi -> 1769858335)
-          const match = t.id.match(/task-(\d+)/);
-          if (match) {
-            taskAssignees[match[1].substring(0, 10)] = t.assignee;
-          }
-        }
-      });
-      
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({
-        total: data.count || sessions.length,
-        activeSubagents: subagents.length,
-        runningCrons: crons.length,
-        subagents: subagents.map(s => {
-          const uuid = s.key.split(':').pop();
-          const shortId = uuid.substring(0, 8);
-          // Try to find crew name from process map or tasks
-          let crewName = null;
-          for (const [prefix, crew] of Object.entries(processCrewMap)) {
-            if (s.key.includes(prefix) || s.sessionId?.includes(prefix)) {
-              crewName = crew;
-              break;
-            }
-          }
-          return {
-            key: s.key,
-            label: crewName || shortId,
-            crew: crewName,
-            fullId: uuid,
-            model: s.model || 'unknown',
-            age: formatAge(s.ageMs),
-            updatedAt: s.updatedAt
-          };
-        }),
-        crons: crons.map(s => {
-          const cronKey = s.key.split(':').pop();
-          return {
-            key: cronKey,
-            label: cronKey.substring(0, 8),
-            age: formatAge(s.ageMs),
-            updatedAt: s.updatedAt
-          };
-        })
-      }));
-    } catch (e) {
-      res.writeHead(500);
-      res.end(JSON.stringify({ error: e.message }));
+    // Use cached data or trigger async refresh
+    const now = Date.now();
+    if (cache.sessions.data && (now - cache.sessions.lastUpdate) < cache.sessions.ttl) {
+      res.req = req;
+      sendJsonResponse(res, cache.sessions.data);
+      return;
     }
+    
+    // Fetch fresh data async
+    exec('/home/roderik/.npm-global/bin/openclaw sessions list --json 2>/dev/null',
+      { encoding: 'utf8', timeout: 5000 },
+      (err, stdout) => {
+        try {
+          let data = {};
+          try { data = JSON.parse(stdout); } catch (e) {}
+          
+          const sessions = data.sessions || [];
+          const active = sessions.filter(s => 
+            s.key && (s.key.includes('subagent') || s.key.includes('cron') || s.key === 'agent:main:main')
+          );
+          const subagents = active.filter(s => s.key.includes('subagent'));
+          const crons = active.filter(s => s.key.includes('cron'));
+          
+          // Format duration for display
+          const formatAge = (ms) => {
+            if (!ms || isNaN(ms)) return '--';
+            const secs = Math.floor(ms / 1000);
+            if (isNaN(secs) || secs < 0) return '--';
+            if (secs < 60) return `${secs}s`;
+            const mins = Math.floor(secs / 60);
+            if (mins < 60) return `${mins}m`;
+            const hours = Math.floor(mins / 60);
+            if (hours < 24) return `${hours}h`;
+            return `${Math.floor(hours / 24)}d`;
+          };
+          
+          // Build response
+          const response = {
+            total: data.count || sessions.length,
+            activeSubagents: subagents.length,
+            runningCrons: crons.length,
+            subagents: subagents.map(s => {
+              const uuid = s.key.split(':').pop();
+              return {
+                key: s.key,
+                label: uuid.substring(0, 8),
+                fullId: uuid,
+                model: s.model || 'unknown',
+                age: formatAge(s.ageMs),
+                updatedAt: s.updatedAt
+              };
+            }),
+            crons: crons.map(s => {
+              const cronKey = s.key.split(':').pop();
+              return {
+                key: cronKey,
+                label: cronKey.substring(0, 8),
+                age: formatAge(s.ageMs),
+                updatedAt: s.updatedAt
+              };
+            })
+          };
+          
+          // Cache the response
+          cache.sessions.data = response;
+          cache.sessions.lastUpdate = Date.now();
+          
+          res.req = req;
+          sendJsonResponse(res, response);
+        } catch (e) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: e.message }));
+        }
+      }
+    );
     return;
   }
   
@@ -1456,8 +1585,52 @@ const httpServer = createServer(async (req, res) => {
   // ═══════════════════════════════════════════════════════════════
   
   // GET /api/tasks - List all tasks (enriched with git-locks file data)
-  if (req.url === '/api/tasks' && req.method === 'GET') {
+  // Query params: ?limit=N&offset=N&compact=true&status=X&assignee=X
+  const tasksUrlMatch = req.url.match(/^\/api\/tasks(\?.*)?$/);
+  if (tasksUrlMatch && req.method === 'GET') {
+    const urlParams = new URL(req.url, 'http://localhost').searchParams;
+    const limit = parseInt(urlParams.get('limit')) || 0; // 0 = no limit
+    const offset = parseInt(urlParams.get('offset')) || 0;
+    const compact = urlParams.get('compact') === 'true'; // Exclude logs/comments
+    const statusFilter = urlParams.get('status');
+    const assigneeFilter = urlParams.get('assignee');
+    const excludeDone = urlParams.get('excludeDone') === 'true';
+    
     const tasksData = loadTasks();
+    let tasks = tasksData.tasks || [];
+    
+    // Apply filters
+    if (statusFilter) {
+      tasks = tasks.filter(t => t.status === statusFilter);
+    }
+    if (assigneeFilter) {
+      tasks = tasks.filter(t => t.assignee === assigneeFilter.toLowerCase());
+    }
+    if (excludeDone) {
+      tasks = tasks.filter(t => t.status !== 'done');
+    }
+    
+    const totalCount = tasks.length;
+    
+    // Apply pagination
+    if (offset > 0) {
+      tasks = tasks.slice(offset);
+    }
+    if (limit > 0) {
+      tasks = tasks.slice(0, limit);
+    }
+    
+    // Compact mode: strip heavy fields (logs, comments)
+    if (compact) {
+      tasks = tasks.map(t => {
+        const { logs, comments, ...rest } = t;
+        return {
+          ...rest,
+          logCount: (logs || []).length,
+          commentCount: (comments || []).length
+        };
+      });
+    }
     
     // Enrich tasks with file/lock data from git-locks
     try {
@@ -1468,7 +1641,7 @@ const httpServer = createServer(async (req, res) => {
         const locks = gitState.locks || {};
         
         // Add files property to each task
-        tasksData.tasks = tasksData.tasks.map(task => {
+        tasks = tasks.map(task => {
           const files = taskFiles[task.id] || [];
           // Check if any of the files are currently locked
           const filesWithLockStatus = files.map(filepath => {
@@ -1499,8 +1672,21 @@ const httpServer = createServer(async (req, res) => {
       log('DEBUG', 'Git-locks enrichment failed:', { error: e.message });
     }
     
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(tasksData));
+    // Build response with pagination metadata
+    const response = {
+      ...tasksData,
+      tasks,
+      pagination: {
+        total: totalCount,
+        offset,
+        limit: limit || totalCount,
+        hasMore: offset + tasks.length < totalCount
+      }
+    };
+    
+    // Use gzip compression for large responses
+    res.req = req;
+    sendJsonResponse(res, response);
     return;
   }
   
@@ -1607,6 +1793,71 @@ const httpServer = createServer(async (req, res) => {
       res.end(JSON.stringify(comment));
     } catch (e) {
       res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+  
+  // ═══════════════════════════════════════════════════════════════
+  // MAINTENANCE API - Archive and cleanup
+  // ═══════════════════════════════════════════════════════════════
+  
+  // POST /api/tasks/archive - Archive old completed tasks
+  if (req.url === '/api/tasks/archive' && req.method === 'POST') {
+    try {
+      const tasksData = loadTasks();
+      const beforeSize = JSON.stringify(tasksData).length;
+      const archived = archiveOldTasks(tasksData);
+      const pruned = pruneTaskData(tasksData);
+      
+      if (archived > 0 || pruned) {
+        saveTasks(tasksData, 'archive-cleanup');
+      }
+      
+      const afterSize = JSON.stringify(loadTasks()).length;
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        success: true,
+        archived,
+        pruned,
+        beforeSize,
+        afterSize,
+        savedBytes: beforeSize - afterSize
+      }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+  
+  // GET /api/tasks/stats - Get task file statistics
+  if (req.url === '/api/tasks/stats' && req.method === 'GET') {
+    try {
+      const tasksData = loadTasks();
+      const stats = statSync(TASKS_FILE);
+      
+      const tasksByStatus = {};
+      (tasksData.tasks || []).forEach(t => {
+        tasksByStatus[t.status] = (tasksByStatus[t.status] || 0) + 1;
+      });
+      
+      const totalLogs = (tasksData.tasks || []).reduce((sum, t) => sum + (t.logs?.length || 0), 0);
+      const totalComments = (tasksData.tasks || []).reduce((sum, t) => sum + (t.comments?.length || 0), 0);
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        fileSize: stats.size,
+        fileSizeFormatted: `${(stats.size / 1024 / 1024).toFixed(2)} MB`,
+        taskCount: tasksData.tasks?.length || 0,
+        tasksByStatus,
+        activityCount: tasksData.activity?.length || 0,
+        totalLogs,
+        totalComments
+      }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: e.message }));
     }
     return;

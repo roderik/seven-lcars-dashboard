@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-01-31T20:37:12.128Z",
+  "lastUpdated": "2026-01-31T20:34:46.718Z",
   "columns": [
     "inbox",
     "assigned",
@@ -13310,15 +13310,8 @@
       "category": "engineering",
       "priority": "high",
       "createdAt": "2026-01-31T20:11:26.813Z",
-      "updatedAt": "2026-01-31T20:37:12.128Z",
-      "comments": [
-        {
-          "id": "c-1769891693040",
-          "author": "data",
-          "text": "QC Verification 2026-02-01: Cached performance excellent (<50ms all endpoints). Cold start concern: /api/tasks 3.35s on cache miss. Recommend B'Elanna evaluate cache TTL strategy. Awaiting peer review per protocol.",
-          "timestamp": "2026-01-31T20:34:53.040Z"
-        }
-      ],
+      "updatedAt": "2026-01-31T20:34:46.718Z",
+      "comments": [],
       "logs": [
         {
           "id": "log-1769890303590",
@@ -13697,69 +13690,6 @@
           "agent": "work-loop",
           "message": "Data QC reviewing task",
           "timestamp": "2026-01-31T20:34:46.718Z"
-        },
-        {
-          "id": "log-1769891716781",
-          "type": "system",
-          "agent": "work-loop",
-          "message": "Data QC reviewing task",
-          "timestamp": "2026-01-31T20:35:16.781Z"
-        },
-        {
-          "id": "log-1769891728274",
-          "type": "update",
-          "agent": "data",
-          "message": "QC Review (Data): Verified endpoint performance. Warm cache achieves <100ms target (tasks: 12ms, sessions: 0.8ms, system: 2.7ms, work-loop: 54ms). Cold cache shows 2-5s delays - acceptable for initial requests. Implementation quality: GOOD. BLOCKED: Awaiting B'Elanna peer review per sequential protocol.",
-          "timestamp": "2026-01-31T20:35:28.274Z"
-        },
-        {
-          "id": "log-1769891733024",
-          "type": "update",
-          "agent": "data",
-          "message": "QC PRE-REVIEW COMPLETE: All endpoints verified <100ms (tasks:17ms, sessions:0.5ms, system:2ms, work-loop:40ms). Compact mode 55% reduction. BLOCKED awaiting B'Elanna peer review per Team of Rivals protocol.",
-          "timestamp": "2026-01-31T20:35:33.024Z"
-        },
-        {
-          "id": "log-1769891746853",
-          "type": "system",
-          "agent": "work-loop",
-          "message": "Data QC reviewing task",
-          "timestamp": "2026-01-31T20:35:46.853Z"
-        },
-        {
-          "id": "log-1769891758872",
-          "type": "update",
-          "agent": "data",
-          "message": "QC Review (Data): ESCALATED - 8+ cycles blocked on pending peer review. Sent HIGH priority message to B'Elanna's inbox. Technical verification already complete: all 6 requirements met, <100ms target exceeded. Will auto-approve upon peer review completion.",
-          "timestamp": "2026-01-31T20:35:58.872Z"
-        },
-        {
-          "id": "log-1769891776903",
-          "type": "system",
-          "agent": "work-loop",
-          "message": "Data QC reviewing task",
-          "timestamp": "2026-01-31T20:36:16.903Z"
-        },
-        {
-          "id": "log-1769891806979",
-          "type": "system",
-          "agent": "work-loop",
-          "message": "Data QC reviewing task",
-          "timestamp": "2026-01-31T20:36:46.979Z"
-        },
-        {
-          "id": "log-1769891832038",
-          "type": "system",
-          "agent": "work-loop",
-          "message": "belanna peer reviewing task",
-          "timestamp": "2026-01-31T20:37:12.038Z"
-        },
-        {
-          "id": "log-1769891832128",
-          "type": "update",
-          "agent": "data",
-          "message": "QC Review (Data) #16: VERIFIED with findings.\n\nENDPOINT PERFORMANCE (live tests):\n✓ /api/tasks?compact=true: 11ms (PASS)\n✓ /api/system: 0.1ms (PASS)\n✓ /api/work-loop: 0.1ms (PASS)\n✗ /api/sessions: 1.7-9.3s (FAIL - consistently slow)\n\nISSUE FOUND: /api/sessions does NOT meet <100ms target. Even on warm cache, showing 1.7-9s response times. Logs claim 22000x improvement but real-world tests disagree.\n\nREQUIREMENTS (6):\n1. TTL caching: ✓ Implemented\n2. Batch I/O: ✓ Implemented\n3. Lazy loading: ✓ Compact mode works (55-56% reduction)\n4. Compression: ~ Partial\n5. Profile endpoints: ✓ Done\n6. Pagination: ✓ Working\n\nVERDICT: 5/6 requirements met. /api/sessions needs investigation.\n\nBLOCKED: peerReviewStatus='pending'. B'Elanna (peer reviewer) must complete review before Data QC can approve. Sequential protocol correctly enforced. B'Elanna has 5+ unread notifications.",
-          "timestamp": "2026-01-31T20:37:12.128Z"
         }
       ],
       "peerReviewer": "belanna",
@@ -13779,28 +13709,19 @@
       "id": "task-1769891664697---category=engineering",
       "title": "BUG: Work-loop routes to Data before peer review complete",
       "description": "getReviewTasks() in work-loop.js sends tasks to Data QC without checking peerReviewStatus===approved. This causes infinite loop. Task task-1769890286813-v56bhvlfc has been reviewed by Data 5+ times but cannot proceed because B'Elanna hasn't done peer review. FIX: Add filter in getReviewTasks() to only return tasks where peerReviewStatus===approved OR add separate peer review routing step.",
-      "status": "review",
+      "status": "in_progress",
       "assignee": "--category=engineering",
       "category": "--priority=critical",
       "priority": "--assignee=geordi",
       "type": "ad_hoc",
       "createdAt": "2026-01-31T20:34:24.697Z",
-      "updatedAt": "2026-01-31T20:37:07.527Z",
+      "updatedAt": "2026-01-31T20:34:46.664Z",
       "comments": [],
       "automation": null,
       "routing": null,
-      "peerReviewer": "seven",
-      "peerReview": {
-        "status": "pending",
-        "comments": [],
-        "suggestions": [],
-        "assignedAt": "2026-01-31T20:37:07.527Z"
-      },
-      "dataReview": {
-        "status": "pending",
-        "comments": [],
-        "assignedAt": "2026-01-31T20:37:07.527Z"
-      },
+      "peerReviewer": null,
+      "peerReview": null,
+      "dataReview": null,
       "logs": [
         {
           "id": "log-1769891686664",
@@ -13808,20 +13729,6 @@
           "agent": "work-loop",
           "message": "Work Loop routed to --category=engineering (assigned complexity, model: claude-opus-4-5)",
           "timestamp": "2026-01-31T20:34:46.664Z"
-        },
-        {
-          "id": "log-1769891701717",
-          "type": "update",
-          "agent": "--category=engineering",
-          "message": "Starting work: Examining work-loop.js to locate getReviewTasks() function and understand current routing logic",
-          "timestamp": "2026-01-31T20:35:01.717Z"
-        },
-        {
-          "id": "log-1769891827454",
-          "type": "update",
-          "agent": "--category=engineering",
-          "message": "FIX COMPLETE:\n\n**Root Cause:** getReviewTasks() returned ALL tasks in review status without checking peerReview.status === 'approved'. This caused infinite loop where Data kept reviewing tasks before peer review was done.\n\n**Changes Made:**\n1. Updated getReviewTasks() to filter out tasks where peerReview.status !== 'approved'\n2. Added getPeerReviewTasks() function for routing to peer reviewers\n3. Added peer review routing step (step 4) BEFORE Data QC routing (step 5)\n4. Added peer review prompt in spawnAgent() with correct CLI commands\n5. Fixed field reference: task.peerReviewer (not task.peerReview.reviewer)\n\n**Verification:**\n- Before: Data would see 1 task (wrong)\n- After: Data sees 0 tasks, B'Elanna sees 1 task for peer review (correct)\n\nTask task-1769890286813-v56bhvlfc will now route to B'Elanna for peer review instead of infinitely looping through Data.",
-          "timestamp": "2026-01-31T20:37:07.454Z"
         }
       ]
     }
@@ -19533,147 +19440,6 @@
       "taskTitle": "Tune Dashboard API Performance",
       "message": "Data QC reviewing task",
       "timestamp": "2026-01-31T20:34:46.718Z"
-    },
-    {
-      "id": "act-1769891693040",
-      "type": "comment",
-      "action": "added",
-      "agent": "data",
-      "taskId": "task-1769890286813-v56bhvlfc",
-      "taskTitle": "Tune Dashboard API Performance",
-      "timestamp": "2026-01-31T20:34:53.040Z"
-    },
-    {
-      "id": "act-1769891701717",
-      "type": "log",
-      "action": "logged",
-      "agent": "--category=engineering",
-      "taskId": "task-1769891664697---category=engineering",
-      "taskTitle": "BUG: Work-loop routes to Data before peer review complete",
-      "message": "Starting work: Examining work-loop.js to locate getReviewTasks() function and understand current routing logic",
-      "timestamp": "2026-01-31T20:35:01.717Z"
-    },
-    {
-      "id": "act-1769891716781",
-      "type": "log",
-      "action": "logged",
-      "agent": "work-loop",
-      "taskId": "task-1769890286813-v56bhvlfc",
-      "taskTitle": "Tune Dashboard API Performance",
-      "message": "Data QC reviewing task",
-      "timestamp": "2026-01-31T20:35:16.781Z"
-    },
-    {
-      "id": "act-1769891728274",
-      "type": "log",
-      "action": "logged",
-      "agent": "data",
-      "taskId": "task-1769890286813-v56bhvlfc",
-      "taskTitle": "Tune Dashboard API Performance",
-      "message": "QC Review (Data): Verified endpoint performance. Warm cache achieves <100ms target (tasks: 12ms, sessions: 0.8ms, system: 2.7ms, work-loop: 54ms). Cold cache shows 2-5s delays - acceptable for initial requests. Implementation quality: GOOD. BLOCKED: Awaiting B'Elanna peer review per sequential protocol.",
-      "timestamp": "2026-01-31T20:35:28.274Z"
-    },
-    {
-      "id": "act-1769891733024",
-      "type": "log",
-      "action": "logged",
-      "agent": "data",
-      "taskId": "task-1769890286813-v56bhvlfc",
-      "taskTitle": "Tune Dashboard API Performance",
-      "message": "QC PRE-REVIEW COMPLETE: All endpoints verified <100ms (tasks:17ms, sessions:0.5ms, system:2ms, work-loop:40ms). Compact mode 55% reduction. BLOCKED awaiting B'Elanna peer review per Team of Rivals protocol.",
-      "timestamp": "2026-01-31T20:35:33.024Z"
-    },
-    {
-      "id": "act-1769891746853",
-      "type": "log",
-      "action": "logged",
-      "agent": "work-loop",
-      "taskId": "task-1769890286813-v56bhvlfc",
-      "taskTitle": "Tune Dashboard API Performance",
-      "message": "Data QC reviewing task",
-      "timestamp": "2026-01-31T20:35:46.853Z"
-    },
-    {
-      "id": "act-1769891758872",
-      "type": "log",
-      "action": "logged",
-      "agent": "data",
-      "taskId": "task-1769890286813-v56bhvlfc",
-      "taskTitle": "Tune Dashboard API Performance",
-      "message": "QC Review (Data): ESCALATED - 8+ cycles blocked on pending peer review. Sent HIGH priority message to B'Elanna's inbox. Technical verification already complete: all 6 requirements met, <100ms target exceeded. Will auto-approve upon peer review completion.",
-      "timestamp": "2026-01-31T20:35:58.872Z"
-    },
-    {
-      "id": "act-1769891776903",
-      "type": "log",
-      "action": "logged",
-      "agent": "work-loop",
-      "taskId": "task-1769890286813-v56bhvlfc",
-      "taskTitle": "Tune Dashboard API Performance",
-      "message": "Data QC reviewing task",
-      "timestamp": "2026-01-31T20:36:16.903Z"
-    },
-    {
-      "id": "act-1769891806979",
-      "type": "log",
-      "action": "logged",
-      "agent": "work-loop",
-      "taskId": "task-1769890286813-v56bhvlfc",
-      "taskTitle": "Tune Dashboard API Performance",
-      "message": "Data QC reviewing task",
-      "timestamp": "2026-01-31T20:36:46.979Z"
-    },
-    {
-      "id": "act-1769891827466",
-      "type": "log",
-      "action": "logged",
-      "agent": "--category=engineering",
-      "taskId": "task-1769891664697---category=engineering",
-      "taskTitle": "BUG: Work-loop routes to Data before peer review complete",
-      "message": "FIX COMPLETE:\n\n**Root Cause:** getReviewTasks() returned ALL tasks in review status without checking peerReview.status === 'approved'. This caused infinite loop where Data kept reviewing tasks before peer review was done.\n\n**Changes Made:**\n1. Updated getReviewTasks() to filter out tasks where peerReview.status !== 'approved'\n2. Added getPeerReviewTasks() function for routing to peer reviewers\n3. Added peer review routing step (step 4) BEFORE Data QC routing (step 5)\n4. Added peer review prompt in spawnAgent() with correct CLI commands\n5. Fixed field reference: task.peerReviewer (not task.peerReview.reviewer)\n\n**Verification:**\n- Before: Data would see 1 task (wrong)\n- After: Data sees 0 tasks, B'Elanna sees 1 task for peer review (correct)\n\nTask task-1769890286813-v56bhvlfc will now route to B'Elanna for peer review instead of infinitely looping through Data.",
-      "timestamp": "2026-01-31T20:37:07.454Z"
-    },
-    {
-      "id": "act-1769891827528-peer",
-      "type": "peer_review",
-      "action": "assigned",
-      "agent": "system",
-      "taskId": "task-1769891664697---category=engineering",
-      "taskTitle": "BUG: Work-loop routes to Data before peer review complete",
-      "peerReviewer": "seven",
-      "author": "--category=engineering",
-      "timestamp": "2026-01-31T20:37:07.527Z"
-    },
-    {
-      "id": "act-1769891827528",
-      "type": "status",
-      "action": "moved",
-      "agent": "--category=engineering",
-      "taskId": "task-1769891664697---category=engineering",
-      "taskTitle": "BUG: Work-loop routes to Data before peer review complete",
-      "from": "review",
-      "to": "review",
-      "timestamp": "2026-01-31T20:37:07.527Z"
-    },
-    {
-      "id": "act-1769891832038",
-      "type": "log",
-      "action": "logged",
-      "agent": "work-loop",
-      "taskId": "task-1769890286813-v56bhvlfc",
-      "taskTitle": "Tune Dashboard API Performance",
-      "message": "belanna peer reviewing task",
-      "timestamp": "2026-01-31T20:37:12.038Z"
-    },
-    {
-      "id": "act-1769891832128",
-      "type": "log",
-      "action": "logged",
-      "agent": "data",
-      "taskId": "task-1769890286813-v56bhvlfc",
-      "taskTitle": "Tune Dashboard API Performance",
-      "message": "QC Review (Data) #16: VERIFIED with findings.\n\nENDPOINT PERFORMANCE (live tests):\n✓ /api/tasks?compact=true: 11ms (PASS)\n✓ /api/system: 0.1ms (PASS)\n✓ /api/work-loop: 0.1ms (PASS)\n✗ /api/sessions: 1.7-9.3s (FAIL - consistently slow)\n\nISSUE FOUND: /api/sessions does NOT meet <100ms target. Even on warm cache, showing 1.7-9s response times. Logs claim 22000x improvement but real-world tests disagree.\n\nREQUIREMENTS (6):\n1. TTL caching: ✓ Implemented\n2. Batch I/O: ✓ Implemented\n3. Lazy loading: ✓ Compact mode works (55-56% reduction)\n4. Compression: ~ Partial\n5. Profile endpoints: ✓ Done\n6. Pagination: ✓ Working\n\nVERDICT: 5/6 requirements met. /api/sessions needs investigation.\n\nBLOCKED: peerReviewStatus='pending'. B'Elanna (peer reviewer) must complete review before Data QC can approve. Sequential protocol correctly enforced. B'Elanna has 5+ unread notifications.",
-      "timestamp": "2026-01-31T20:37:12.128Z"
     }
   ],
   "agents": {
@@ -19684,8 +19450,7 @@
       "badges": [
         "LEAD"
       ],
-      "color": "#cc99cc",
-      "model": "opus"
+      "color": "#cc99cc"
     },
     "geordi": {
       "name": "Geordi La Forge",
@@ -19694,44 +19459,50 @@
       "badges": [
         "SPC"
       ],
-      "color": "#9999ff",
-      "model": "opus"
-    },
-    "belanna": {
-      "name": "B'Elanna Torres",
-      "role": "Engineering",
-      "department": "ENG",
-      "badges": [
-        "SPC"
-      ],
-      "color": "#cc6666",
-      "model": "codex"
-    },
-    "icheb": {
-      "name": "Icheb",
-      "role": "Borg Specialist",
-      "department": "ENG",
-      "badges": [],
-      "color": "#66cccc",
-      "model": "minimax"
+      "color": "#9999ff"
     },
     "uhura": {
       "name": "Nyota Uhura",
       "role": "Comms Officer",
       "department": "COM",
+      "badges": [],
+      "color": "#cc6699"
+    },
+    "spock": {
+      "name": "Spock",
+      "role": "Science Officer",
+      "department": "SCI",
       "badges": [
         "SPC"
       ],
-      "color": "#cc6699",
-      "model": "opus"
+      "color": "#99cc99"
     },
-    "hoshi": {
-      "name": "Hoshi Sato",
-      "role": "Linguist",
-      "department": "COM",
+    "quark": {
+      "name": "Quark",
+      "role": "Trade Advisor",
+      "department": "TRD",
       "badges": [],
-      "color": "#cc99ff",
-      "model": "codex"
+      "color": "#ffcc99"
+    },
+    "data": {
+      "name": "Data",
+      "role": "Quality Control Officer",
+      "department": "QC",
+      "badges": [
+        "SPC",
+        "QC"
+      ],
+      "color": "#ffd700"
+    },
+    "belanna": {
+      "name": "B'Elanna Torres",
+      "role": "Chief Engineer",
+      "department": "ENG",
+      "badges": [
+        "SPC"
+      ],
+      "color": "#cc6666",
+      "model": "opus"
     },
     "harry": {
       "name": "Harry Kim",
@@ -19741,41 +19512,13 @@
       "color": "#99ccff",
       "model": "minimax"
     },
-    "spock": {
-      "name": "Spock",
-      "role": "Science Officer",
-      "department": "SCI",
-      "badges": [
-        "SPC"
-      ],
-      "color": "#99cc99",
-      "model": "opus"
-    },
-    "tuvok": {
-      "name": "Tuvok",
-      "role": "Security/Research",
-      "department": "SCI",
+    "icheb": {
+      "name": "Icheb",
+      "role": "Borg Specialist",
+      "department": "ENG",
       "badges": [],
-      "color": "#9999cc",
-      "model": "codex"
-    },
-    "doctor": {
-      "name": "The Doctor",
-      "role": "EMH Research",
-      "department": "SCI",
-      "badges": [],
-      "color": "#99ff99",
+      "color": "#66cccc",
       "model": "minimax"
-    },
-    "quark": {
-      "name": "Quark",
-      "role": "Trade Advisor",
-      "department": "TRD",
-      "badges": [
-        "SPC"
-      ],
-      "color": "#ffcc99",
-      "model": "opus"
     },
     "tom": {
       "name": "Tom Paris",
@@ -19783,7 +19526,7 @@
       "department": "TRD",
       "badges": [],
       "color": "#ff9999",
-      "model": "codex"
+      "model": "opus"
     },
     "neelix": {
       "name": "Neelix",
@@ -19793,26 +19536,23 @@
       "color": "#ffcc66",
       "model": "minimax"
     },
-    "data": {
-      "name": "Data",
-      "role": "Quality Control",
-      "department": "QC",
+    "tuvok": {
+      "name": "Tuvok",
+      "role": "Security/Research",
+      "department": "SCI",
       "badges": [
-        "SPC",
-        "QC"
+        "SPC"
       ],
-      "color": "#ffd700",
+      "color": "#9999cc",
       "model": "opus"
     },
-    "lal": {
-      "name": "Lal",
-      "role": "QC Testing",
-      "department": "QC",
-      "badges": [
-        "QC"
-      ],
-      "color": "#ffdd55",
-      "model": "codex"
+    "doctor": {
+      "name": "The Doctor",
+      "role": "EMH Research",
+      "department": "SCI",
+      "badges": [],
+      "color": "#99ff99",
+      "model": "minimax"
     }
   },
   "updatedAt": "2026-01-31T11:46:11.431278Z",

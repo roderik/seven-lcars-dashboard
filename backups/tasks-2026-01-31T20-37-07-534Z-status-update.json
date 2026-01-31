@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastUpdated": "2026-01-31T20:37:12.128Z",
+  "lastUpdated": "2026-01-31T20:37:07.454Z",
   "columns": [
     "inbox",
     "assigned",
@@ -13310,7 +13310,7 @@
       "category": "engineering",
       "priority": "high",
       "createdAt": "2026-01-31T20:11:26.813Z",
-      "updatedAt": "2026-01-31T20:37:12.128Z",
+      "updatedAt": "2026-01-31T20:36:46.979Z",
       "comments": [
         {
           "id": "c-1769891693040",
@@ -13746,20 +13746,6 @@
           "agent": "work-loop",
           "message": "Data QC reviewing task",
           "timestamp": "2026-01-31T20:36:46.979Z"
-        },
-        {
-          "id": "log-1769891832038",
-          "type": "system",
-          "agent": "work-loop",
-          "message": "belanna peer reviewing task",
-          "timestamp": "2026-01-31T20:37:12.038Z"
-        },
-        {
-          "id": "log-1769891832128",
-          "type": "update",
-          "agent": "data",
-          "message": "QC Review (Data) #16: VERIFIED with findings.\n\nENDPOINT PERFORMANCE (live tests):\n✓ /api/tasks?compact=true: 11ms (PASS)\n✓ /api/system: 0.1ms (PASS)\n✓ /api/work-loop: 0.1ms (PASS)\n✗ /api/sessions: 1.7-9.3s (FAIL - consistently slow)\n\nISSUE FOUND: /api/sessions does NOT meet <100ms target. Even on warm cache, showing 1.7-9s response times. Logs claim 22000x improvement but real-world tests disagree.\n\nREQUIREMENTS (6):\n1. TTL caching: ✓ Implemented\n2. Batch I/O: ✓ Implemented\n3. Lazy loading: ✓ Compact mode works (55-56% reduction)\n4. Compression: ~ Partial\n5. Profile endpoints: ✓ Done\n6. Pagination: ✓ Working\n\nVERDICT: 5/6 requirements met. /api/sessions needs investigation.\n\nBLOCKED: peerReviewStatus='pending'. B'Elanna (peer reviewer) must complete review before Data QC can approve. Sequential protocol correctly enforced. B'Elanna has 5+ unread notifications.",
-          "timestamp": "2026-01-31T20:37:12.128Z"
         }
       ],
       "peerReviewer": "belanna",
@@ -13785,22 +13771,13 @@
       "priority": "--assignee=geordi",
       "type": "ad_hoc",
       "createdAt": "2026-01-31T20:34:24.697Z",
-      "updatedAt": "2026-01-31T20:37:07.527Z",
+      "updatedAt": "2026-01-31T20:37:07.454Z",
       "comments": [],
       "automation": null,
       "routing": null,
-      "peerReviewer": "seven",
-      "peerReview": {
-        "status": "pending",
-        "comments": [],
-        "suggestions": [],
-        "assignedAt": "2026-01-31T20:37:07.527Z"
-      },
-      "dataReview": {
-        "status": "pending",
-        "comments": [],
-        "assignedAt": "2026-01-31T20:37:07.527Z"
-      },
+      "peerReviewer": null,
+      "peerReview": null,
+      "dataReview": null,
       "logs": [
         {
           "id": "log-1769891686664",
@@ -19632,48 +19609,6 @@
       "taskTitle": "BUG: Work-loop routes to Data before peer review complete",
       "message": "FIX COMPLETE:\n\n**Root Cause:** getReviewTasks() returned ALL tasks in review status without checking peerReview.status === 'approved'. This caused infinite loop where Data kept reviewing tasks before peer review was done.\n\n**Changes Made:**\n1. Updated getReviewTasks() to filter out tasks where peerReview.status !== 'approved'\n2. Added getPeerReviewTasks() function for routing to peer reviewers\n3. Added peer review routing step (step 4) BEFORE Data QC routing (step 5)\n4. Added peer review prompt in spawnAgent() with correct CLI commands\n5. Fixed field reference: task.peerReviewer (not task.peerReview.reviewer)\n\n**Verification:**\n- Before: Data would see 1 task (wrong)\n- After: Data sees 0 tasks, B'Elanna sees 1 task for peer review (correct)\n\nTask task-1769890286813-v56bhvlfc will now route to B'Elanna for peer review instead of infinitely looping through Data.",
       "timestamp": "2026-01-31T20:37:07.454Z"
-    },
-    {
-      "id": "act-1769891827528-peer",
-      "type": "peer_review",
-      "action": "assigned",
-      "agent": "system",
-      "taskId": "task-1769891664697---category=engineering",
-      "taskTitle": "BUG: Work-loop routes to Data before peer review complete",
-      "peerReviewer": "seven",
-      "author": "--category=engineering",
-      "timestamp": "2026-01-31T20:37:07.527Z"
-    },
-    {
-      "id": "act-1769891827528",
-      "type": "status",
-      "action": "moved",
-      "agent": "--category=engineering",
-      "taskId": "task-1769891664697---category=engineering",
-      "taskTitle": "BUG: Work-loop routes to Data before peer review complete",
-      "from": "review",
-      "to": "review",
-      "timestamp": "2026-01-31T20:37:07.527Z"
-    },
-    {
-      "id": "act-1769891832038",
-      "type": "log",
-      "action": "logged",
-      "agent": "work-loop",
-      "taskId": "task-1769890286813-v56bhvlfc",
-      "taskTitle": "Tune Dashboard API Performance",
-      "message": "belanna peer reviewing task",
-      "timestamp": "2026-01-31T20:37:12.038Z"
-    },
-    {
-      "id": "act-1769891832128",
-      "type": "log",
-      "action": "logged",
-      "agent": "data",
-      "taskId": "task-1769890286813-v56bhvlfc",
-      "taskTitle": "Tune Dashboard API Performance",
-      "message": "QC Review (Data) #16: VERIFIED with findings.\n\nENDPOINT PERFORMANCE (live tests):\n✓ /api/tasks?compact=true: 11ms (PASS)\n✓ /api/system: 0.1ms (PASS)\n✓ /api/work-loop: 0.1ms (PASS)\n✗ /api/sessions: 1.7-9.3s (FAIL - consistently slow)\n\nISSUE FOUND: /api/sessions does NOT meet <100ms target. Even on warm cache, showing 1.7-9s response times. Logs claim 22000x improvement but real-world tests disagree.\n\nREQUIREMENTS (6):\n1. TTL caching: ✓ Implemented\n2. Batch I/O: ✓ Implemented\n3. Lazy loading: ✓ Compact mode works (55-56% reduction)\n4. Compression: ~ Partial\n5. Profile endpoints: ✓ Done\n6. Pagination: ✓ Working\n\nVERDICT: 5/6 requirements met. /api/sessions needs investigation.\n\nBLOCKED: peerReviewStatus='pending'. B'Elanna (peer reviewer) must complete review before Data QC can approve. Sequential protocol correctly enforced. B'Elanna has 5+ unread notifications.",
-      "timestamp": "2026-01-31T20:37:12.128Z"
     }
   ],
   "agents": {

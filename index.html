@@ -205,6 +205,22 @@
         .platform-badge.research { background: #FF9900; color: #000; }
         .platform-badge.qc { background: #00CED1; color: #000; }
         .platform-badge.review { background: #CC99CC; color: #000; }
+        
+        /* Model tier badges */
+        .model-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .model-badge.opus { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: #fff; }
+        .model-badge.codex { background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; }
+        .model-badge.minimax { background: linear-gradient(135deg, #3498db, #2980b9); color: #fff; }
 
         /* Expandable activity entries */
         .activity-entry { cursor: pointer; }
@@ -1124,7 +1140,7 @@
 
             getAgentStatus(key) {
                 // PRIORITY 1: Check work-loop active workers (most reliable source)
-                const workLoop = this.bridgeData?.workLoop;
+                const workLoop = this.workLoopData;
                 const activeWorkers = workLoop?.activeWorkers || {};
                 if (activeWorkers[key] && activeWorkers[key].taskId) {
                     // Agent is actively processing in work-loop
@@ -1264,12 +1280,18 @@
                         `<span class="platform-badge ${p}">${p}</span>`
                     ).join('');
                     
+                    // Model tier badge
+                    const modelBadge = agent.model ? `<span class="model-badge ${agent.model}">${agent.model}</span>` : '';
+                    
                     return `
                         <div class="bg-black/40 rounded-lcars-xs p-2.5 mb-2 border-l-4 cursor-pointer transition-all hover:bg-black/60 hover:translate-x-1" style="border-left-color: ${agent.color}" data-agent="${key}">
                             <div class="flex items-center justify-between mb-1.5">
                                 <div class="w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold text-black" style="background: ${agent.color}">${agent.department}</div>
                                 <div class="flex-1 ml-2">
-                                    <div class="text-xs font-bold text-lcars-gold">${agent.name}</div>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-xs font-bold text-lcars-gold">${agent.name}</span>
+                                        ${modelBadge}
+                                    </div>
                                     <div class="text-xs text-lcars-violet uppercase tracking-wider">${agent.role}</div>
                                 </div>
                                 <div class="px-1.5 py-0.5 rounded-md text-sm font-bold uppercase ${statusInfo.class}">${statusInfo.label}</div>
@@ -1797,7 +1819,9 @@
 
             formatTimeAgo(ts) {
                 if (!ts) return '--';
-                const date = new Date(ts);
+                // Sanitize malformed timestamps (e.g., double-Z suffix "ZZ")
+                const cleanTs = typeof ts === 'string' ? ts.replace(/Z+$/, 'Z') : ts;
+                const date = new Date(cleanTs);
                 const time = date.getTime();
                 if (isNaN(time)) return '--';
                 const diff = Date.now() - time;
@@ -1812,7 +1836,9 @@
 
             formatDuration(startedAt) {
                 if (!startedAt) return '--';
-                const date = new Date(startedAt);
+                // Sanitize malformed timestamps (e.g., double-Z suffix "ZZ")
+                const cleanTs = typeof startedAt === 'string' ? startedAt.replace(/Z+$/, 'Z') : startedAt;
+                const date = new Date(cleanTs);
                 const time = date.getTime();
                 if (isNaN(time)) return '--';
                 const diff = Math.floor((Date.now() - time) / 1000);
@@ -2183,7 +2209,9 @@
 
         function formatMessageTime(ts) {
             if (!ts) return '--';
-            const date = new Date(ts);
+            // Sanitize malformed timestamps (e.g., double-Z suffix "ZZ")
+            const cleanTs = typeof ts === 'string' ? ts.replace(/Z+$/, 'Z') : ts;
+            const date = new Date(cleanTs);
             const time = date.getTime();
             if (isNaN(time)) return '--';
             const diff = Date.now() - time;
