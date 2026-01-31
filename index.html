@@ -1263,31 +1263,51 @@
                 const totalBadge = document.getElementById('total-tasks-badge');
                 if (totalBadge) totalBadge.textContent = `${totalTasks} tasks`;
                 
-                let html = Object.entries(agents).map(([key, agent]) => {
-                    const status = this.getAgentStatus(key);
-                    const taskCount = this.getAgentTaskCount(key);
-                    
-                    // Compact status
-                    const statusConfig = {
-                        thinking: { label: '●', class: 'text-lcars-sky', title: 'Thinking' },
-                        building: { label: '●', class: 'text-green-400', title: 'Building' },
-                        researching: { label: '●', class: 'text-lcars-orange', title: 'Researching' },
-                        reviewing: { label: '●', class: 'text-lcars-violet', title: 'Reviewing' },
-                        waiting: { label: '○', class: 'text-lcars-peach', title: 'Waiting' },
-                        idle: { label: '○', class: 'text-gray-500', title: 'Idle' },
-                        offline: { label: '○', class: 'text-gray-700', title: 'Offline' }
-                    };
-                    const statusInfo = statusConfig[status] || statusConfig.idle;
-                    
-                    // Model tier badge (compact)
-                    const modelBadge = agent.model ? `<span class="model-badge ${agent.model}">${agent.model[0].toUpperCase()}</span>` : '';
+                // Group agents by department
+                const deptOrder = ['CMD', 'ENG', 'COM', 'SCI', 'TRD', 'QC'];
+                const deptNames = { CMD: 'Command', ENG: 'Engineering', COM: 'Communications', SCI: 'Research', TRD: 'Trading', QC: 'Quality Control' };
+                const deptColors = { CMD: '#cc99cc', ENG: '#9999ff', COM: '#cc6699', SCI: '#99cc99', TRD: '#ffcc99', QC: '#ffd700' };
+                
+                const grouped = {};
+                Object.entries(agents).forEach(([key, agent]) => {
+                    const dept = agent.department || 'OTHER';
+                    if (!grouped[dept]) grouped[dept] = [];
+                    grouped[dept].push({ key, ...agent });
+                });
+                
+                // Status config
+                const statusConfig = {
+                    thinking: { label: '●', class: 'text-lcars-sky', title: 'Thinking' },
+                    building: { label: '●', class: 'text-green-400', title: 'Building' },
+                    researching: { label: '●', class: 'text-lcars-orange', title: 'Researching' },
+                    reviewing: { label: '●', class: 'text-lcars-violet', title: 'Reviewing' },
+                    waiting: { label: '○', class: 'text-lcars-peach', title: 'Waiting' },
+                    idle: { label: '○', class: 'text-gray-500', title: 'Idle' },
+                    offline: { label: '○', class: 'text-gray-700', title: 'Offline' }
+                };
+                
+                let html = deptOrder.filter(d => grouped[d]).map(dept => {
+                    const deptAgents = grouped[dept];
+                    const agentRows = deptAgents.map(agent => {
+                        const status = this.getAgentStatus(agent.key);
+                        const taskCount = this.getAgentTaskCount(agent.key);
+                        const statusInfo = statusConfig[status] || statusConfig.idle;
+                        const modelBadge = agent.model ? `<span class="model-badge ${agent.model}">${agent.model[0].toUpperCase()}</span>` : '';
+                        
+                        return `
+                            <div class="flex items-center gap-2 py-1 px-2 bg-black/20 rounded cursor-pointer hover:bg-black/40" data-agent="${agent.key}">
+                                <span class="${statusInfo.class}" title="${statusInfo.title}">${statusInfo.label}</span>
+                                <span class="text-xs text-lcars-gold flex-1 truncate">${agent.name.split(' ')[0]}</span>
+                                ${modelBadge}
+                                ${taskCount > 0 ? `<span class="text-xs text-lcars-sky">${taskCount}</span>` : ''}
+                            </div>
+                        `;
+                    }).join('');
                     
                     return `
-                        <div class="flex items-center gap-2 py-1.5 px-2 mb-1 bg-black/30 rounded cursor-pointer transition-all hover:bg-black/50 border-l-3" style="border-left: 3px solid ${agent.color}" data-agent="${key}">
-                            <span class="${statusInfo.class} text-lg" title="${statusInfo.title}">${statusInfo.label}</span>
-                            <span class="text-xs font-bold text-lcars-gold flex-1 truncate">${agent.name}</span>
-                            ${modelBadge}
-                            ${taskCount > 0 ? `<span class="text-xs text-lcars-sky">${taskCount}</span>` : ''}
+                        <div class="mb-2">
+                            <div class="text-xs font-bold uppercase tracking-wider px-1 py-0.5 mb-1" style="color: ${deptColors[dept]}">${deptNames[dept]}</div>
+                            <div class="space-y-0.5">${agentRows}</div>
                         </div>
                     `;
                 }).join('');
