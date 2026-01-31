@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * LCARS Bridge Dashboard v5 - Production Ready
+ * LCARS Bridge Dashboard v6 - Enhanced Visual Experience
  * Real-time WebSocket server for USS Enterprise bridge crew
  * 
  * Features:
@@ -9,6 +9,7 @@
  * - Email counts by label
  * - Git status and worktrees
  * - System metrics with network/Docker
+ * - Full session/agent introspection
  * - Robust error handling
  * - Logging and monitoring
  */
@@ -189,34 +190,56 @@ async function getSessions() {
   return [];
 }
 
-// Get email counts with label breakdown
+// Email counts cache
+let emailCountsCache = { 
+  data: { vanderveer: { total: 0, inbox: 0 }, settlemint: { total: 0, inbox: 0, labels: {} } },
+  lastUpdate: 0
+};
+
+// Get email counts with label breakdown (async, non-blocking)
 function getEmailCounts() {
+  // Return cached data to avoid blocking
+  // Background update if cache is stale (> 30 seconds)
+  const now = Date.now();
+  if (now - emailCountsCache.lastUpdate > 30000) {
+    // Start async update
+    updateEmailCountsAsync();
+  }
+  return emailCountsCache.data;
+}
+
+async function updateEmailCountsAsync() {
   const result = { 
     vanderveer: { total: 0, inbox: 0 }, 
     settlemint: { total: 0, inbox: 0, labels: {} }
   };
   
-  // vanderveer account
   try {
-    const vv = execSync(
-      'GOG_ACCOUNT=roderik@vanderveer.be gog gmail search "label:unread" 2>/dev/null | grep -E "^[0-9]" | wc -l', 
-      { encoding: 'utf-8', timeout: 8000 }
+    // Use exec with callback for non-blocking
+    exec('GOG_ACCOUNT=roderik@vanderveer.be gog gmail search "label:unread" 2>/dev/null | grep -E "^[0-9]" | wc -l', 
+      { timeout: 5000 }, 
+      (err, stdout) => {
+        if (!err && stdout) {
+          result.vanderveer.total = parseInt(stdout.trim()) || 0;
+          result.vanderveer.inbox = result.vanderveer.total;
+        }
+      }
     );
-    result.vanderveer.total = parseInt(vv.trim()) || 0;
-    result.vanderveer.inbox = result.vanderveer.total;
   } catch (e) {}
   
-  // settlemint account with label breakdown
   try {
-    const sm = execSync(
-      'GOG_ACCOUNT=roderik@settlemint.com gog gmail search "label:inbox label:unread" 2>/dev/null | grep -E "^[0-9]" | wc -l', 
-      { encoding: 'utf-8', timeout: 8000 }
+    exec('GOG_ACCOUNT=roderik@settlemint.com gog gmail search "label:inbox label:unread" 2>/dev/null | grep -E "^[0-9]" | wc -l',
+      { timeout: 5000 },
+      (err, stdout) => {
+        if (!err && stdout) {
+          result.settlemint.inbox = parseInt(stdout.trim()) || 0;
+          result.settlemint.total = result.settlemint.inbox;
+        }
+        // Update cache after both complete
+        emailCountsCache = { data: result, lastUpdate: Date.now() };
+      }
     );
-    result.settlemint.inbox = parseInt(sm.trim()) || 0;
-    result.settlemint.total = result.settlemint.inbox;
   } catch (e) {}
-  
-  return result;
 }
 
 // Analyze crew activity from sessions
@@ -407,6 +430,7 @@ async function gatherBridgeData() {
     timestamp: new Date().toISOString(),
     stardate: calculateStardate(),
     system: systemStats,
+    sessions: sessions, // Raw sessions for introspection panel
     crew: {
       seven: {
         status: totalRunning > 0 ? 'ACTIVE' : 'STANDBY',
@@ -627,7 +651,7 @@ if (existsSync(QUARK_PORTFOLIO)) {
 httpServer.listen(PORT, '0.0.0.0', () => {
   console.log(`
 ╔══════════════════════════════════════════════════════════════════╗
-║              LCARS BRIDGE DASHBOARD v5 - PRODUCTION              ║
+║         LCARS BRIDGE DASHBOARD v6 - ENHANCED EXPERIENCE          ║
 ╠══════════════════════════════════════════════════════════════════╣
 ║  Status:     ▓▓▓▓▓▓▓▓▓▓ ONLINE                                   ║
 ║  Port:       ${PORT}                                                 ║
@@ -642,6 +666,7 @@ httpServer.listen(PORT, '0.0.0.0', () => {
 ║  • Spock: Research sessions                                      ║
 ║  • Geordi: Git status & worktrees                                ║
 ║  • Seven: OpenClaw sessions & activity                           ║
+║  • Sessions: Full agent introspection                            ║
 ║  • System: CPU, Memory, Disk, Network, Docker                    ║
 ╚══════════════════════════════════════════════════════════════════╝
   `);

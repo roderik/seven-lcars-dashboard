@@ -1,0 +1,25 @@
+[Unit]
+Description=LCARS Bridge Dashboard
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=roderik
+Group=roderik
+WorkingDirectory=/home/roderik/.openclaw/dashboard
+ExecStart=/home/roderik/.openclaw/dashboard/start.sh
+ExecStartPost=/bin/bash -c 'for i in {1..30}; do if curl -sf http://localhost:4242/health > /dev/null 2>&1 || curl -sf http://localhost:4242/ > /dev/null 2>&1; then exit 0; fi; sleep 0.2; done; exit 1'
+Restart=always
+RestartSec=5
+
+# Environment
+Environment=NODE_ENV=production
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=lcars-dashboard
+
+[Install]
+WantedBy=multi-user.target

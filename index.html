@@ -7,8 +7,8 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖖</text></svg>">
     <style>
         /* ═══════════════════════════════════════════════════════════════
-           LCARS DESIGN SYSTEM v5 - Production Ready
-           Authentic Star Trek LCARS color palette and design language
+           LCARS DESIGN SYSTEM v6 - Enhanced Visual Experience
+           Authentic Star Trek LCARS with modern polish
            ═══════════════════════════════════════════════════════════════ */
         
         @import url('https://fonts.googleapis.com/css2?family=Antonio:wght@400;500;700&display=swap');
@@ -43,6 +43,12 @@
             --elbow-size: 40px;
             --border-radius: 25px;
             --gap: 12px;
+            
+            /* Glow effects */
+            --glow-orange: 0 0 10px rgba(255, 153, 0, 0.5);
+            --glow-purple: 0 0 10px rgba(204, 153, 204, 0.5);
+            --glow-blue: 0 0 10px rgba(153, 153, 255, 0.5);
+            --glow-green: 0 0 10px rgba(153, 204, 153, 0.5);
         }
 
         * {
@@ -59,6 +65,51 @@
             overflow-x: hidden;
         }
 
+        /* Starfield background */
+        .starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: var(--base-opacity); }
+            50% { opacity: 1; }
+        }
+
+        /* Scan line effect */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.1) 0px,
+                rgba(0, 0, 0, 0.1) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            opacity: 0.3;
+        }
+
         /* ═══════════════════════════════════════════════════════════════
            LCARS Frame Structure
            ═══════════════════════════════════════════════════════════════ */
@@ -69,6 +120,8 @@
             grid-template-rows: var(--header-height) 1fr auto;
             min-height: 100vh;
             gap: 0;
+            position: relative;
+            z-index: 1;
         }
 
         /* Header Bar */
@@ -91,6 +144,12 @@
             font-weight: 700;
             color: var(--lcars-bg);
             letter-spacing: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .header-elbow:hover {
+            filter: brightness(1.2);
+            box-shadow: var(--glow-orange);
         }
 
         .header-bar {
@@ -111,6 +170,11 @@
             color: var(--lcars-bg);
             text-transform: uppercase;
             letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .header-segment:hover {
+            filter: brightness(1.2);
         }
 
         .header-segment.purple { background: var(--lcars-purple); flex: 1; }
@@ -132,12 +196,87 @@
             letter-spacing: 4px;
             display: flex;
             align-items: center;
+            text-shadow: 0 0 20px rgba(255, 204, 102, 0.5);
         }
 
         .header-end {
             width: 60px;
             background: var(--lcars-orange);
             border-radius: 0 0 0 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-end::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Alert Ticker */
+        .alert-ticker {
+            grid-column: 1 / -1;
+            background: rgba(20, 20, 30, 0.9);
+            border-bottom: 2px solid var(--lcars-orange);
+            padding: 6px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 12px;
+            overflow: hidden;
+        }
+
+        .ticker-label {
+            background: var(--lcars-orange);
+            color: #000;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            flex-shrink: 0;
+        }
+
+        .ticker-content {
+            display: flex;
+            gap: 30px;
+            animation: scroll-ticker 30s linear infinite;
+        }
+
+        .ticker-content:hover {
+            animation-play-state: paused;
+        }
+
+        .ticker-item {
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ticker-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--status-active);
+        }
+
+        .ticker-dot.warning { background: var(--status-warning); }
+        .ticker-dot.alert { background: var(--status-alert); }
+
+        @keyframes scroll-ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
 
         /* Sidebar */
@@ -162,11 +301,33 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             cursor: pointer;
-            transition: filter 0.2s;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .sidebar-button:hover::before {
+            left: 100%;
         }
 
         .sidebar-button:hover {
             filter: brightness(1.2);
+            transform: translateX(5px);
+        }
+
+        .sidebar-button.active {
+            box-shadow: var(--glow-orange);
         }
 
         .sidebar-button.purple { background: var(--lcars-purple); }
@@ -174,12 +335,39 @@
         .sidebar-button.green { background: var(--lcars-green); }
         .sidebar-button.orange { background: var(--lcars-orange); }
         .sidebar-button.sky { background: var(--lcars-sky); }
+        .sidebar-button.pink { background: var(--lcars-pink); }
+        .sidebar-button.gold { background: var(--lcars-gold); }
 
         .sidebar-spacer {
             flex: 1;
             background: var(--lcars-tan);
             border-radius: 0 var(--border-radius) var(--border-radius) 0;
-            min-height: 100px;
+            min-height: 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated data stream in spacer */
+        .sidebar-spacer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 10px;
+            right: 10px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent 0px,
+                transparent 8px,
+                rgba(0,0,0,0.3) 8px,
+                rgba(0,0,0,0.3) 10px
+            );
+            animation: datastream 2s linear infinite;
+        }
+
+        @keyframes datastream {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(10px); }
         }
 
         .sidebar-elbow-bottom {
@@ -231,6 +419,11 @@
             font-size: 14px;
             font-weight: 500;
             color: var(--lcars-bg);
+            transition: all 0.3s ease;
+        }
+
+        .footer-segment:hover {
+            filter: brightness(1.2);
         }
 
         .footer-segment.purple { background: var(--lcars-purple); flex: 1; border-radius: var(--border-radius) 0 0 0; }
@@ -239,12 +432,12 @@
         .footer-segment.peach { background: var(--lcars-peach); flex: 1; border-radius: 0 0 0 var(--border-radius); }
 
         /* ═══════════════════════════════════════════════════════════════
-           Crew Panels
+           Panel System - Enhanced
            ═══════════════════════════════════════════════════════════════ */
         
         .panels-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
             gap: var(--gap);
         }
 
@@ -254,6 +447,39 @@
             border-radius: var(--border-radius);
             overflow: hidden;
             position: relative;
+            animation: panelFadeIn 0.5s ease forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .crew-panel:nth-child(1) { animation-delay: 0.1s; }
+        .crew-panel:nth-child(2) { animation-delay: 0.2s; }
+        .crew-panel:nth-child(3) { animation-delay: 0.3s; }
+        .crew-panel:nth-child(4) { animation-delay: 0.4s; }
+        .crew-panel:nth-child(5) { animation-delay: 0.5s; }
+        .crew-panel:nth-child(6) { animation-delay: 0.6s; }
+        .crew-panel:nth-child(7) { animation-delay: 0.7s; }
+
+        @keyframes panelFadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .crew-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .crew-panel:hover {
+            box-shadow: 0 0 20px rgba(255, 153, 0, 0.2);
         }
 
         .panel-header {
@@ -273,6 +499,7 @@
             color: var(--lcars-bg);
             text-transform: uppercase;
             letter-spacing: 1px;
+            position: relative;
         }
 
         .panel-title-area {
@@ -298,20 +525,46 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
+            position: relative;
         }
 
-        .status-active { background: var(--status-active); color: #000; }
+        .status-active { 
+            background: var(--status-active); 
+            color: #000;
+            box-shadow: 0 0 10px rgba(153, 255, 153, 0.5);
+        }
         .status-standby { background: var(--lcars-violet); color: #000; }
         .status-monitoring { background: var(--lcars-sky); color: #000; }
-        .status-building { background: var(--lcars-blue); color: #000; }
-        .status-researching { background: var(--lcars-green); color: #000; }
-        .status-processing { background: var(--lcars-pink); color: #000; }
-        .status-trading { background: var(--status-warning); color: #000; animation: pulse 1s infinite; }
+        .status-building { 
+            background: var(--lcars-blue); 
+            color: #000;
+            animation: pulseGlow 2s infinite;
+        }
+        .status-researching { 
+            background: var(--lcars-green); 
+            color: #000;
+            animation: pulseGlow 2s infinite;
+        }
+        .status-processing { 
+            background: var(--lcars-pink); 
+            color: #000;
+            animation: pulseGlow 2s infinite;
+        }
+        .status-trading { 
+            background: var(--status-warning); 
+            color: #000; 
+            animation: pulse 1s infinite;
+        }
         .status-offline { background: var(--status-offline); color: #fff; }
 
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.6; }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 5px currentColor; }
+            50% { box-shadow: 0 0 15px currentColor; }
         }
 
         .panel-content {
@@ -329,6 +582,12 @@
             padding: 12px;
             border-radius: 8px;
             border-left: 3px solid var(--lcars-tan);
+            transition: all 0.3s ease;
+        }
+
+        .metric:hover {
+            background: rgba(0, 0, 0, 0.5);
+            transform: translateX(3px);
         }
 
         .metric-label {
@@ -342,10 +601,11 @@
         .metric-value {
             font-size: 24px;
             font-weight: 700;
+            transition: all 0.3s ease;
         }
 
-        .metric-value.positive { color: var(--status-active); }
-        .metric-value.negative { color: var(--status-alert); }
+        .metric-value.positive { color: var(--status-active); text-shadow: 0 0 10px rgba(153, 255, 153, 0.5); }
+        .metric-value.negative { color: var(--status-alert); text-shadow: 0 0 10px rgba(255, 102, 102, 0.5); }
 
         .metric-bar {
             height: 4px;
@@ -359,6 +619,23 @@
             height: 100%;
             border-radius: 2px;
             transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .metric-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: barShimmer 2s infinite;
+        }
+
+        @keyframes barShimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
 
         .fill-orange { background: var(--lcars-orange); }
@@ -367,6 +644,8 @@
         .fill-green { background: var(--lcars-green); }
         .fill-red { background: var(--status-alert); }
         .fill-gold { background: var(--lcars-gold); }
+        .fill-pink { background: var(--lcars-pink); }
+        .fill-sky { background: var(--lcars-sky); }
 
         /* Panel specific colors */
         .panel-seven { border-color: var(--lcars-purple); }
@@ -399,7 +678,117 @@
         .panel-system .panel-name { color: var(--lcars-sky); }
         .panel-system .metric { border-color: var(--lcars-sky); }
 
-        /* Sparkline Chart */
+        .panel-sessions { border-color: var(--lcars-orange); }
+        .panel-sessions .panel-color-bar { background: var(--lcars-orange); }
+        .panel-sessions .panel-name { color: var(--lcars-orange); }
+        .panel-sessions .metric { border-color: var(--lcars-orange); }
+
+        /* ═══════════════════════════════════════════════════════════════
+           Sessions Panel - Agent Introspection
+           ═══════════════════════════════════════════════════════════════ */
+        
+        .sessions-list {
+            grid-column: 1 / -1;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .session-item {
+            display: grid;
+            grid-template-columns: auto 1fr auto auto;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            margin-bottom: 6px;
+            border-left: 3px solid var(--lcars-orange);
+            transition: all 0.3s ease;
+        }
+
+        .session-item:hover {
+            background: rgba(0, 0, 0, 0.5);
+            transform: translateX(3px);
+        }
+
+        .session-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .session-indicator.running {
+            background: var(--status-active);
+            animation: pulseIndicator 1.5s infinite;
+        }
+
+        .session-indicator.idle {
+            background: var(--lcars-violet);
+        }
+
+        .session-indicator.stopped {
+            background: var(--status-offline);
+        }
+
+        @keyframes pulseIndicator {
+            0%, 100% { 
+                box-shadow: 0 0 0 0 rgba(153, 255, 153, 0.7); 
+            }
+            50% { 
+                box-shadow: 0 0 0 6px rgba(153, 255, 153, 0); 
+            }
+        }
+
+        .session-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .session-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--lcars-orange);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .session-meta {
+            font-size: 10px;
+            color: var(--lcars-gold);
+            display: flex;
+            gap: 10px;
+        }
+
+        .session-channel {
+            padding: 2px 8px;
+            background: rgba(255, 153, 0, 0.2);
+            border-radius: 4px;
+            font-size: 10px;
+            color: var(--lcars-orange);
+            text-transform: uppercase;
+        }
+
+        .session-duration {
+            font-size: 11px;
+            color: var(--lcars-sky);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .session-empty {
+            text-align: center;
+            padding: 30px;
+            color: var(--lcars-violet);
+            font-size: 14px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           Sparkline Chart
+           ═══════════════════════════════════════════════════════════════ */
+        
         .sparkline-container {
             grid-column: 1 / -1;
             height: 60px;
@@ -488,6 +877,12 @@
             border-radius: 6px;
             margin-bottom: 4px;
             font-size: 11px;
+            transition: all 0.3s ease;
+        }
+
+        .task-item:hover {
+            background: rgba(0, 0, 0, 0.5);
+            transform: translateX(3px);
         }
 
         .task-dot {
@@ -542,6 +937,11 @@
             padding: 10px;
             border-radius: 8px;
             text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .email-account:hover {
+            background: rgba(0, 0, 0, 0.5);
         }
 
         .email-account-name {
@@ -568,6 +968,11 @@
             padding: 10px;
             border-radius: 8px;
             text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .system-stat:hover {
+            background: rgba(0, 0, 0, 0.5);
         }
 
         .system-stat-label {
@@ -597,6 +1002,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            backdrop-filter: blur(10px);
         }
 
         .connection-dot {
@@ -684,7 +1090,49 @@
             font-weight: 700;
         }
 
+        /* Keyboard shortcuts tooltip */
+        .shortcuts-hint {
+            position: fixed;
+            bottom: 70px;
+            left: 20px;
+            padding: 8px 16px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--lcars-tan);
+            border-radius: 10px;
+            font-size: 10px;
+            color: var(--lcars-gold);
+            z-index: 100;
+            display: flex;
+            gap: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .shortcut {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .shortcut kbd {
+            background: var(--lcars-tan);
+            color: #000;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: inherit;
+            font-weight: 700;
+        }
+
         /* Responsive */
+        @media (max-width: 1200px) {
+            .panels-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+            
+            .shortcuts-hint {
+                display: none;
+            }
+        }
+
         @media (max-width: 1024px) {
             .lcars-frame {
                 grid-template-columns: 120px 1fr;
@@ -698,16 +1146,12 @@
                 font-size: 10px;
                 padding: 0 10px;
             }
-            
-            .panels-grid {
-                grid-template-columns: 1fr;
-            }
         }
 
         @media (max-width: 768px) {
             .lcars-frame {
                 grid-template-columns: 1fr;
-                grid-template-rows: auto 1fr auto;
+                grid-template-rows: auto auto 1fr auto;
             }
             
             .lcars-sidebar {
@@ -729,6 +1173,10 @@
             
             .system-row {
                 grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .alert-ticker {
+                display: none;
             }
         }
 
@@ -754,10 +1202,16 @@
     </style>
 </head>
 <body>
+    <!-- Starfield Background -->
+    <div class="starfield" id="starfield"></div>
+    
+    <!-- Scanlines Overlay -->
+    <div class="scanlines"></div>
+
     <div class="lcars-frame">
         <!-- Header -->
         <div class="lcars-header">
-            <div class="header-elbow">LCARS 47.5</div>
+            <div class="header-elbow">LCARS 47.6</div>
             <div class="header-bar">
                 <div class="header-segment purple" id="stardate">47085.2</div>
                 <div class="header-title">BRIDGE STATUS</div>
@@ -767,14 +1221,24 @@
             </div>
         </div>
 
+        <!-- Alert Ticker -->
+        <div class="alert-ticker">
+            <div class="ticker-label">Status</div>
+            <div class="ticker-content" id="ticker-content">
+                <div class="ticker-item"><span class="ticker-dot"></span> All systems nominal</div>
+                <div class="ticker-item"><span class="ticker-dot"></span> Dashboard v6 operational</div>
+            </div>
+        </div>
+
         <!-- Sidebar -->
         <div class="lcars-sidebar">
-            <div class="sidebar-button purple" onclick="scrollToPanel('seven')">SEVEN</div>
-            <div class="sidebar-button green" onclick="scrollToPanel('spock')">SPOCK</div>
-            <div class="sidebar-button blue" onclick="scrollToPanel('geordi')">GEORDI</div>
-            <div class="sidebar-button orange" onclick="scrollToPanel('uhura')">UHURA</div>
-            <div class="sidebar-button" onclick="scrollToPanel('quark')">QUARK</div>
-            <div class="sidebar-button sky" onclick="scrollToPanel('system')">SYSTEM</div>
+            <div class="sidebar-button purple" onclick="scrollToPanel('seven')" data-key="1">SEVEN</div>
+            <div class="sidebar-button green" onclick="scrollToPanel('spock')" data-key="2">SPOCK</div>
+            <div class="sidebar-button blue" onclick="scrollToPanel('geordi')" data-key="3">GEORDI</div>
+            <div class="sidebar-button pink" onclick="scrollToPanel('uhura')" data-key="4">UHURA</div>
+            <div class="sidebar-button gold" onclick="scrollToPanel('quark')" data-key="5">QUARK</div>
+            <div class="sidebar-button sky" onclick="scrollToPanel('system')" data-key="6">SYSTEM</div>
+            <div class="sidebar-button orange" onclick="scrollToPanel('sessions')" data-key="7">SESSIONS</div>
             <div class="sidebar-spacer"></div>
             <div class="sidebar-elbow-bottom"></div>
         </div>
@@ -1014,6 +1478,32 @@
                     </div>
                 </div>
 
+                <!-- Sessions Panel - Agent Introspection -->
+                <div class="crew-panel panel-sessions" id="panel-sessions">
+                    <div class="panel-header">
+                        <div class="panel-color-bar">AGT</div>
+                        <div class="panel-title-area">
+                            <div class="panel-name">Active Sessions</div>
+                            <div class="panel-status status-active" id="sessions-status">0 RUNNING</div>
+                        </div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="panel-metrics">
+                            <div class="metric">
+                                <div class="metric-label">Total Sessions</div>
+                                <div class="metric-value" id="sessions-total">0</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Running Now</div>
+                                <div class="metric-value" id="sessions-running">0</div>
+                            </div>
+                            <div class="sessions-list" id="sessions-list">
+                                <div class="session-empty">No active sessions</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -1022,7 +1512,7 @@
             <div class="footer-elbow" id="footer-clients">0 CLIENTS</div>
             <div class="footer-bar">
                 <div class="footer-segment purple" id="footer-status">INITIALIZING</div>
-                <div class="footer-segment blue" id="footer-version">v5.0</div>
+                <div class="footer-segment blue" id="footer-version">v6.0</div>
                 <div class="footer-segment orange" id="footer-update">Last Update: --:--:--</div>
                 <div class="footer-segment peach" id="footer-uptime">Uptime: --</div>
             </div>
@@ -1035,9 +1525,16 @@
         <span id="connection-text">DISCONNECTED</span>
     </div>
 
+    <!-- Keyboard Shortcuts Hint -->
+    <div class="shortcuts-hint">
+        <div class="shortcut"><kbd>1-7</kbd> Navigate panels</div>
+        <div class="shortcut"><kbd>R</kbd> Refresh</div>
+        <div class="shortcut"><kbd>T</kbd> Toggle scanlines</div>
+    </div>
+
     <script>
         // ═══════════════════════════════════════════════════════════════
-        // LCARS Bridge Dashboard v5 - Client
+        // LCARS Bridge Dashboard v6 - Enhanced Experience
         // ═══════════════════════════════════════════════════════════════
 
         class LCARSDashboard {
@@ -1048,9 +1545,61 @@
                 this.reconnectDelay = 1000;
                 this.data = null;
                 this.sparklineData = [];
+                this.rawSessions = [];
                 
+                this.initStarfield();
                 this.connect();
                 this.startClock();
+                this.setupKeyboardShortcuts();
+            }
+
+            initStarfield() {
+                const container = document.getElementById('starfield');
+                const numStars = 100;
+                
+                for (let i = 0; i < numStars; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.style.left = Math.random() * 100 + '%';
+                    star.style.top = Math.random() * 100 + '%';
+                    star.style.setProperty('--duration', (2 + Math.random() * 4) + 's');
+                    star.style.setProperty('--base-opacity', (0.2 + Math.random() * 0.5));
+                    container.appendChild(star);
+                }
+            }
+
+            setupKeyboardShortcuts() {
+                document.addEventListener('keydown', (e) => {
+                    // Ignore if typing in input
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+                    
+                    const panels = ['seven', 'spock', 'geordi', 'uhura', 'quark', 'system', 'sessions'];
+                    
+                    // Number keys 1-7 for panel navigation
+                    if (e.key >= '1' && e.key <= '7') {
+                        const index = parseInt(e.key) - 1;
+                        if (panels[index]) {
+                            scrollToPanel(panels[index]);
+                        }
+                    }
+                    
+                    // R for refresh
+                    if (e.key.toLowerCase() === 'r' && !e.ctrlKey && !e.metaKey) {
+                        this.requestRefresh();
+                    }
+                    
+                    // T for toggle scanlines
+                    if (e.key.toLowerCase() === 't') {
+                        const scanlines = document.querySelector('.scanlines');
+                        scanlines.style.display = scanlines.style.display === 'none' ? 'block' : 'none';
+                    }
+                });
+            }
+
+            requestRefresh() {
+                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                    this.ws.send(JSON.stringify({ type: 'refresh' }));
+                }
             }
 
             connect() {
@@ -1135,8 +1684,63 @@
             handleMessage(msg) {
                 if (msg.type === 'init' || msg.type === 'update' || msg.type === 'trade_update') {
                     this.data = msg.data;
+                    if (msg.data.sessions) {
+                        this.rawSessions = msg.data.sessions;
+                    }
                     this.render();
+                    this.updateTicker();
                 }
+            }
+
+            updateTicker() {
+                const ticker = document.getElementById('ticker-content');
+                const items = [];
+                
+                // Add relevant status items
+                if (this.data) {
+                    const { crew, system } = this.data;
+                    
+                    // Session status
+                    if (crew.seven?.runningSessions > 0) {
+                        items.push({ text: `${crew.seven.runningSessions} active session${crew.seven.runningSessions > 1 ? 's' : ''}`, type: 'active' });
+                    }
+                    
+                    // Email status
+                    const totalEmails = crew.uhura?.inbox?.total || 0;
+                    if (totalEmails > 0) {
+                        items.push({ text: `${totalEmails} unread email${totalEmails > 1 ? 's' : ''}`, type: totalEmails > 10 ? 'warning' : 'normal' });
+                    }
+                    
+                    // Trading status
+                    if (crew.quark?.pendingTrade) {
+                        items.push({ text: `Active trade: ${crew.quark.pendingTrade.direction}`, type: 'warning' });
+                    }
+                    
+                    // Git status
+                    if (crew.geordi?.totalModified > 0) {
+                        items.push({ text: `${crew.geordi.totalModified} uncommitted changes`, type: 'warning' });
+                    }
+                    
+                    // System health
+                    if (system?.cpuUsage > 80) {
+                        items.push({ text: `High CPU: ${system.cpuUsage.toFixed(1)}%`, type: 'alert' });
+                    }
+                    if (system?.memPercent > 85) {
+                        items.push({ text: `High memory: ${system.memPercent.toFixed(1)}%`, type: 'alert' });
+                    }
+                    
+                    // Default
+                    if (items.length === 0) {
+                        items.push({ text: 'All systems nominal', type: 'normal' });
+                    }
+                }
+                
+                // Build ticker HTML (duplicate for seamless scroll)
+                const html = items.map(item => 
+                    `<div class="ticker-item"><span class="ticker-dot ${item.type}"></span> ${item.text}</div>`
+                ).join('');
+                
+                ticker.innerHTML = html + html; // Duplicate for seamless scroll
             }
 
             render() {
@@ -1160,6 +1764,7 @@
                 this.renderUhura(crew.uhura);
                 this.renderQuark(crew.quark);
                 this.renderSystem(system);
+                this.renderSessions();
             }
 
             renderSeven(data) {
@@ -1304,11 +1909,31 @@
                 document.getElementById('sys-cpu').textContent = `${cpuUsage.toFixed(1)}%`;
                 document.getElementById('sys-cpu-bar').style.width = `${Math.min(100, cpuUsage)}%`;
                 
+                // Color code CPU bar based on usage
+                const cpuBar = document.getElementById('sys-cpu-bar');
+                if (cpuUsage > 80) {
+                    cpuBar.className = 'metric-fill fill-red';
+                } else if (cpuUsage > 60) {
+                    cpuBar.className = 'metric-fill fill-orange';
+                } else {
+                    cpuBar.className = 'metric-fill fill-blue';
+                }
+                
                 // Memory
                 const memPercent = data.memPercent || 0;
                 document.getElementById('sys-mem').textContent = 
                     `${memPercent.toFixed(1)}% (${data.memUsed || 0}/${data.memTotal || 0}MB)`;
                 document.getElementById('sys-mem-bar').style.width = `${memPercent}%`;
+                
+                // Color code memory bar
+                const memBar = document.getElementById('sys-mem-bar');
+                if (memPercent > 85) {
+                    memBar.className = 'metric-fill fill-red';
+                } else if (memPercent > 70) {
+                    memBar.className = 'metric-fill fill-orange';
+                } else {
+                    memBar.className = 'metric-fill fill-purple';
+                }
                 
                 // Disk
                 const diskPercent = data.diskPercent || 0;
@@ -1334,6 +1959,67 @@
                 
                 // Uptime in header
                 document.getElementById('uptime').textContent = data.uptime || '--';
+            }
+
+            renderSessions() {
+                const sessions = this.rawSessions || [];
+                const running = sessions.filter(s => s.status === 'running').length;
+                const total = sessions.length;
+                
+                document.getElementById('sessions-total').textContent = total;
+                document.getElementById('sessions-running').textContent = running;
+                
+                const statusEl = document.getElementById('sessions-status');
+                statusEl.textContent = `${running} RUNNING`;
+                statusEl.className = `panel-status ${running > 0 ? 'status-active' : 'status-standby'}`;
+                
+                const listEl = document.getElementById('sessions-list');
+                
+                if (sessions.length === 0) {
+                    listEl.innerHTML = '<div class="session-empty">No active sessions</div>';
+                    return;
+                }
+                
+                // Sort: running first, then by startedAt
+                const sorted = [...sessions].sort((a, b) => {
+                    if (a.status === 'running' && b.status !== 'running') return -1;
+                    if (b.status === 'running' && a.status !== 'running') return 1;
+                    return new Date(b.startedAt) - new Date(a.startedAt);
+                });
+                
+                listEl.innerHTML = sorted.slice(0, 10).map(session => {
+                    const duration = this.formatDuration(session.startedAt);
+                    const indicatorClass = session.status === 'running' ? 'running' : 
+                                          session.status === 'idle' ? 'idle' : 'stopped';
+                    
+                    return `
+                        <div class="session-item">
+                            <div class="session-indicator ${indicatorClass}"></div>
+                            <div class="session-info">
+                                <div class="session-label">${this.escapeHtml(session.label || 'unnamed')}</div>
+                                <div class="session-meta">
+                                    <span>${session.status}</span>
+                                    ${session.model ? `<span>• ${session.model.split('/').pop()}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="session-channel">${session.channel || 'cli'}</div>
+                            <div class="session-duration">${duration}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            formatDuration(startedAt) {
+                if (!startedAt) return '--';
+                
+                const start = new Date(startedAt);
+                const now = new Date();
+                const diff = Math.floor((now - start) / 1000);
+                
+                if (diff < 60) return `${diff}s`;
+                if (diff < 3600) return `${Math.floor(diff / 60)}m`;
+                if (diff < 86400) return `${Math.floor(diff / 3600)}h ${Math.floor((diff % 3600) / 60)}m`;
+                return `${Math.floor(diff / 86400)}d`;
             }
 
             drawSparkline(data, baseline) {
@@ -1410,6 +2096,14 @@
                 ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
                 ctx.fillStyle = lastValue >= baseline ? '#99ff99' : '#ff6666';
                 ctx.fill();
+                
+                // Add glow to the dot
+                ctx.shadowColor = lastValue >= baseline ? '#99ff99' : '#ff6666';
+                ctx.shadowBlur = 8;
+                ctx.beginPath();
+                ctx.arc(lastX, lastY, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
             }
 
             setStatus(elementId, status) {
@@ -1458,13 +2152,19 @@
             const panel = document.getElementById(`panel-${panelId}`);
             if (panel) {
                 panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                // Highlight effect
+                panel.style.boxShadow = '0 0 30px rgba(255, 153, 0, 0.5)';
+                setTimeout(() => {
+                    panel.style.boxShadow = '';
+                }, 1000);
             }
         }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             window.lcars = new LCARSDashboard();
-            console.log('[LCARS] Dashboard v5 initialized');
+            console.log('[LCARS] Dashboard v6 initialized');
         });
     </script>
 </body>
